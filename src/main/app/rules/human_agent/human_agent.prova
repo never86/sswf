@@ -1,0 +1,41 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% The Super Organizational Agent
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Import external rules/ContractLog libraries for
+% mathematical, lists and date / time computations
+% and access to external data sources, e.g.
+% Semantic Web ontologies, iCal Calendars etc.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+:-eval(consult('../ContractLog/math.prova')).
+:-eval(consult('../ContractLog/datetime.prova')).
+:-eval(consult('../ContractLog/list.prova')).
+:-eval(consult('../ContractLog/update.prova')).
+:-eval(consult('../ContractLog/utils.prova')).
+%:-eval(consult('calendar.prova')). % calendar API
+:-eval(consult('../ContractLog/owl.prova')).
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Performative vocabulary of organizational agent
+% More complex vocabularies (e.g. FIPA ACL) might be defined as Semantic Web ontologies	
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+performative(request):-performative(query).
+performative(query).
+
+performative(XID,Performative):-
+   performative(Performative).
+
+rcvMsg(XID,esb, "csw2012_ExceptionHandlingAgent", "inform", [X|Args]) :-
+	sendMsg(XID,esb,csw2012_HumanAgentServlet, "inform", [X|Args]).
+	
+	
+rcvMsg(XID,esb, From, "request", [X|Args]) :-
+	sendMsg(XID,esb,csw2012_HumanAgentServlet, "request", [X|Args]),
+	rcvMsg(XID,esb,csw2012_HumanAgentServlet, "answer", [X1|Args1]), 
+	sendMsg(XID, esb, From, "answer", [X1|Args1]).
+	
+	

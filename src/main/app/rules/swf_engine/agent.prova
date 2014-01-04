@@ -1,0 +1,86 @@
+% receive the event of finding available service for a specific task
+findAvaibleService(XID, TaskID, TaskName, Service) :-
+    de.fub.csw.util.StringUtil.test(TaskID),
+    findall(S1,getAvailableServices(TaskName, S1),Services),
+    de.fub.csw.TaskManagementCenter.registerServicesOfTask(TaskID,Services),
+    Size = Services.size(),
+    findOptimalService(XID, TaskName, TaskID, Services,Size, Service).
+
+getAvailableServices(TaskName, Service) :-
+    QueryString =  de.fub.csw.util.StringUtil.getServiceSPARQLQuery(TaskName),
+    sparql_select(QueryString,[service(FullService)]),
+    getLocalName(FullService, Service).
+    
+findOptimalService(XID, TaskName, TaskID, Services, 0, Service) :-
+    println(["NO AVAILABLE SERVICE TO TASK", TaskName, "(", TaskID, "). THE EXCEPTION IS FORWARED TO EXCEPTION HANDLING AGENT."]),
+    sendMsg(XID,esb, csw2012_ExceptionHandlingAgent, "request", noServiceAvailable(TaskID, TaskName)),
+    rcvMsg(XID, esb, csw2012_ExceptionHandlingAgent, "answer", [TaskID, Service]).
+    
+findOptimalService(XID, TaskName, TaskID, Services,Size, Service) :-
+    println([Services]),
+    println([Size," SERVICE(S) can be used to complete TASK:", TaskName, "."]),
+    notequ(Size,0),
+    Random = de.fub.csw.TaskAux.getRandomNumber(Size),
+    Service = Services.get(Random).
+    
+% receive the event of invoking service
+invokeService(XID, TaskID, Service) :-
+    QueryString =  de.fub.csw.util.StringUtil.getServiceTypeSPARQLQuery(Service),
+	sparql_select(QueryString,[serviceType(FullServiceType)]),
+	getLocalName(FullServiceType, ServiceType),
+	invoke(XID, Service, TaskID, ServiceType).
+    
+
+invoke(XID, Service, TaskID, "WebService") :-
+    QueryString =  de.fub.csw.util.StringUtil.getWebServiceParameters(Service),
+	sparql_select(QueryString,[wsdl(WsdlDocument),operation(Operation)]),
+	currentSystemTime(StartTime),
+	Output = de.fub.csw.TaskAux.dynamicInvokeService(TaskID, Operation, WsdlDocument),
+	println(["TASK:", TaskID," will be executed by a Web Service at:", WsdlDocument, "."]),
+	getResultSize(Output,Size),
+	isSuccessful(XID, TaskID, Service, "WebService", WsdlDocument, StartTime, Output, Size).
+	
+invoke(XID, Service, TaskID, "ProvaAgent") :-
+    QueryString =  de.fub.csw.util.StringUtil.getProvaAgentParameters(Service),
+	sparql_select(QueryString,[interface(Interface),address(Agent)]),
+	println(["TASK:", TaskID,"  will be executed by a PROVA AGENT:", Agent, "."]),
+	
+	currentSystemTime(StartTime),
+    ParaList = de.fub.csw.TaskAux.prepareProvaInput(Interface, TaskID),
+   
+	sendMsg(XID,esb,Agent, "query", ParaList),
+	println(["Sent message to the RPOVA AGENT:", Agent, "."]),
+	
+	rcvMsg(XID,esb,Agent,"answer", Result),
+	Output =  de.fub.csw.TaskAux.prepareProvaResult(ParaList,TaskID, Result),
+	getResultSize(Output, Size),
+	isSuccessful(XID, TaskID, Service, "ProvaAgent", Agent, StartTime, Output, Size).  
+	
+    
+isSuccessful(XID,TaskID, Service, ServiceType, Address, StartTime, Output, 1) :-
+    !,
+    println(["SERVICE:", Service, " is failed. The TASK is ", TaskID, "."]),
+    sendMsg(XID,esb,csw2012_ExceptionHandlingAgent, "request", failed(TaskID, Service)),
+    rcvMsg(XID,esb,csw2012_ExceptionHandlingAgent, "answer", [TaskID, Output1]),
+    sendMsg(XID, async, 0, "answer", [TaskID, Output1]).
+
+isSuccessful(XID,TaskID, Service, ServiceType, Address, StartTime, Output, Size) :-
+    notequ(Size,1),!,
+    % record the execution information
+    de.fub.csw.opm.ProvenanceRecording.serviceCompleted(XID,TaskID, Service, ServiceType, Address, StartTime, Output,"Agent_A1"),
+    sendMsg(XID, async, 0, "answer", [TaskID, Output]),
+    println(["TASK:", TaskID, " is completed."]).
+
+getResultSize(Output,S) :-
+    last(L, Output),
+    size(L,S).  
+    
+currentSystemTime(T) :-
+    D = java.util.Date(),
+    T = D.toLocaleString().
+    
+getLocalName(FullName, LocalName) :-
+    P = FullName.lastIndexOf("#"),
+    math_add1(P,1,P1),
+    LocalName = FullName.substring(P1).
+    

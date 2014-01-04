@@ -1,0 +1,91 @@
+digraph OPMGraph { rankdir="BT"; 
+wb_wcp01_Sequence [label="Workflow Started (wcp01_Sequence)",shape="polygon",sides="4"]
+eid0 [color="gray",fontcolor="black",label=<<TABLE cellpadding="0" border="0">
+	<TR>
+	    <TD align="left">started at:</TD>
+	    <TD align="left">Nov 3, 2013 8:59:52 PM</TD>
+	</TR>
+    </TABLE>>
+,shape="note"]
+eid0 -> wb_wcp01_Sequence [style="dashed",color="gray",arrowhead="none"]
+httpEndpoint_1_6cc9e [label="add(httpEndpoint_1_6cc9e)",shape="polygon",sides="4"]
+eid1 [color="gray",fontcolor="black",label=<<TABLE cellpadding="0" border="0">
+	<TR>
+	    <TD align="left">service id:</TD>
+	    <TD align="left">add415</TD>
+	</TR>
+	<TR>
+	    <TD align="left">type:</TD>
+	    <TD align="left">ProvaAgent</TD>
+	</TR>
+	<TR>
+	    <TD align="left">address:</TD>
+	    <TD align="left">Calculateagent</TD>
+	</TR>
+	<TR>
+	    <TD align="left">started at:</TD>
+	    <TD align="left">Nov 3, 2013 8:59:55 PM</TD>
+	</TR>
+	<TR>
+	    <TD align="left">completed at:</TD>
+	    <TD align="left">Nov 3, 2013 8:59:56 PM</TD>
+	</TR>
+    </TABLE>>
+,shape="note"]
+eid1 -> httpEndpoint_1_6cc9e [style="dashed",color="gray",arrowhead="none"]
+httpEndpoint_1_85837 [label="add(httpEndpoint_1_85837)",shape="polygon",sides="4"]
+eid2 [color="gray",fontcolor="black",label=<<TABLE cellpadding="0" border="0">
+	<TR>
+	    <TD align="left">service id:</TD>
+	    <TD align="left">add415</TD>
+	</TR>
+	<TR>
+	    <TD align="left">type:</TD>
+	    <TD align="left">ProvaAgent</TD>
+	</TR>
+	<TR>
+	    <TD align="left">address:</TD>
+	    <TD align="left">Calculateagent</TD>
+	</TR>
+	<TR>
+	    <TD align="left">started at:</TD>
+	    <TD align="left">Nov 3, 2013 8:59:57 PM</TD>
+	</TR>
+	<TR>
+	    <TD align="left">completed at:</TD>
+	    <TD align="left">Nov 3, 2013 8:59:57 PM</TD>
+	</TR>
+    </TABLE>>
+,shape="note"]
+eid2 -> httpEndpoint_1_85837 [style="dashed",color="gray",arrowhead="none"]
+we_wcp01_Sequence [label="Workflow Completed (wcp01_Sequence)",shape="polygon",sides="4"]
+eid3 [color="gray",fontcolor="black",label=<<TABLE cellpadding="0" border="0">
+	<TR>
+	    <TD align="left">completed at:</TD>
+	    <TD align="left">Nov 3, 2013 8:59:58 PM</TD>
+	</TR>
+    </TABLE>>
+,shape="note"]
+eid3 -> we_wcp01_Sequence [style="dashed",color="gray",arrowhead="none"]
+wb_wcp01_Sequence_i0 [label="2.3"]
+wb_wcp01_Sequence_i1 [label="7.7"]
+wb_wcp01_Sequence_i2 [label="3.4"]
+httpEndpoint_1_6cc9e_o0 [label="10.0"]
+httpEndpoint_1_85837_o0 [label="13.4"]
+workflow_engine [label="Semantic Workflow Engine",shape="polygon",sides="8"]
+Agent_A1 [label="Agent_A1",shape="polygon",sides="8"]
+wb_wcp01_Sequence -> workflow_engine [style="dotted",color="blue",label="(wasControlledBy)",fontcolor="blue",fontsize="8"]
+wb_wcp01_Sequence -> wb_wcp01_Sequence_i0 [style="filled",color="blue",label="(workflow_hasInput_0)",fontcolor="blue",fontsize="8"]
+wb_wcp01_Sequence -> wb_wcp01_Sequence_i1 [style="filled",color="blue",label="(workflow_hasInput_1)",fontcolor="blue",fontsize="8"]
+wb_wcp01_Sequence -> wb_wcp01_Sequence_i2 [style="filled",color="blue",label="(workflow_hasInput_2)",fontcolor="blue",fontsize="8"]
+httpEndpoint_1_6cc9e -> Agent_A1 [style="dotted",color="blue",label="(wasControlledBy)",fontcolor="blue",fontsize="8"]
+httpEndpoint_1_6cc9e -> wb_wcp01_Sequence_i0 [style="filled",color="blue",label="(hasInput_0)",fontcolor="blue",fontsize="8"]
+httpEndpoint_1_6cc9e -> wb_wcp01_Sequence_i1 [style="filled",color="blue",label="(hasInput_1)",fontcolor="blue",fontsize="8"]
+httpEndpoint_1_6cc9e_o0 -> httpEndpoint_1_6cc9e [style="filled",color="blue",label="(wasGeneratedBy_0)",fontcolor="blue",fontsize="8"]
+httpEndpoint_1_85837 -> Agent_A1 [style="dotted",color="blue",label="(wasControlledBy)",fontcolor="blue",fontsize="8"]
+httpEndpoint_1_85837 -> httpEndpoint_1_6cc9e_o0 [style="filled",color="blue",label="(hasInput_0)",fontcolor="blue",fontsize="8"]
+httpEndpoint_1_85837 -> wb_wcp01_Sequence_i2 [style="filled",color="blue",label="(hasInput_1)",fontcolor="blue",fontsize="8"]
+httpEndpoint_1_85837_o0 -> httpEndpoint_1_85837 [style="filled",color="blue",label="(wasGeneratedBy_0)",fontcolor="blue",fontsize="8"]
+we_wcp01_Sequence -> workflow_engine [style="dotted",color="blue",label="(wasControlledBy)",fontcolor="blue",fontsize="8"]
+we_wcp01_Sequence -> httpEndpoint_1_85837_o0 [style="filled",color="blue",label="(usedAsWorkflowOutput_0)",fontcolor="blue",fontsize="8"]
+}

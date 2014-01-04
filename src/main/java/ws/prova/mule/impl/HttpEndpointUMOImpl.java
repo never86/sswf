@@ -1,0 +1,240 @@
+package ws.prova.mule.impl;
+
+import java.net.URLDecoder;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.dom4j.DocumentHelper;
+import org.dom4j.Element;
+import org.mule.api.MuleEventContext;
+import org.mule.api.MuleMessage;
+import org.mule.api.client.MuleClient;
+import org.mule.api.construct.FlowConstruct;
+import org.mule.api.construct.FlowConstructAware;
+import org.mule.api.endpoint.EndpointBuilder;
+import org.mule.api.endpoint.MalformedEndpointException;
+import org.mule.api.lifecycle.Callable;
+import org.mule.api.lifecycle.Initialisable;
+import org.mule.api.lifecycle.InitialisationException;
+import org.mule.api.lifecycle.RecoverableException;
+import org.mule.api.registry.MuleRegistry;
+import org.mule.client.DefaultLocalMuleClient;
+import org.mule.component.simple.LogComponent;
+import org.mule.construct.Flow;
+import org.mule.endpoint.DefaultInboundEndpoint;
+import org.mule.transport.service.DefaultTransportServiceDescriptor;
+
+import ws.prova.api2.ProvaCommunicator;
+import ws.prova.api2.ProvaCommunicatorImpl;
+import ws.prova.esb2.ProvaAgent;
+import ws.prova.kernel2.ProvaConstant;
+import ws.prova.kernel2.ProvaList;
+import ws.prova.kernel2.ProvaObject;
+import ws.prova.reference2.ProvaConstantImpl;
+import ws.prova.reference2.ProvaListImpl;
+import de.fub.csw.constant.StringConstants;
+
+public class HttpEndpointUMOImpl extends LogComponent implements Initialisable,
+		Callable, FlowConstructAware, ProvaAgent {
+
+	protected static transient Log logger = LogFactory
+			.getLog(HttpEndpointUMOImpl.class);
+
+	private String agentName;
+	private FlowConstruct fc;
+	private ProvaCommunicator comm;
+	private String tmpAgent;
+	String req_content = "";
+
+	protected static ConcurrentMap<String, ProvaCommunicator> communicators = new ConcurrentHashMap<String, ProvaCommunicator>();
+
+	/**
+	 * Called once to set up this Prova message object
+	 */
+	public void initialise() throws InitialisationException,
+			RecoverableException {
+		String rulebase = "";
+		DefaultInboundEndpoint inboundEndpoint = (DefaultInboundEndpoint) ((Flow) fc)
+				.getMessageSource();
+		if (inboundEndpoint.getProperties() != null) {
+			if (inboundEndpoint.getProperties().containsKey("rulebase"))
+				rulebase = (String) inboundEndpoint.getProperties().get(
+						"rulebase");
+		}
+		agentName = inboundEndpoint.getName();
+
+		if (communicators.containsKey(agentName)) {
+			comm = communicators.get(agentName);
+			return;
+		}
+
+		try {
+			comm = new ProvaCommunicatorImpl(agentName, null, rulebase,
+					ProvaCommunicatorImpl.ASYNC, this, null);
+			communicators.put(agentName, comm);
+		} catch (Exception ex) {
+			logger.error("Can not initialize Prova communicator");
+			ex.printStackTrace();
+		}
+
+		StringConstants.appDir = fc.getMuleContext().getRegistry()
+				.get("app.home");
+	}
+
+	/**
+	 * Process an inbound message that arrives on this endpoint
+	 */
+	public Object onCall(MuleEventContext context) throws Exception {
+		MuleMessage inbound = context.getMessage();
+
+		String incomingHttpMsg = "";
+		ProvaList incomingProvaMsg = null;
+		try {
+			// translate incoming String to Prova message
+			incomingHttpMsg = URLDecoder.decode(inbound.getPayloadAsString(),
+					inbound.getEncoding());
+			int pos = incomingHttpMsg.indexOf("payload=");
+			if (pos != -1) {
+				// the message is from user, i.e., the request
+				req_content = incomingHttpMsg.substring(pos + 8);
+				incomingProvaMsg = (ProvaList) new RuleMLIDL2ProvaList()
+						.transform(req_content);
+			} else {
+				// the message is from other Prova agent, i.e., the answer
+				req_content = incomingHttpMsg;
+				incomingProvaMsg = (ProvaList) new String2ProvaList()
+						.transform(req_content);
+			}
+
+		} catch (Exception ex) {
+			logger.error("Translation of message into Prova message failed: "
+					+ req_content);
+			return "Translation of the following request into Prova message failed:\n\n"
+					+ req_content;
+		}
+
+		logger.info("AGENT:" + getAgentName() + " received the message:"
+				+ incomingProvaMsg);
+		System.out.println("AGENT:" + getAgentName() + " received the message:"
+				+ incomingProvaMsg);
+
+		// the message is from Prova agent, i.e., the answer
+		if (!incomingProvaMsg.performative().equals("query-sync")) {
+			// Add the message to the asynchronous Prova Communicator queue
+			comm.addMsg(incomingProvaMsg);
+			context.setStopFurtherProcessing(true);
+			return null;
+		} else {// the message is from user, i.e., the request
+			// register the temporary UMO which acts as user
+			tmpAgent = System.currentTimeMillis() + "";
+			incomingProvaMsg.getFixed()[2] = ProvaConstantImpl.create(tmpAgent);
+			try {
+				MuleRegistry helper = fc.getMuleContext().getRegistry();
+				EndpointBuilder builder = new DefaultTransportServiceDescriptor(
+						tmpAgent, new Properties(), null)
+						.createEndpointBuilder("jms://topic:" + tmpAgent);
+				helper.registerEndpointBuilder(tmpAgent, builder);
+			} catch (Exception e) {
+				e.printStackTrace();
+				context.setStopFurtherProcessing(true);
+				return e.toString()
+						+ " The user '"
+						+ tmpAgent
+						+ "'is already registered. Please use another user name as sender address."; // return
+			}
+			// Add the message to the asynchronous Prova Communicator queue
+			comm.addMsg(incomingProvaMsg);
+			context.setStopFurtherProcessing(true);
+			// collect synchronously all answers
+			MuleMessage m = null;
+			String answer = "";
+			int i = 0;
+			MuleClient client = new DefaultLocalMuleClient(fc.getMuleContext());
+			int timeout = 1000000; // default timeout of receiving workflow results
+			do {
+				m = client.request("jms://topic:" + tmpAgent, timeout);
+				if (m != null) {
+					if (m.getPayloadAsString().indexOf("no_further_answers") != -1) {
+						timeout = 10;
+						continue;
+					}
+					String payload = (String) new ProvaList2HTML(req_content).transform(m.getPayload());
+					answer = answer + payload;
+					if (i > 0)
+						i--;
+				} else
+					i++;
+			} while (i < 2); // terminate if no further answers are received
+
+			// unregister temp UMO
+			try {
+				fc.getMuleContext().getRegistry().unregisterEndpoint(tmpAgent);
+			} catch (Exception exx) {
+				logger.error("Can not unregister synchronous UMO for "
+						+ tmpAgent);
+				logger.error(exx);
+				return exx.toString();
+			}
+			return answer;
+		}
+	}
+
+	
+	
+
+	public String getAgentName() {
+		return agentName;
+	}
+
+	// this method is invoked when the 'sendMsg' primitive is executed
+	public void send(String receiver, ProvaList provaList) throws Exception {
+		try {
+			MuleClient client = new DefaultLocalMuleClient(fc.getMuleContext());
+			client.dispatch(receiver, provaList, null);
+			logger.info("AGENT:" + getAgentName() + " forwards " + provaList
+					+ " To:" + receiver);
+
+		} catch (MalformedEndpointException e) {
+			// forwards the exception to the requester
+			if (provaList.getFixed()[3].toString().equalsIgnoreCase("start")) {
+				ProvaConstant receiverAgent = ProvaConstantImpl
+						.create(receiver);
+				provaList.getFixed()[3] = ProvaConstantImpl.create("answer");
+
+				ProvaObject[] payloads = ((ProvaList) provaList.getFixed()[4])
+						.getFixed();
+				ProvaObject[] newObjects = new ProvaObject[payloads.length];
+				newObjects[0] = ProvaConstantImpl.create("unavailableAgent");
+				newObjects[1] = payloads[0];
+				newObjects[2] = payloads[1];
+				newObjects[3] = receiverAgent;
+
+				provaList.getFixed()[4] = ProvaListImpl.create(newObjects);
+				comm.addMsg(provaList);
+			} else
+				e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	@Override
+	public void receive(ProvaList arg0) throws Exception {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void setFlowConstruct(FlowConstruct flowConstruct) {
+		this.fc = flowConstruct;
+	}
+
+}

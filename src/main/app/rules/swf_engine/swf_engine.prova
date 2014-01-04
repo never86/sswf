@@ -1,0 +1,229 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% The Super Organizational Agent
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Import external rules/ContractLog libraries for
+% mathematical, lists and date / time computations
+% and access to external data sources, e.g.
+% Semantic Web ontologies, iCal Calendars etc.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+:-eval(consult('../ContractLog/math.prova')).
+:-eval(consult('../ContractLog/datetime.prova')).
+:-eval(consult('../ContractLog/list.prova')).
+:-eval(consult('../ContractLog/update.prova')).
+:-eval(consult('../ContractLog/utils.prova')).
+%:-eval(consult('calendar.prova')). % calendar API
+:-eval(consult('engine.prova')).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Performative vocabulary of organizational agent
+% More complex vocabularies (e.g. FIPA ACL) might be defined as Semantic Web ontologies	
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+performative(request):-performative(query).
+performative(query).
+
+performative(XID,Performative):-
+     performative(Performative).
+
+rcvMsg(XID,Protocol, From, Performative, [X|Args]) :-
+	  understandPerformative(XID, From, Performative, [X|Args]),
+	  processMessage(XID, From, Performative, [X|Args]).
+		
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% rules for processing the message
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%	
+	
+% try to understand the performative of the message
+understandPerformative(XID, From, "answer", PayLoad) :- !, fail().
+understandPerformative(XID, From, "end_of_transmission", PayLoad) :- !, fail().
+understandPerformative(XID, From, "no_further_answers", PayLoad) :- !,fail().  	
+understandPerformative(XID, From, Performative, PayLoad) :-
+	  performative(Performative).
+understandPerformative(XID, From, Performative, PayLoad) :-
+	  not(performative(Performative)),
+	  sendMsg(XID,esb,From,"answer", notUnderstood("performative",Performative)),
+	  sendMsg(XID,esb,From,"no_further_answers", PayLoad),
+	  fail().
+
+processMessage(XID,From,Primitive, [WorkflowName, Inputs, Outputs]):-
+     println(["The WORKFLOW:", WorkflowName, " is started."]),
+     % record the workflow inputs
+     de.fub.csw.opm.ProvenanceRecording.workflowStarted(XID,WorkflowName, Inputs),
+     % register the workflow
+     de.fub.csw.TaskManagementCenter.registerWorkflow(XID, WorkflowName),
+     % start a workflow
+     workflow(XID, WorkflowName, Inputs, Outputs),
+   
+     % waiting for outputs of workflows
+     rcvMsg(XID, Protocol, 0, "answer", complete(WorkflowName, Outputs)),
+     
+   
+     % send workflow outputs to user client   
+     sendMsg(XID,esb,From, "answer", [WorkflowName,Inputs,Outputs]),
+     sendMsg(XID,esb,From,no_further_answers, workflow(WorkflowName)),
+     println(["The WORKFLOW:", WorkflowName, " is completed."]),
+   
+     % record the workflow outputs
+     de.fub.csw.opm.ProvenanceRecording.workflowCompleted(XID, WorkflowName, Outputs),
+     % unregister the workflow
+     de.fub.csw.TaskManagementCenter.cleanWorkflow(XID, WorkflowName),
+     % create OPM graph of provenance information dynamically
+     de.fub.csw.opm.OpenProvenanceModel.createOPMGraph(XID, WorkflowName).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+workflow(XID, "wcp02_Parallel_Split_wcp03_Synchronization", inArgs(I11,I12), outArgs(O1, O2)) :-
+     branch(XID, I11, I12).
+     
+branch(XID, I11, I12) :-
+     assignTaskID(XID, TID1),
+     sendMsg(XID, async, 0, "request", executeTask('add', TID1, inArgs(I11,100),outArgs(O11))),
+     @group(g1)
+     rcvMsg(XID, async, 0, "answer", [TID1, inArgs(I11,100),outArgs(O11)]). 
+     
+branch(XID, I11, I12) :-
+     assignTaskID(XID, TID2),
+     sendMsg(XID, async, 0, "request", executeTask('multiply', TID2, inArgs(I12,200),outArgs(O21))),
+     @group(g1)
+     rcvMsg(XID, async, 0, "answer", [TID2, inArgs(I12,200),outArgs(O21)]).     
+
+branch(XID, I11, I12) :-
+     @and(g1)
+     rcvMsg(XID,Protocol,From,and,Events),
+     findall(O1,processReactionGroupResults(Events, O1), Outputs),
+     Outputs1 = de.fub.csw.TaskAux.prepareReactionGroupResults(Outputs),
+     sendMsg(XID, async, 0, "answer", complete("wcp02_Parallel_Split_wcp03_Synchronization", Outputs1)).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+     
+workflow(XID, "wcp09_Structured_Discriminator", inArgs(I11,I12), outArgs(WorkflowOutput)) :-
+     branch1(XID, I11, I12).
+     
+branch1(XID, I11, I12) :-
+     assignTaskID(XID, TID1),
+     sendMsg(XID, async, 0, "request", executeTask('add', TID1, inArgs(I11,100),outArgs(O11))),
+     @group(g1)
+     rcvMsg(XID, async, 0, "answer", [TID1, inArgs(I11,100),outArgs(O11)]). 
+     
+branch1(XID, I11, I12) :-
+     assignTaskID(XID, TID2),
+     sendMsg(XID, async, 0, "request", executeTask('add', TID2, inArgs(I12,200),outArgs(O21))),
+     @group(g1)
+     rcvMsg(XID, async, 0, "answer", [TID2, inArgs(I12,200),outArgs(O21)]).
+     
+
+branch1(XID, I11, I12) :-
+     @or(g1)
+     rcvMsg(XID,Protocol,From,or,Events),
+     findall(O1,processReactionGroupResults(Events, O1), Outputs),
+     Outputs1 = de.fub.csw.TaskAux.prepareReactionGroupResults(Outputs),
+     sendMsg(XID, async, 0, "answer", complete("wcp09_Structured_Discriminator", Outputs1)).
+     
+processReactionGroupResults(Events, Output):-
+     head(H1, Events),
+     element(Event, H1),
+     retrieveOutput(Event, Output). 
+         
+retrieveOutput([XID, Protocol, Sender, Performative, [TaskID, [inArgs|Inputs], [outArgs|Outputs]]], Outputs).  
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%      
+
+workflow(XID, "wcp04_ExclusiveChoice", inArgs(I11,I12), outArgs(WorkflowOutput)) :-
+     assignTaskID(XID, TID1),
+     sendMsg(XID, async, 0, "request", executeTask('add', TID1, inArgs(I11,I12),outArgs(O11))),
+     rcvMsg(XID, async, 0, "answer", [TID1, inArgs(I11,I12),outArgs(O11)]),
+     
+     or(XID, O11, WorkflowOutput),
+     
+     sendMsg(XID, async, 0, "answer", complete("wcp04_ExclusiveChoice", outArgs(WorkflowOutput))).
+ 
+or(XID, Para, Output):-    
+     more(Para,11),!,
+     assignTaskID(XID, TID),
+     sendMsg(XID, async, 0, "request", executeTask('minus', TID, inArgs(Para, 100),outArgs(Output))),
+     rcvMsg(XID, async, 0, "answer", [TID, inArgs(Para, 100), outArgs(Output)]).
+
+or(XID, Para, Output):-
+     lessequ(Para,11),!,
+     assignTaskID(XID, TID),
+     sendMsg(XID, async, 0, "request", executeTask('add', TID, inArgs(Para, 100), outArgs(Output))),
+     rcvMsg(XID, async, 0, "answer", [TID, inArgs(Para, 100),outArgs(Output)]).
+     
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+workflow(XID, "wcp01_Sequence", inArgs(I11,I12, I22), outArgs(WorkflowOutput)) :-
+     assignTaskID(XID, TID1),
+     sendMsg(XID, async, 0, "request", executeTask('add', TID1, inArgs(I11,I12),outArgs(T))),
+     rcvMsg(XID, async, From1, "answer", [TID1, inArgs(I11,I12),outArgs(T)]),
+     
+     assignTaskID(XID, TID2),
+     sendMsg(XID, async, 0, "request", executeTask('add', TID2, inArgs(T, I22),outArgs(O21))),
+     rcvMsg(XID, async, 0, "answer", [TID2, inArgs(T, I22),outArgs(WorkflowOutput)]),
+     
+     sendMsg(XID, async, 0, "answer", complete("wcp01_Sequence", outArgs(WorkflowOutput))).
+     
+workflow(XID, "wcp01_Sequence1", inArgs(I11,I12, I22), outArgs(WorkflowOutput)) :-
+     sendMsg(XID, async, 0, "answer", complete("wcp01_Sequence1", outArgs(200))).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%     
+workflow(XID, "consumingWS", inArgs(I11,I12), outArgs(Output)) :-
+     sendMsg(XID, esb, wsJmsEndpoint, "request", inArgs(I11,I12)),
+     rcvMsg(XID, esb, From, "answer", outArgs(Output)),
+     println([":EEEEEEEEEEEEEEEEEE:",Output]),
+     sendMsg(XID, async, 0, "answer", complete("consumingWS", outArgs(Output))).
+     
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+     
+workflow(XID, "nestedWorkflow", inArgs(I11,I12), outArgs(WorkflowOutput)) :-
+     assignTaskID(XID, TID),
+     sendMsg(XID, async, 0, "request", executeTask('minus', TID, inArgs(I11,I12),outArgs(O11))),
+     rcvMsg(XID, async, 0, "answer", [TID, inArgs(I11,I12),outArgs(O11)]),
+     
+     % invoke an existing workflow
+     sendMsg(XID, esb, semantic_SWF_Engine, "query", ["wcp04_ExclusiveChoice", inArgs(O11,200), outArgs(WO1)]),
+     rcvMsg(XID, esb, semantic_SWF_Engine, "answer", ["wcp04_ExclusiveChoice", inArgs(O11,200), outArgs(WorkflowOutput)]),
+     
+     sendMsg(XID, async, 0, "answer", complete("nestedWorkflow", outArgs(WorkflowOutput))).
+     
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+workflow(XID, "wcp01_Sequence_test", inArgs(I11,I12, I22), outArgs(WorkflowOutput)) :-
+     assignTaskID(XID, TID1),
+     sendMsg(XID, async, 0, "request", executeTask('minus', TID1, inArgs(I11,I12),outArgs(O11))),
+     rcvMsg(XID, async, 0, "answer", [TID1, inArgs(I11,I12),outArgs(O11)]),
+     
+     assignTaskID(XID, TID2),
+     sendMsg(XID, async, 0, "request", executeTask('minus', TID2, inArgs(O11, I22),outArgs(O21))),
+     rcvMsg(XID, async, 0, "answer", [TID2, inArgs(O11, I22),outArgs(WorkflowOutput)]),
+     
+     sendMsg(XID, async, 0, "answer", complete("wcp01_Sequence_test", outArgs(WorkflowOutput))).
+     
+     
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+workflow(XID, "human_interaction", inArgs(I11,I12), outArgs(WorkflowOutput)) :-
+     assignTaskID(XID, TID1),
+     sendMsg(XID, async, 0, "request", executeTask('add', TID1, inArgs(I11,I12),outArgs(O11))),
+     rcvMsg(XID, async, 0, "answer", [TID1, inArgs(I11,I12),outArgs(O11)]),
+     
+     sendMsg(XID, esb, csw2012_HumanAgent, "request", assign("human_interaction", value(Var))),
+     rcvMsg(XID, esb, csw2012_HumanAgent, "answer", value(Var)),
+     
+     
+     assignTaskID(XID, TID2),
+     sendMsg(XID, async, 0, "request", executeTask('minus', TID2, inArgs(Var, O11),outArgs(O21))),
+     rcvMsg(XID, async, 0, "answer", [TID2, inArgs(Var, O11),outArgs(WorkflowOutput)]),
+     
+     sendMsg(XID, async, 0, "answer", complete("human_interaction", outArgs(WorkflowOutput))).
+     
+workflow(XID, "human_interaction1", inArgs(I11,I12), outArgs(WorkflowOutput)) :-
+     assignTaskID(XID, TID1),
+     sendMsg(XID, async, agent1, "request", add(1,2)),
+     rcvMsg(XID, async, 0, "answer", Result),
+     
+     sendMsg(XID, async, 0, "answer", complete("human_interaction1", outArgs(Result))).
+     

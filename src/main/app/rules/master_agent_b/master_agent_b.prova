@@ -1,0 +1,203 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% The Super Organizational Agent
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Import external rules/ContractLog libraries for
+% mathematical, lists and date / time computations
+% and access to external data sources, e.g.
+% Semantic Web ontologies, iCal Calendars etc.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+:-eval(consult('../ContractLog/math.prova')).
+:-eval(consult('../ContractLog/datetime.prova')).
+:-eval(consult('../ContractLog/list.prova')).
+:-eval(consult('../ContractLog/update.prova')).
+:-eval(consult('../ContractLog/utils.prova')).
+%:-eval(consult('calendar.prova')). % calendar API
+:-eval(consult('../ContractLog/owl.prova')).
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Performative vocabulary of organizational agent
+% More complex vocabularies (e.g. FIPA ACL) might be defined as Semantic Web ontologies	
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+performative(request):-performative(query).
+performative(start).
+
+performative(isMatchRequest).
+
+performative(XID,Performative):-
+   performative(Performative).
+
+rcvMsg(XID,esb, From, "start", [TaskName|ParaList]) :-
+	understandPerformative(XID, From, "start", [TaskName|ParaList]),
+	processMessage(XID, From, "start", [TaskName|ParaList]).
+rcvMsg(XID,esb, From, "start", [TaskName|ParaList]) :-
+	understandPerformative(XID, From, "start", [TaskName|ParaList]),
+	rcvMsg(XID,esb,Agent,no_further_answers, Payload),
+	sendMsg(XID,esb,From,no_further_answers,[TaskName|ParaList]),
+	println(["--------------------------------------------"]), 
+	println(["                 COMPLETE                   "]), 
+	println(["--------------------------------------------"]).
+		
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% rules for processing the message
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%	
+	
+% try to understand the performative of the message
+understandPerformative(XID, From, "answer", PayLoad) :- !, fail().
+understandPerformative(XID, From, "end_of_transmission", PayLoad) :- !, fail().
+understandPerformative(XID, From, "no_further_answers", PayLoad) :- !,fail().  	
+understandPerformative(XID, From, Performative, PayLoad) :-
+	performative(Performative).
+understandPerformative(XID, From, Performative, PayLoad) :-
+	not(performative(Performative)),
+	sendMsg(XID,esb,From,"answer", notUnderstood("performative",Performative)),
+	sendMsg(XID,esb,From,"no_further_answers", PayLoad),
+	fail().
+	
+:- eval(lock_manager_init()).
+
+lock_manager_init() :-
+	$PLock=java.util.concurrent.ConcurrentHashMap().
+	
+processMessage(XID,From,Primitive,[TaskName, TaskID, [inArgs|InList],[outArgs|OutList]]):-
+     % send a message to start the task
+     $PLock.put(TaskID,From),
+     sendMsg(XID,self,0,startTask,[TaskID, TaskName]).
+     
+rcvMsg(XID,self,0,startTask, [TaskID, TaskName]) :-
+     % send a message to trigger the event of "find available service"
+     sendMsg(XID,self,0,findAvaibleServiceRequest, [TaskID, TaskName]).
+     
+rcvMsg(XID,self,0,findAvaibleServiceReply,[TaskID, Service]) :-
+     println(["SERVICE:", Service, " is selected to executed TASK:", TaskID, "."]),
+     sendMsg(XID,self,0,isMatchRequest,[TaskID, Service]).
+     
+rcvMsg(XID,self,0,isMatchReply,[Service, TaskID]) :-
+     println(["The TASK:", TaskID, " specification is matched with the description of SERVICE:", Service, "."]),
+     
+     de.fub.csw.opm.ProvenanceRecording.humanModified(XID, TaskID),
+     
+     % send a message to validate the service precondition
+     sendMsg(XID,self,0,validateTaskRequest,[TaskID, Service]).
+     
+rcvMsg(XID,self,0,validateTaskReply, [TaskID, Service]) :-
+     println(["The PRECONDITION of the SERVICE:", Service, " is validate. The TASK is ", TaskID, "."]),
+    
+     % send a message to invoke the service
+     sendMsg(XID,self,0,invokeTaskRequest, [TaskID, Service]).
+     
+
+
+% receive the event of invoking service
+rcvMsg(XID,Protocol,From,invokeTaskRequest,[TaskID, Service]) :-
+    QueryString =  de.fub.csw.util.StringUtil.constructSPARQLQuery2(Service),
+	sparql_select(QueryString,[serviceType(FullServiceType)]),
+	getLocalName(FullServiceType, ServiceType),
+	invoke(XID, Service, TaskID, ServiceType).
+    
+
+invoke(XID, Service, TaskID, "WebServiceOperation") :-
+    QueryString =  de.fub.csw.util.StringUtil.constructSPARQLQuery1(Service),
+	sparql_select(QueryString,[wsdlDocument(WsdlDocument),operation(Operation)]),
+	getCurrentTime(StartTime),
+	Output = de.fub.csw.TaskValidation.dynamicInvokeService(TaskID, Operation, WsdlDocument),
+	println(["TASK:", TaskID," will be executed by a Web Service at:", WsdlDocument, ".", Output]),
+	getResultSize(Output,Size),
+	isSuccessful(XID, TaskID, Service, "WebServiceOperation", WsdlDocument, StartTime, Output, Size).
+	
+invoke(XID, Service, TaskID, "ProvaAgent") :-
+    QueryString =  de.fub.csw.util.StringUtil.constructSPARQLQuery3(Service),
+	sparql_select(QueryString,[interface(Interface),agent(Agent)]),
+	println(["TASK:", TaskID,"  will be executed by a PROVA AGENT:", Agent, "."]),
+	
+    ParaList = de.fub.csw.TaskValidation.prepareProvaInput(Interface, TaskID),
+    
+    getCurrentTime(StartTime),
+	sendMsg(XID,esb,Agent, "query", ParaList),
+	println(["Sent message to the RPOVA AGENT:",Agent,"."]),
+	
+	rcvMult(XID,esb,Agent,"answer", [Interface|ParaListResult]),
+	Output =  de.fub.csw.TaskValidation.prepareProvaResult(Interface,TaskID,ParaListResult),
+	getResultSize(Output, Size),
+	isSuccessful(XID, TaskID, Service, "ProvaAgent", Agent, StartTime, Output, Size).  
+	
+    
+isSuccessful(XID,TaskID, Service, ServiceType, Address, StartTime, Output, 1) :-
+    println(["SERVICE:", Service, " is failed. The TASK is ", TaskID, "."]),
+    sendMsg(XID,esb,csw2012_ExceptionHandlingAgent, "failed", [TaskID, Service]).
+
+isSuccessful(XID,TaskID, Service, ServiceType, Address, StartTime, Output, Size) :-
+    notequ(Size,1),
+    de.fub.csw.opm.ProvenanceRecording.serviceCompleted(XID,TaskID, Service, ServiceType,  Address, StartTime, Output,"Master_Agent_B"),
+    println(["TASK:", TaskID, " is completed."]),
+    de.fub.csw.DynamicManagement.clearServices4Task(TaskID),
+    From = $PLock.get(TaskID),
+    sendMsg(XID,esb,From, "answer", Output).
+
+% receive the event of service validation
+rcvMsg(XID,Protocol,From,validateTaskRequest,[TaskID, Service]) :-
+    Validation = de.fub.csw.TaskValidation.validatePrecondition(TaskID, Service),
+    isValidate(XID,TaskID, Service, Validation).
+
+isValidate(XID, TaskID, Service, true) :-
+	sendMsg(XID,self,0,validateTaskReply, [TaskID, Service]).
+	
+isValidate(XID,TaskID, Service,false) :-
+    println(["THE RPECONDITION OF THE SERVICE", Service, " is invalidate. The TASK is ", TaskID, ". THE EXCEPTION IS FORWARED TO EXCEPTION HANDLING AGENT."]),
+    append([inArgs],InList,InList1),
+    sendMsg(XID,esb,csw2012_ExceptionHandlingAgent, "invalidate", [TaskID, Service]).
+
+% receive the event of finding available service for a specific task
+rcvMsg(XID,Protocol,From,findAvaibleServiceRequest,[TaskID, TaskName]) :-
+    findall(Service,getAvailableServices(TaskName, Service),Services),
+    de.fub.csw.DynamicManagement.constructTaskServicesMap(TaskID,Services),
+    S = Services.size(),
+    findOptimalService(XID, TaskName, TaskID, Services,S, Service).
+
+getAvailableServices(TaskName, Service) :-
+    QueryString =  de.fub.csw.util.StringUtil.constructSPARQLQuery4(TaskName),
+    sparql_select(QueryString,[service(FullService)]),
+    getLocalName(FullService, Service).
+    
+findOptimalService(XID, TaskName, TaskID, Services,0, Service) :-
+    println(["NO AVAILABLE SERVICE TO TASK", TaskName, "(", TaskID, "). THE EXCEPTION IS FORWARED TO EXCEPTION HANDLING AGENT."]),
+    sendMsg(XID,esb,csw2012_ExceptionHandlingAgent, "unavailable", [noServiceAvailable, TaskID, TaskName]).
+    
+findOptimalService(XID, TaskName, TaskID, Services,S, Service) :-
+    println([S, " SERVICE(S) can be used to complete TASK:", TaskName, "."]),
+    notequ(S,0),
+    Random = de.fub.csw.TaskValidation.getRandomNumber(S),
+    Service = Services.get(Random),
+    sendMsg(XID,self,0,findAvaibleServiceReply, [TaskID, Service]).
+     
+
+% receive the event of "matching service"
+rcvMsg(XID,Protocol,From,isMatchRequest,[TaskID, Service]) :-
+   	Matched = de.fub.csw.TaskValidation.taskValidation(TaskID, Service),
+	ismatch(XID, TaskID, Service, Matched).
+
+ismatch(XID, TaskID, Service, "unmatched") :-
+    println(["THE USER SPECIFICATION IS UNMATCHED TO", Service, ". THE EXCEPTION IS FORWARDED TO EXCEPTION HANDLING AGENT."]),
+    sendMsg(XID,esb,csw2012_ExceptionHandlingAgent, "unmatched", [TaskID, Service]),
+    !.
+    
+ismatch(XID, TaskID, Service, "matched") :-
+    sendMsg(XID,self,0,isMatchReply, [Service,TaskID]).
+    
+getLocalName(FullName, LocalName) :-
+    P = FullName.lastIndexOf("#"),
+    math_add1(P,1,P1),
+    LocalName = FullName.substring(P1).
+    
+getResultSize(Output,S) :-
+    last(L, Output),
+    size(L,S).
+    
+getCurrentTime(T) :-
+    D = java.util.Date(),
+    T = D.toLocaleString().
+    

@@ -1,0 +1,556 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<mule-configuration xmlns="http://www.mulesoft.com/tooling/messageflow" name="swf">
+    <global-element name="Property Placeholder" type="http://www.springframework.org/schema/context/property-placeholder" entity-id="Property Placeholder#1">
+        <properties>
+            <property name="properties-ref"/>
+            <property name="order"/>
+            <property name="location" value="classpath:mule-app.properties"/>
+            <property name="local-override"/>
+            <property name="system-properties-mode"/>
+            <property name="file-encoding"/>
+            <property name="auxiliary;index" value="1"/>
+            <property name="ignore-unresolvable"/>
+            <property name="ignore-resource-not-found"/>
+        </properties>
+    </global-element>
+    <global-element name="Java" type="http://www.mulesoft.org/schema/mule/core/custom-transformer" entity-id="Java#1">
+        <properties>
+            <property name="returnClass"/>
+            <property name="ignoreBadInput"/>
+            <property name="name" value="provaList2ObjectArrays"/>
+            <property name="encoding"/>
+            <property name="class" value="de.fub.csw.transformers.ProvaList2ObjectArrays"/>
+            <property name="auxiliary;index" value="2"/>
+            <property name="mimeType"/>
+        </properties>
+    </global-element>
+    <global-element name="Java" type="http://www.mulesoft.org/schema/mule/core/custom-transformer" entity-id="Java#2">
+        <properties>
+            <property name="returnClass"/>
+            <property name="ignoreBadInput"/>
+            <property name="name" value="wsReturn2ProvaList"/>
+            <property name="encoding"/>
+            <property name="class" value="de.fub.csw.transformers.WSReturn2ProvaList"/>
+            <property name="auxiliary;index" value="3"/>
+            <property name="mimeType"/>
+        </properties>
+    </global-element>
+    <global-element name="Active MQ" type="org.mule.tooling.ui.modules.core.global.activemq.config" entity-id="Active MQ#1">
+        <properties>
+            <property name="jndiProviderUrl"/>
+            <property name="embeddedMode"/>
+            <property name="redeliveryHandlerFactory-ref"/>
+            <property name="connectionFactory-ref"/>
+            <property name="maxRedelivery"/>
+            <property name="durable"/>
+            <property name="password"/>
+            <property name="username"/>
+            <property name="name" value="jmsConnector"/>
+            <property name="dynamicNotification"/>
+            <property name="noLocal"/>
+            <property name="auxiliary;index" value="4"/>
+            <property name="eagerConsumer"/>
+            <property name="numberOfConsumers"/>
+            <property name="acknowledgementMode"/>
+            <property name="jndiInitialFactory"/>
+            <property name="org.mule.tooling.ui.modules.core.widgets.meta.ModeAttribute" value="http://www.mulesoft.org/schema/mule/jms/activemq-connector"/>
+            <property name="validateConnections"/>
+            <property name="disableTemporaryReplyToDestinations"/>
+            <property name="clientId"/>
+            <property name="dispatcherPoolFactory-ref"/>
+            <property name="persistentDelivery"/>
+            <property name="forceJndiDestinations"/>
+            <property name="connectionFactoryJndiName"/>
+            <property name="brokerURL" value="vm://localhost"/>
+            <property name="specification" value="1.1"/>
+            <property name="jndiDestinations"/>
+            <property name="honorQosHeaders"/>
+            <property name="cacheJmsSessions"/>
+            <property name="jndiProviderProperties-ref"/>
+        </properties>
+    </global-element>
+    <global-element name="Global Property" type="http://www.mulesoft.org/schema/mule/core/global-property" entity-id="Global Property#1">
+        <properties>
+            <property name="name" value="MULE_IMPLEMENTATION"/>
+            <property name="value" value="ws.prova.mule.impl.ProvaUMOImpl"/>
+            <property name="auxiliary;index" value="5"/>
+        </properties>
+    </global-element>
+    <global-element name="Global Property" type="http://www.mulesoft.org/schema/mule/core/global-property" entity-id="Global Property#2">
+        <properties>
+            <property name="name" value="TOMCAT"/>
+            <property name="value" value="http://127.0.0.1:8080"/>
+            <property name="auxiliary;index" value="6"/>
+        </properties>
+    </global-element>
+    <global-element name="HTTP" type="http://www.mulesoft.org/schema/mule/http/endpoint" entity-id="HTTP#1">
+        <properties>
+            <property name="port" value="8888"/>
+            <property name="contentType"/>
+            <property name="password"/>
+            <property name="tracking:enable-default-events"/>
+            <property name="exchange-pattern"/>
+            <property name="name" value="httpEndpoint"/>
+            <property name="encoding"/>
+            <property name="path"/>
+            <property name="responseTransformer-refs"/>
+            <property name="auxiliary;index" value="7"/>
+            <property name="mimeType"/>
+            <property name="responseTimeout"/>
+            <property name="host" value="localhost"/>
+            <property name="businessEventsLabel"/>
+            <property name="followRedirects"/>
+            <property name="org.mule.tooling.ui.modules.core.widgets.meta.ModeAttribute" value="http://www.mulesoft.org/schema/mule/http/endpoint"/>
+            <property name="keep-alive"/>
+            <property name="disableTransportTransformer"/>
+            <property name="ref"/>
+            <property name="httpLabel"/>
+            <property name="transformer-refs"/>
+            <property name="address"/>
+            <property name="method"/>
+            <property name="user"/>
+            <property name="connector-ref"/>
+        </properties>
+    </global-element>
+    <global-element name="JMS" type="http://www.mulesoft.org/schema/mule/jms/endpoint" entity-id="JMS#1">
+        <properties>
+            <property name="topic" value="ee"/>
+            <property name="queue"/>
+            <property name="durableName"/>
+            <property name="businessEventsLabel"/>
+            <property name="disableTransportTransformer"/>
+            <property name="disableTemporaryReplyToDestinations"/>
+            <property name="exchange-pattern"/>
+            <property name="tracking:enable-default-events"/>
+            <property name="ref"/>
+            <property name="transformer-refs"/>
+            <property name="address"/>
+            <property name="name" value="semantic_SWF_Engine"/>
+            <property name="encoding"/>
+            <property name="responseTransformer-refs"/>
+            <property name="auxiliary;index" value="15"/>
+            <property name="mimeType"/>
+            <property name="responseTimeout"/>
+            <property name="connector-ref" value="jmsConnector"/>
+        </properties>
+    </global-element>
+    <global-element name="JMS" type="http://www.mulesoft.org/schema/mule/jms/endpoint" entity-id="JMS#2">
+        <properties>
+            <property name="topic" value="calculate_agent"/>
+            <property name="queue"/>
+            <property name="durableName"/>
+            <property name="businessEventsLabel"/>
+            <property name="disableTransportTransformer"/>
+            <property name="disableTemporaryReplyToDestinations"/>
+            <property name="exchange-pattern"/>
+            <property name="tracking:enable-default-events"/>
+            <property name="ref"/>
+            <property name="transformer-refs"/>
+            <property name="address"/>
+            <property name="name" value="Calculateagent"/>
+            <property name="encoding"/>
+            <property name="responseTransformer-refs"/>
+            <property name="auxiliary;index" value="21"/>
+            <property name="mimeType"/>
+            <property name="responseTimeout"/>
+            <property name="connector-ref" value="jmsConnector"/>
+        </properties>
+    </global-element>
+    <global-element name="JMS" type="http://www.mulesoft.org/schema/mule/jms/endpoint" entity-id="JMS#3">
+        <properties>
+            <property name="topic" value="master_agent_a"/>
+            <property name="queue"/>
+            <property name="durableName"/>
+            <property name="businessEventsLabel"/>
+            <property name="disableTransportTransformer"/>
+            <property name="disableTemporaryReplyToDestinations"/>
+            <property name="exchange-pattern"/>
+            <property name="tracking:enable-default-events"/>
+            <property name="ref"/>
+            <property name="transformer-refs"/>
+            <property name="address"/>
+            <property name="name" value="csw2012_A1"/>
+            <property name="encoding"/>
+            <property name="responseTransformer-refs"/>
+            <property name="auxiliary;index" value="27"/>
+            <property name="mimeType"/>
+            <property name="responseTimeout"/>
+            <property name="connector-ref" value="jmsConnector"/>
+        </properties>
+    </global-element>
+    <global-element name="JMS" type="http://www.mulesoft.org/schema/mule/jms/endpoint" entity-id="JMS#4">
+        <properties>
+            <property name="topic" value="master_agent_b"/>
+            <property name="queue"/>
+            <property name="durableName"/>
+            <property name="businessEventsLabel"/>
+            <property name="disableTransportTransformer"/>
+            <property name="disableTemporaryReplyToDestinations"/>
+            <property name="exchange-pattern"/>
+            <property name="tracking:enable-default-events"/>
+            <property name="ref"/>
+            <property name="transformer-refs"/>
+            <property name="address"/>
+            <property name="name" value="wsJmsEndpoint"/>
+            <property name="encoding"/>
+            <property name="responseTransformer-refs"/>
+            <property name="auxiliary;index" value="33"/>
+            <property name="mimeType"/>
+            <property name="responseTimeout"/>
+            <property name="connector-ref" value="jmsConnector"/>
+        </properties>
+    </global-element>
+    <global-element name="JMS" type="http://www.mulesoft.org/schema/mule/jms/endpoint" entity-id="JMS#5">
+        <properties>
+            <property name="topic" value="exception_handling"/>
+            <property name="queue"/>
+            <property name="durableName"/>
+            <property name="businessEventsLabel"/>
+            <property name="disableTransportTransformer"/>
+            <property name="disableTemporaryReplyToDestinations"/>
+            <property name="exchange-pattern"/>
+            <property name="tracking:enable-default-events"/>
+            <property name="ref"/>
+            <property name="transformer-refs"/>
+            <property name="address"/>
+            <property name="name" value="csw2012_ExceptionHandlingAgent"/>
+            <property name="encoding"/>
+            <property name="responseTransformer-refs"/>
+            <property name="auxiliary;index" value="41"/>
+            <property name="mimeType"/>
+            <property name="responseTimeout"/>
+            <property name="connector-ref" value="jmsConnector"/>
+        </properties>
+    </global-element>
+    <global-element name="HTTP" type="http://www.mulesoft.org/schema/mule/http/endpoint" entity-id="HTTP#2">
+        <properties>
+            <property name="port"/>
+            <property name="contentType"/>
+            <property name="password"/>
+            <property name="tracking:enable-default-events"/>
+            <property name="exchange-pattern"/>
+            <property name="name" value="csw2012_HumanAgent"/>
+            <property name="encoding"/>
+            <property name="path"/>
+            <property name="responseTransformer-refs"/>
+            <property name="auxiliary;index" value="47"/>
+            <property name="mimeType"/>
+            <property name="responseTimeout"/>
+            <property name="host"/>
+            <property name="businessEventsLabel"/>
+            <property name="followRedirects"/>
+            <property name="org.mule.tooling.ui.modules.core.widgets.meta.ModeAttribute" value="http://www.mulesoft.org/schema/mule/http/endpoint"/>
+            <property name="keep-alive"/>
+            <property name="disableTransportTransformer"/>
+            <property name="ref"/>
+            <property name="httpLabel"/>
+            <property name="transformer-refs"/>
+            <property name="address" value="http://localhost:8080/sswfc/ReceiveExceptionServlet"/>
+            <property name="method"/>
+            <property name="user"/>
+            <property name="connector-ref"/>
+        </properties>
+    </global-element>
+    <flow SubFlow="false" name="Sentinel" type="http://www.mulesoft.org/schema/mule/core/flow" entity-id="75c05fe1-fb31-4eb5-8073-3f8b2de85b38">
+        <properties>
+            <property name="initialState"/>
+            <property name="processingStrategy2"/>
+            <property name="processingStrategy"/>
+            <property name="bussinessEventsLabel"/>
+            <property name="tracking:enable-default-events"/>
+            <property name="auxiliary;index" value="8"/>
+        </properties>
+        <lane hadOnlyOneElement="false" index="0" isChoiceOtherwiseLane="false" entity-id="compartment-lane#1">
+            <graphicalData x="0" y="0" width="0" height="0"/>
+            <endpoint direction="Inbound" message-exchange-pattern="RequestResponse" name="HTTP" type="http://www.mulesoft.org/schema/mule/http/endpoint" entity-id="HTTP#3">
+                <graphicalData x="0" y="0" width="0" height="0"/>
+                <properties>
+                    <property name="port"/>
+                    <property name="host"/>
+                    <property name="businessEventsLabel"/>
+                    <property name="followRedirects"/>
+                    <property name="org.mule.tooling.ui.modules.core.widgets.meta.ModeAttribute" value="http://www.mulesoft.org/schema/mule/http/endpoint"/>
+                    <property name="keep-alive"/>
+                    <property name="contentType"/>
+                    <property name="disableTransportTransformer"/>
+                    <property name="password"/>
+                    <property name="exchange-pattern"/>
+                    <property name="tracking:enable-default-events"/>
+                    <property name="ref" value="httpEndpoint"/>
+                    <property name="transformer-refs"/>
+                    <property name="httpLabel"/>
+                    <property name="address"/>
+                    <property name="path"/>
+                    <property name="encoding"/>
+                    <property name="responseTransformer-refs"/>
+                    <property name="method"/>
+                    <property name="user"/>
+                    <property name="auxiliary;index" value="9"/>
+                    <property name="responseTimeout"/>
+                    <property name="mimeType"/>
+                    <property name="connector-ref"/>
+                </properties>
+            </endpoint>
+            <pattern name="Not" type="http://www.mulesoft.org/schema/mule/core/not-filter" entity-id="Not#1">
+                <graphicalData x="0" y="0" width="0" height="0"/>
+                <properties>
+                    <property name="auxiliary;index" value="12"/>
+                    <property-collection name="@http://www.mulesoft.org/schema/mule/core/wildcard-filter;0">
+                        <property name="pattern" value="/favicon.ico"/>
+                        <property name="auxiliary;index" value="13"/>
+                        <property name="auxiliary;wrapIn" value="13"/>
+                    </property-collection>
+                </properties>
+            </pattern>
+            <pattern name="Java" type="http://www.mulesoft.org/schema/mule/core/component" entity-id="Java#3">
+                <graphicalData x="0" y="0" width="0" height="0"/>
+                <properties>
+                    <property name="class" value="ws.prova.mule.impl.HttpEndpointUMOImpl"/>
+                    <property name="auxiliary;index" value="14"/>
+                </properties>
+            </pattern>
+        </lane>
+    </flow>
+    <flow SubFlow="false" name="WorklfowEngine" type="http://www.mulesoft.org/schema/mule/core/flow" entity-id="20411367-e1d5-4b9a-a12a-61dfcbafa3ac">
+        <properties>
+            <property name="initialState"/>
+            <property name="processingStrategy2"/>
+            <property name="processingStrategy"/>
+            <property name="bussinessEventsLabel"/>
+            <property name="tracking:enable-default-events"/>
+            <property name="auxiliary;index" value="16"/>
+        </properties>
+        <lane hadOnlyOneElement="false" index="0" isChoiceOtherwiseLane="false" entity-id="compartment-lane#2">
+            <graphicalData x="0" y="0" width="0" height="0"/>
+            <endpoint direction="Inbound" message-exchange-pattern="OneWay" name="JMS" type="http://www.mulesoft.org/schema/mule/jms/endpoint" entity-id="JMS#6">
+                <graphicalData x="0" y="0" width="0" height="0"/>
+                <properties>
+                    <property name="topic"/>
+                    <property name="queue"/>
+                    <property name="durableName"/>
+                    <property name="businessEventsLabel"/>
+                    <property name="disableTransportTransformer"/>
+                    <property name="disableTemporaryReplyToDestinations"/>
+                    <property name="exchange-pattern"/>
+                    <property name="tracking:enable-default-events"/>
+                    <property name="ref" value="semantic_SWF_Engine"/>
+                    <property name="transformer-refs"/>
+                    <property name="address"/>
+                    <property name="encoding"/>
+                    <property name="responseTransformer-refs"/>
+                    <property name="auxiliary;index" value="17"/>
+                    <property name="mimeType"/>
+                    <property name="responseTimeout"/>
+                    <property name="connector-ref"/>
+                </properties>
+            </endpoint>
+            <pattern name="Java" type="http://www.mulesoft.org/schema/mule/core/component" entity-id="Java#4">
+                <graphicalData x="0" y="0" width="0" height="0"/>
+                <properties>
+                    <property name="class" value="ws.prova.mule.impl.ProvaUMOImpl"/>
+                    <property name="auxiliary;index" value="20"/>
+                </properties>
+            </pattern>
+        </lane>
+    </flow>
+    <flow SubFlow="false" name="Calculate_Agent_Model" type="http://www.mulesoft.org/schema/mule/core/flow" entity-id="e898050c-c517-4e47-bb26-a939a7120531">
+        <properties>
+            <property name="initialState"/>
+            <property name="processingStrategy2"/>
+            <property name="processingStrategy"/>
+            <property name="bussinessEventsLabel"/>
+            <property name="tracking:enable-default-events"/>
+            <property name="auxiliary;index" value="22"/>
+        </properties>
+        <lane hadOnlyOneElement="false" index="0" isChoiceOtherwiseLane="false" entity-id="compartment-lane#3">
+            <graphicalData x="0" y="0" width="0" height="0"/>
+            <endpoint direction="Inbound" message-exchange-pattern="OneWay" name="JMS" type="http://www.mulesoft.org/schema/mule/jms/endpoint" entity-id="JMS#7">
+                <graphicalData x="0" y="0" width="0" height="0"/>
+                <properties>
+                    <property name="topic"/>
+                    <property name="queue"/>
+                    <property name="durableName"/>
+                    <property name="businessEventsLabel"/>
+                    <property name="disableTransportTransformer"/>
+                    <property name="disableTemporaryReplyToDestinations"/>
+                    <property name="exchange-pattern"/>
+                    <property name="tracking:enable-default-events"/>
+                    <property name="ref" value="Calculateagent"/>
+                    <property name="transformer-refs"/>
+                    <property name="address"/>
+                    <property name="encoding"/>
+                    <property name="responseTransformer-refs"/>
+                    <property name="auxiliary;index" value="23"/>
+                    <property name="mimeType"/>
+                    <property name="responseTimeout"/>
+                    <property name="connector-ref"/>
+                </properties>
+            </endpoint>
+            <pattern name="Java" type="http://www.mulesoft.org/schema/mule/core/component" entity-id="Java#5">
+                <graphicalData x="0" y="0" width="0" height="0"/>
+                <properties>
+                    <property name="class" value="ws.prova.mule.impl.ProvaUMOImpl"/>
+                    <property name="auxiliary;index" value="26"/>
+                </properties>
+            </pattern>
+        </lane>
+    </flow>
+    <flow SubFlow="false" name="Master_Agent_A_Model" type="http://www.mulesoft.org/schema/mule/core/flow" entity-id="3c8eb74b-ed08-4d3a-9c8d-a5bd8a4fcbbb">
+        <properties>
+            <property name="initialState"/>
+            <property name="processingStrategy2"/>
+            <property name="processingStrategy"/>
+            <property name="bussinessEventsLabel"/>
+            <property name="tracking:enable-default-events"/>
+            <property name="auxiliary;index" value="28"/>
+        </properties>
+        <lane hadOnlyOneElement="false" index="0" isChoiceOtherwiseLane="false" entity-id="compartment-lane#4">
+            <graphicalData x="0" y="0" width="0" height="0"/>
+            <endpoint direction="Inbound" message-exchange-pattern="OneWay" name="JMS" type="http://www.mulesoft.org/schema/mule/jms/endpoint" entity-id="JMS#8">
+                <graphicalData x="0" y="0" width="0" height="0"/>
+                <properties>
+                    <property name="topic"/>
+                    <property name="queue"/>
+                    <property name="durableName"/>
+                    <property name="businessEventsLabel"/>
+                    <property name="disableTransportTransformer"/>
+                    <property name="disableTemporaryReplyToDestinations"/>
+                    <property name="exchange-pattern"/>
+                    <property name="tracking:enable-default-events"/>
+                    <property name="ref" value="csw2012_A1"/>
+                    <property name="transformer-refs"/>
+                    <property name="address"/>
+                    <property name="encoding"/>
+                    <property name="responseTransformer-refs"/>
+                    <property name="auxiliary;index" value="29"/>
+                    <property name="mimeType"/>
+                    <property name="responseTimeout"/>
+                    <property name="connector-ref"/>
+                </properties>
+            </endpoint>
+            <pattern name="Java" type="http://www.mulesoft.org/schema/mule/core/component" entity-id="Java#6">
+                <graphicalData x="0" y="0" width="0" height="0"/>
+                <properties>
+                    <property name="class" value="ws.prova.mule.impl.ProvaUMOImpl"/>
+                    <property name="auxiliary;index" value="32"/>
+                </properties>
+            </pattern>
+        </lane>
+    </flow>
+    <flow SubFlow="false" name="WebServiceInvocation" type="http://www.mulesoft.org/schema/mule/core/flow" entity-id="c4a876f2-1fce-49c5-8c07-f62d8c4518a8">
+        <properties>
+            <property name="initialState"/>
+            <property name="processingStrategy2"/>
+            <property name="processingStrategy"/>
+            <property name="bussinessEventsLabel"/>
+            <property name="tracking:enable-default-events"/>
+            <property name="auxiliary;index" value="34"/>
+        </properties>
+        <lane hadOnlyOneElement="false" index="0" isChoiceOtherwiseLane="false" entity-id="compartment-lane#5">
+            <graphicalData x="0" y="0" width="0" height="0"/>
+            <endpoint direction="Inbound" message-exchange-pattern="OneWay" name="JMS" type="http://www.mulesoft.org/schema/mule/jms/endpoint" entity-id="JMS#9">
+                <graphicalData x="0" y="0" width="0" height="0"/>
+                <properties>
+                    <property name="topic"/>
+                    <property name="queue"/>
+                    <property name="durableName"/>
+                    <property name="businessEventsLabel"/>
+                    <property name="disableTransportTransformer"/>
+                    <property name="disableTemporaryReplyToDestinations"/>
+                    <property name="exchange-pattern"/>
+                    <property name="tracking:enable-default-events"/>
+                    <property name="ref" value="wsJmsEndpoint"/>
+                    <property name="transformer-refs"/>
+                    <property name="address"/>
+                    <property name="encoding"/>
+                    <property name="responseTransformer-refs"/>
+                    <property name="auxiliary;index" value="35"/>
+                    <property name="mimeType"/>
+                    <property name="responseTimeout"/>
+                    <property name="connector-ref"/>
+                </properties>
+            </endpoint>
+            <pattern name="Transformer Reference" type="org.mule.tooling.ui.modules.core.pattern.globalXformRef" entity-id="Transformer Reference#1">
+                <graphicalData x="0" y="0" width="0" height="0"/>
+                <properties>
+                    <property name="ref" value="provaList2ObjectArrays"/>
+                    <property name="auxiliary;index" value="36"/>
+                </properties>
+            </pattern>
+            <endpoint direction="Outbound" message-exchange-pattern="OneWay" name="Generic" type="http://www.mulesoft.org/schema/mule/core/endpoint" entity-id="Generic#1">
+                <graphicalData x="0" y="0" width="0" height="0"/>
+                <properties>
+                    <property name="businessEventsLabel"/>
+                    <property name="disableTransportTransformer"/>
+                    <property name="exchange-pattern" value="request-response"/>
+                    <property name="tracking:enable-default-events"/>
+                    <property name="ref"/>
+                    <property name="transformer-refs"/>
+                    <property name="address" value="http://grid.lzu.edu.cn:6060/WSMath/services/Add.AddHttpSoap11Endpoint/"/>
+                    <property name="encoding"/>
+                    <property name="responseTransformer-refs"/>
+                    <property name="auxiliary;index" value="37"/>
+                    <property name="responseTimeout"/>
+                    <property name="mimeType"/>
+                    <property name="connector-ref"/>
+                </properties>
+            </endpoint>
+            <pattern name="Transformer Reference" type="org.mule.tooling.ui.modules.core.pattern.globalXformRef" entity-id="Transformer Reference#2">
+                <graphicalData x="0" y="0" width="0" height="0"/>
+                <properties>
+                    <property name="ref" value="wsReturn2ProvaList"/>
+                    <property name="auxiliary;index" value="39"/>
+                </properties>
+            </pattern>
+            <pattern name="Java" type="http://www.mulesoft.org/schema/mule/core/component" entity-id="Java#7">
+                <graphicalData x="0" y="0" width="0" height="0"/>
+                <properties>
+                    <property name="class" value="ws.prova.mule.impl.UMOImpl"/>
+                    <property name="auxiliary;index" value="40"/>
+                </properties>
+            </pattern>
+        </lane>
+    </flow>
+    <flow SubFlow="false" name="Exception_Handling" type="http://www.mulesoft.org/schema/mule/core/flow" entity-id="44114ae9-a5d3-469c-b493-3d2985fea35a">
+        <properties>
+            <property name="initialState"/>
+            <property name="processingStrategy2"/>
+            <property name="processingStrategy"/>
+            <property name="bussinessEventsLabel"/>
+            <property name="tracking:enable-default-events"/>
+            <property name="auxiliary;index" value="42"/>
+        </properties>
+        <lane hadOnlyOneElement="false" index="0" isChoiceOtherwiseLane="false" entity-id="compartment-lane#6">
+            <graphicalData x="0" y="0" width="0" height="0"/>
+            <endpoint direction="Inbound" message-exchange-pattern="OneWay" name="JMS" type="http://www.mulesoft.org/schema/mule/jms/endpoint" entity-id="JMS#10">
+                <graphicalData x="0" y="0" width="0" height="0"/>
+                <properties>
+                    <property name="topic"/>
+                    <property name="queue"/>
+                    <property name="durableName"/>
+                    <property name="businessEventsLabel"/>
+                    <property name="disableTransportTransformer"/>
+                    <property name="disableTemporaryReplyToDestinations"/>
+                    <property name="exchange-pattern"/>
+                    <property name="tracking:enable-default-events"/>
+                    <property name="ref" value="csw2012_ExceptionHandlingAgent"/>
+                    <property name="transformer-refs"/>
+                    <property name="address"/>
+                    <property name="encoding"/>
+                    <property name="responseTransformer-refs"/>
+                    <property name="auxiliary;index" value="43"/>
+                    <property name="mimeType"/>
+                    <property name="responseTimeout"/>
+                    <property name="connector-ref"/>
+                </properties>
+            </endpoint>
+            <pattern name="Java" type="http://www.mulesoft.org/schema/mule/core/component" entity-id="Java#8">
+                <graphicalData x="0" y="0" width="0" height="0"/>
+                <properties>
+                    <property name="class" value="ws.prova.mule.impl.ProvaUMOImpl"/>
+                    <property name="auxiliary;index" value="46"/>
+                </properties>
+            </pattern>
+        </lane>
+    </flow>
+</mule-configuration>
