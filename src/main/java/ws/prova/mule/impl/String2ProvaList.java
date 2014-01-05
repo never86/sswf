@@ -134,7 +134,7 @@ public class String2ProvaList extends AbstractTransformer{
 		int tag = constantStr.indexOf(":");
 		if (tag != -1) {
 			String type = constantStr.substring(0, tag);
-			Object javaObject = getJavaTypeObject(type,
+			Object javaObject = JavaTypeGenerator.generateJavaTypeObject(type,
 					constantStr.substring(tag + 1));
 			if (javaObject != null)
 				return ProvaConstantImpl.create(javaObject);
@@ -144,28 +144,7 @@ public class String2ProvaList extends AbstractTransformer{
 			return ProvaConstantImpl.create(constantStr);
 	}
 
-	/**
-	 * @param type
-	 * @return
-	 */
-	private Object getJavaTypeObject(String type, String value) {
-		if (type.equalsIgnoreCase("java.lang.Boolean"))
-			return java.lang.Boolean.parseBoolean(value);
-		else if (type.equalsIgnoreCase("java.lang.Short"))
-			return java.lang.Short.parseShort(value);
-		else if (type.equalsIgnoreCase("java.lang.Integer"))
-			return java.lang.Integer.parseInt(value);
-		else if (type.equalsIgnoreCase("java.lang.Long"))
-			return java.lang.Long.parseLong(value);
-		else if (type.equalsIgnoreCase("java.lang.Float"))
-			return java.lang.Float.parseFloat(value);
-		else if (type.equalsIgnoreCase("java.lang.Double"))
-			return java.lang.Double.parseDouble(value);
-		else if (type.equalsIgnoreCase("java.lang.String"))
-			return value;
-		else
-			return null;
-	}
+	
 
 	/**
 	 * @param string
@@ -175,32 +154,16 @@ public class String2ProvaList extends AbstractTransformer{
 		int tag = obj.indexOf(":");
 		if (tag != -1) {
 			String type = obj.substring(0, tag);
-			if (getJavaType(type) != null)
+			if (JavaTypeGenerator.getJavaType(type) != null)
 				return ProvaVariableImpl.create(obj.substring(tag) + 1,
-						getJavaType(type));
+						JavaTypeGenerator.getJavaType(type));
 			else
 				return ProvaVariableImpl.create(obj);
 		} else
 			return ProvaVariableImpl.create(obj);
 	}
 
-	private Class getJavaType(String type) {
-		if (type.equalsIgnoreCase("java.lang.Boolean"))
-			return java.lang.Boolean.class;
-		else if (type.equalsIgnoreCase("java.lang.Short"))
-			return java.lang.Short.class;
-		else if (type.equalsIgnoreCase("java.lang.Integer"))
-			return java.lang.Integer.class;
-		else if (type.equalsIgnoreCase("java.lang.Long"))
-			return java.lang.Long.class;
-		else if (type.equalsIgnoreCase("java.lang.Float"))
-			return java.lang.Float.class;
-		else if (type.equalsIgnoreCase("java.lang.Double"))
-			return java.lang.Double.class;
-		else
-			return null;
-	}
-
+	
 	private boolean isNumeric(String str) {
 		for (int i = str.length(); --i >= 0;) {
 			int chr = str.charAt(i);

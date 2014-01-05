@@ -131,8 +131,7 @@ public class HttpEndpointUMOImpl extends LogComponent implements Initialisable,
 			comm.addMsg(incomingProvaMsg);
 			context.setStopFurtherProcessing(true);
 			return null;
-		} else {// the message is from user, i.e., the request
-			// register the temporary UMO which acts as user
+		} else {// the message is from user, and a temporary UMO is registered to act as the user
 			tmpAgent = System.currentTimeMillis() + "";
 			incomingProvaMsg.getFixed()[2] = ProvaConstantImpl.create(tmpAgent);
 			try {
@@ -141,6 +140,7 @@ public class HttpEndpointUMOImpl extends LogComponent implements Initialisable,
 						tmpAgent, new Properties(), null)
 						.createEndpointBuilder("jms://topic:" + tmpAgent);
 				helper.registerEndpointBuilder(tmpAgent, builder);
+				logger.info("A temporary UMO '"+ tmpAgent +"' is registered.");
 			} catch (Exception e) {
 				e.printStackTrace();
 				context.setStopFurtherProcessing(true);
@@ -175,7 +175,7 @@ public class HttpEndpointUMOImpl extends LogComponent implements Initialisable,
 
 			// unregister temp UMO
 			try {
-				fc.getMuleContext().getRegistry().unregisterEndpoint(tmpAgent);
+				//fc.getMuleContext().getRegistry().unregisterEndpoint(tmpAgent);
 			} catch (Exception exx) {
 				logger.error("Can not unregister synchronous UMO for "
 						+ tmpAgent);
@@ -198,6 +198,7 @@ public class HttpEndpointUMOImpl extends LogComponent implements Initialisable,
 		try {
 			MuleClient client = new DefaultLocalMuleClient(fc.getMuleContext());
 			client.dispatch(receiver, provaList, null);
+			
 			logger.info("AGENT:" + getAgentName() + " forwards " + provaList
 					+ " To:" + receiver);
 

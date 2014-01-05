@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <mule xmlns:cxf="http://www.mulesoft.org/schema/mule/cxf"
-	xmlns:spring="http://www.springframework.org/schema/beans"
-	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:http="http://www.mulesoft.org/schema/mule/http"
 	xmlns:jms="http://www.mulesoft.org/schema/mule/jms" xmlns:context="http://www.springframework.org/schema/context"
 	xmlns:vm="http://www.mulesoft.org/schema/mule/vm"
@@ -16,22 +16,26 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
 	version="EE-3.3.1">
 
 
-    <context:property-placeholder location="classpath:mule-app.properties"/>
-    <custom-transformer class="de.fub.csw.transformers.ProvaList2ObjectArrays" name="provaList2ObjectArrays" doc:name="Java" />
-    <custom-transformer class="de.fub.csw.transformers.WSReturn2ProvaList" name="wsReturn2ProvaList" doc:name="Java" />
-	
-	<jms:activemq-connector name="jmsConnector" specification="1.1" brokerURL="vm://localhost" />
+	<context:property-placeholder location="classpath:mule-app.properties" />
+	<custom-transformer class="de.fub.csw.transformers.ProvaList2ObjectArrays"
+		name="provaList2ObjectArrays" doc:name="Java" />
+	<custom-transformer class="de.fub.csw.transformers.WSReturn2ProvaList"
+		name="wsReturn2ProvaList" doc:name="Java" />
+
+	<jms:activemq-connector name="jmsConnector"
+		specification="1.1" brokerURL="vm://localhost" />
 
 	<!-- environment-properties -->
 	<global-property name="MULE_IMPLEMENTATION" value="ws.prova.mule.impl.ProvaUMOImpl" />
-	<global-property name="TOMCAT" value="http://127.0.0.1:8080"/>
+	<global-property name="TOMCAT" value="http://127.0.0.1:8080" />
 
 	<http:endpoint name="httpEndpoint" host="localhost" port="8888" />
 
 	<flow name="Sentinel">
 		<http:inbound-endpoint ref="httpEndpoint">
 			<properties>
-				<spring:entry key="rulebase" value="${app.home}/rules/sentinel_bridge/SentinelBridge.prova" />
+				<spring:entry key="rulebase"
+					value="${app.home}/rules/sentinel_bridge/SentinelBridge.prova" />
 			</properties>
 		</http:inbound-endpoint>
 		<not-filter>
@@ -45,57 +49,61 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
 	<flow name="WorklfowEngine">
 		<jms:inbound-endpoint ref="semantic_SWF_Engine">
 			<properties>
-				<spring:entry key="rulebase" value="${app.home}/rules/swf_engine/swf_engine.prova" />
+				<spring:entry key="rulebase"
+					value="${app.home}/rules/swf_engine/swf_engine.prova" />
 			</properties>
 		</jms:inbound-endpoint>
 		<component class="ws.prova.mule.impl.ProvaUMOImpl" />
 	</flow>
 
-	<jms:endpoint name="Calculateagent" topic="calculate_agent"
+	<jms:endpoint name="calculateAgent" topic="calculate_agent"
 		connector-ref="jmsConnector" />
 	<flow name="Calculate_Agent_Model">
-		<jms:inbound-endpoint ref="Calculateagent">
+		<jms:inbound-endpoint ref="calculateAgent">
 			<properties>
-				<spring:entry key="rulebase" value="${app.home}/rules/math_agent/math_agent.prova" />
+				<spring:entry key="rulebase"
+					value="${app.home}/rules/calculate_agent/calculate_agent.prova" />
 			</properties>
 		</jms:inbound-endpoint>
 		<component class="ws.prova.mule.impl.ProvaUMOImpl" />
 	</flow>
 
-	<jms:endpoint name="csw2012_A1" topic="master_agent_a" connector-ref="jmsConnector" />
-	<flow name="Master_Agent_A_Model">
-		<jms:inbound-endpoint ref="csw2012_A1">
-			<properties>
-				<spring:entry key="rulebase" value="${app.home}/rules/master_agent_a/master_agent_a.prova" />
-			</properties>
-		</jms:inbound-endpoint>
-		<component class="ws.prova.mule.impl.ProvaUMOImpl" />
-	</flow>
-	
-	
-	<jms:endpoint name="wsJmsEndpoint" topic="master_agent_b" connector-ref="jmsConnector" />
+<!--  
+	<jms:endpoint name="wsJmsEndpoint" topic="master_agent_b"
+		connector-ref="jmsConnector" />
 	<flow name="WebServiceInvocation">
-	<jms:inbound-endpoint ref="wsJmsEndpoint"/>
-		<transformer ref="provaList2ObjectArrays"/>
+		<jms:inbound-endpoint ref="wsJmsEndpoint" />
+		<transformer ref="provaList2ObjectArrays" />
 		<outbound-endpoint exchange-pattern="request-response"
 			address="http://grid.lzu.edu.cn:6060/WSMath/services/Add.AddHttpSoap11Endpoint/">
-			 <cxf:jaxws-client clientClass="calc.Add_Service"
+			<cxf:jaxws-client clientClass="calc.Add_Service"
 				port="AddHttpSoap11Endpoint" operation="add" doc:name="SOAP" />
 		</outbound-endpoint>
 		<transformer ref="wsReturn2ProvaList" doc:name="Transformer Reference" />
-		<component class="ws.prova.mule.impl.UMOImpl"/>
+		<component class="ws.prova.mule.impl.UMOImpl" />
 	</flow>
-	
-	<jms:endpoint name="csw2012_ExceptionHandlingAgent" topic="exception_handling" connector-ref="jmsConnector" />
+-->
+
+	<jms:endpoint name="exceptionHandlingAgent" topic="exception_handling"
+		connector-ref="jmsConnector" />
 	<flow name="Exception_Handling">
-		<jms:inbound-endpoint ref="csw2012_ExceptionHandlingAgent">
-			<properties>
-				<spring:entry key="rulebase" value="${app.home}/rules/exception_handling_agent/exception_handling_agent.prova" />
-			</properties>
-		</jms:inbound-endpoint>
+		<composite-source>
+			<jms:inbound-endpoint ref="exceptionHandlingAgent">
+				<properties>
+					<spring:entry key="rulebase"
+						value="${app.home}/rules/exception_handling_agent/exception_handling_agent.prova" />
+				</properties>
+			</jms:inbound-endpoint>
+			<http:inbound-endpoint ref="httpEndpointEH" />
+		</composite-source>
+
 		<component class="ws.prova.mule.impl.ProvaUMOImpl" />
 	</flow>
-	
-    <http:endpoint name="csw2012_HumanAgent"	address="http://localhost:8080/sswfc/ReceiveExceptionServlet" />
+
+	<http:endpoint name="httpEndpointEH" host="localhost"
+		port="9992" />
+
+	<http:endpoint name="humanAgent"
+		address="http://localhost:8080/sswfc/ReceiveExceptionServlet" />
 
 </mule>

@@ -27,14 +27,14 @@ import org.mule.api.MuleContext;
 
 public class StringConstants {
 	public static  String appDir ="";
-	public static final String SWF_KB = "rules"+File.separator+"semantic_swf_engine"+File.separator+"kb.prova";
-	public static final String PROVA_KNOWLEDGE_BASE_AGENT_NAME = "kb-agent";
+//	public static final String SWF_KB = "rules"+File.separator+"semantic_swf_engine"+File.separator+"kb.prova";
+//	public static final String PROVA_KNOWLEDGE_BASE_AGENT_NAME = "kb-agent";
 	
-	public static  String SWF_SERVICE_ONTOLOGY = "http://localhost:8080/service.owl";
-	
-	public static  String SWF_TASK_SERVICE_ONTOLOGY = "http://localhost:8080/Task-Service.owl";
-	
-	public static  String EXCEPTION_HANDLING_AGENT_NAME = "csw2012_ExceptionHandlingAgent";
+//	public static  String SWF_SERVICE_ONTOLOGY = "http://localhost:8080/service.owl";
+//	
+//	public static  String SWF_TASK_SERVICE_ONTOLOGY = "http://localhost:8080/Task-Service.owl";
+//	
+//	public static  String EXCEPTION_HANDLING_AGENT_NAME = "csw2012_ExceptionHandlingAgent";
 	
 	
 	public static  String ENTITIES_DECLARATION = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
@@ -49,7 +49,22 @@ public class StringConstants {
 		+ "<!ENTITY service \"http://de.dbpedia.org/redirects/ruleml/service.owl\">\n"
 		+ "]>\n";
 			
-	public static  String SWF_ONTOLOGY = "http://localhost:8080/sswf-3.0.owl";
+	public static  String SWF_ONTOLOGY = "http://localhost:8080/sswf-5.0.owl";
+	
+	public static String queryAgentByTask(Object taskName) {
+		return   "PREFIX : <http://www.corporate-semantic-web.de/sswf2013#>\n"+
+	        "PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>\n"+
+			"SELECT ?agent\n"+
+			"FROM <"+SWF_ONTOLOGY+">\n"+
+		    "WHERE {\n"+
+				"?role :responsible ?task .\n"+
+				"?agent :hasRole ?role .\n"+
+				"?agent :available \"true\"^^xsd:boolean .\n"+
+				"?agent :priority ?priority .\n"+
+				"FILTER regex(str(?task), '"+taskName+"')\n"+
+			"}\n"+
+			"ORDER BY DESC (?priority)\n";
+	}
 	
 
 }

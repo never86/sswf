@@ -14,40 +14,22 @@ rcvMsg(XID, Primitive, From, Performative, executeTask(TaskName, TaskID, Inputs,
 % remove its information from the task management center    
 rcvMsg(XID, esb, From, "answer", [TaskID, [inArgs|Inputs], [outArgs|Outputs]]) :-
     de.fub.csw.opm.ProvenanceRecording.recordTaskOutput(XID, TaskID, Outputs),
-    de.fub.csw.TaskManagementCenter.clear(TaskID),
    
-    
     % distribute the message after the provenance information recording
     sendMsg(XID, async, 0, "answer", [TaskID, [inArgs|Inputs], [outArgs|Outputs]]).
 
 allocateTask(XID, TaskName, TaskID, Agent) :-
     findall(A1,getResponsibleAgents(TaskName, A1),Agents),
-    Size = Agents.size(),
-    findOptimalAgent(XID, TaskID, TaskName, Agents, Size, Agent),
+    Agent = de.fub.csw.TaskManagementCenter.findOptimalAgent(Agents),
     println(["The TASK: ", TaskName, "(", TaskID,") is allocated to AGENT:",Agent]).
 
 
-% find the optimal agent 
+% find the optimal agent
 getResponsibleAgents(TaskName, Agent) :-
-    QueryString =  de.fub.csw.util.StringUtil.getAgentSPARQLQuery(TaskName),
+    QueryString =  de.fub.csw.constant.StringConstants.queryAgentByTask(TaskName),
 	sparql_select(QueryString,[agent(FullAgentName)]),
-	getLocalName(FullAgentName, Agent1)[bound(FullAgentName)],
-    concat(["csw2012_", Agent1], Agent).
+	getLocalName(FullAgentName, Agent)[bound(FullAgentName)].
 
-% find the optimal agent    
-findOptimalAgent(XID, TaskID, TaskName, Agents, 0, Agent) :-
-    !,
-    println(["NO AVAILABLE AGENT TO TASK: ", TaskName, "(", TaskID,"). THE EXCEPTION IS FORWARED TO EXCEPTION HANDLING AGENT."]),
-    sendMsg(XID,esb,csw2012_ExceptionHandlingAgent, "request", noAgentAvailable(TaskName, TaskID)),
-    rcvMsg(XID, esb, csw2012_ExceptionHandlingAgent, "answer", [TaskID, Agent]).
-
-% find the optimal agent      
-findOptimalAgent(XID, TaskID, TaskName, Agents, S, Agent) :-
-    notequ(S,0),!,
-    println([S, " AGENT(S) can be used to perform TASK:", TaskName, "(", TaskID,")."]),
-    de.fub.csw.TaskManagementCenter.registerAgentsOfTask(TaskID,Agents),
-    Random = de.fub.csw.TaskAux.getRandomNumber(S),
-    Agent = Agents.get(Random).
       
 invokeTask(XID, TaskName, TaskID, Agent, Inputs, Outputs) :-
     sendMsg(XID,esb, Agent, "start", [TaskName, TaskID,Inputs,Outputs]),
@@ -56,12 +38,14 @@ invokeTask(XID, TaskName, TaskID, Agent, Inputs, Outputs) :-
 checkReceipt(XID, Agent, TaskName, TaskID, Inputs, Outputs):-
     rcvMsg(XID,Protocol,From, "answer" , unavailableAgent(TaskName, TaskID, Agent)),
     !,
-    sendMsg(XID,esb,csw2012_ExceptionHandlingAgent, "request", unavailableAgent(TaskName, TaskID, Agent)),
-    rcvMsg(XID, esb, csw2012_ExceptionHandlingAgent, "answer", [TaskID, NewAgent]),
+    de.fub.csw.TaskManagementCenter.registerUnavailableAgent(Agent),
+    sendMsg(XID,esb,exceptionHandlingAgent, "request", unavailableAgent(TaskName, TaskID, Agent)),
+    rcvMsg(XID, esb,exceptionHandlingAgent, "answer", [TaskID, NewAgent]),
     invokeTask(XID, TaskName, TaskID, NewAgent,Inputs,Outputs).
 
 checkReceipt(XID, Agent, TaskName, TaskID, Inputs, Outputs):-
     !,
+    de.fub.csw.TaskManagementCenter.removeUnavailableAgent(Agent),
     println(["The workflow engine is waiting for the answer from the AGENT:", Agent]).
    
     

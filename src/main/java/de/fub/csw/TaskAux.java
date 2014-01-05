@@ -209,6 +209,8 @@ public class TaskAux {
 	// return false;
 	// }
 
+	/* convert the results collected by reaction groups (ArrayList) to workflow final results
+	 * used in swf_engine.prova */
 	public static ProvaList prepareReactionGroupResults(Object result) {
 		List resList = (List) result;
 		List objects = new ArrayList();
@@ -227,48 +229,48 @@ public class TaskAux {
 		return list;
 	}
 
-	/**
-	 * Transalte SWRLExpression in Task-Service ontology to Prova rule
-	 * 
-	 * @param object
-	 * @return
-	 */
-	private static String transalteSWRLExpression2Prova(Element object) {
-		try {
-			// Create transformer factory
-			TransformerFactory factory = TransformerFactory.newInstance();
-
-			// Use the factory to create a template containing the xsl file
-			Templates template = factory.newTemplates(new StreamSource(
-					new FileInputStream(StringConstants.appDir+File.separator+"conf"+File.separator+"swrl2prova_condition.xslt")));
-
-			Transformer xformer = template.newTransformer();
-			Source source = new StreamSource(
-					inputStreamFromString(StringConstants.ENTITIES_DECLARATION
-							+ object.asXML()));
-			StringWriter sw = new StringWriter();
-			Result result = new StreamResult(sw);
-			// Apply the xsl file to the source file and write the result to the
-			// output file
-			xformer.transform(source, result);
-			return sw.toString().substring(
-					sw.toString().indexOf("validateSWRLExpression"),
-					sw.toString().lastIndexOf(","))
-					+ ".";
-		} catch (FileNotFoundException e) {
-			logger.error(e.getMessage());
-		} catch (TransformerConfigurationException e) {
-			logger.error(e.getMessage());
-		} catch (TransformerException e) {
-			logger.error(e.getMessage());
-		} catch (Exception e) {
-			logger.error(e.getMessage());
-		}
-
-		logger.error("The translation from SWRL procondition expression to Prove rule is failed");
-
-		return null;
-	}
+//	/**
+//	 * Transalte SWRLExpression in Task-Service ontology to Prova rule
+//	 * 
+//	 * @param object
+//	 * @return
+//	 */
+//	private static String transalteSWRLExpression2Prova(Element object) {
+//		try {
+//			// Create transformer factory
+//			TransformerFactory factory = TransformerFactory.newInstance();
+//
+//			// Use the factory to create a template containing the xsl file
+//			Templates template = factory.newTemplates(new StreamSource(
+//					new FileInputStream(StringConstants.appDir+File.separator+"conf"+File.separator+"swrl2prova_condition.xslt")));
+//
+//			Transformer xformer = template.newTransformer();
+//			Source source = new StreamSource(
+//					inputStreamFromString(StringConstants.ENTITIES_DECLARATION
+//							+ object.asXML()));
+//			StringWriter sw = new StringWriter();
+//			Result result = new StreamResult(sw);
+//			// Apply the xsl file to the source file and write the result to the
+//			// output file
+//			xformer.transform(source, result);
+//			return sw.toString().substring(
+//					sw.toString().indexOf("validateSWRLExpression"),
+//					sw.toString().lastIndexOf(","))
+//					+ ".";
+//		} catch (FileNotFoundException e) {
+//			logger.error(e.getMessage());
+//		} catch (TransformerConfigurationException e) {
+//			logger.error(e.getMessage());
+//		} catch (TransformerException e) {
+//			logger.error(e.getMessage());
+//		} catch (Exception e) {
+//			logger.error(e.getMessage());
+//		}
+//
+//		logger.error("The translation from SWRL procondition expression to Prove rule is failed");
+//
+//		return null;
+//	}
 
 	/**
 	 * Invoke Web Service dynamically
@@ -332,292 +334,292 @@ public class TaskAux {
 
 	}
 
-	/**
-	 * @param serviceName
-	 * @param userInputs
-	 * @param expressionCatergory
-	 * @return
-	 */
-	private static String swrlExpressionProcess(String serviceName,
-			ProvaList userInputs) {
-		String provaRule = "";
+//	/**
+//	 * @param serviceName
+//	 * @param userInputs
+//	 * @param expressionCatergory
+//	 * @return
+//	 */
+//	private static String swrlExpressionProcess(String serviceName,
+//			ProvaList userInputs) {
+//		String provaRule = "";
+//
+//		Document doc = null;
+//		Element preconditionElement = null;
+//		Element taskElement = null;
+//		try {
+//			doc = new SAXReader().read(new URL(StringConstants.SWF_ONTOLOGY));
+//			Iterator iter = doc.getRootElement().elementIterator();
+//			while (iter.hasNext()) {
+//				Element ele = (Element) iter.next();
+//				if (ele.attribute("ID") != null
+//						&& ele.attributeValue("ID").equalsIgnoreCase(
+//								serviceName.toString())) {
+//					taskElement = ele;
+//					break;
+//				}
+//			}
+//			preconditionElement = taskElement.element("hasPrecondition");
+//			if (preconditionElement == null)
+//				return "";
+//		} catch (MalformedURLException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (DocumentException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//
+//		provaRule = transalteSWRLExpression2Prova(preconditionElement);
+//		// Each variable in the rule begins with "#" and ends with "!".
+//
+//		ProvaObject[] objects = userInputs.getFixed();
+//		Pattern pattern1 = Pattern.compile(regex);
+//		Matcher m1 = pattern1.matcher(provaRule);
+//		String variable = "";
+//		while (m1.find()) {
+//			variable = m1.group();
+//			Element ele = (Element) doc
+//					.selectSingleNode("//service:Input[@rdf:ID='"
+//							+ variable.substring(1, variable.length() - 1)
+//							+ "']");
+//			if (ele != null) {
+//				provaRule = provaRule.replaceAll(
+//						variable,
+//						"'"
+//								+ objects[Integer.parseInt(ele
+//										.elementText("sequence")) - 1] + "'");
+//			}
+//		}
+//
+//		return provaRule;
+//	}
+//
+//	public static boolean validatePrecondition(Object taskID, Object serviceName) {
+//		ProvaList userInputs;
+//		AbstractTask task = TaskManagementCenter.taskMap.get(taskID);
+//		if (task.isModified()) {
+//			userInputs = task.getNewInlist();
+//		} else {
+//			userInputs = task.getInList();
+//		}
+//		String provaRule = "";
+//		// return true if there is no precondition exists
+//		if (provaRule == "")
+//			return true;
+//		return validateSWRLExpressionTranslate(provaRule, userInputs, null);
+//
+//	}
+//
+//	/**
+//	 * Validate precondition of a task with Prova agent and knowledge base
+//	 * 
+//	 * @param provaRules
+//	 * @param list
+//	 * @param object
+//	 * @return
+//	 */
+//	private static synchronized boolean validateSWRLExpressionTranslate(
+//			String provaRule, ProvaList list, Object resultList) {
+//		boolean validate = false;
+//
+//		BufferedReader in = new BufferedReader(new StringReader(provaRule));
+//		comm = new ProvaCommunicatorImpl(
+//				StringConstants.PROVA_KNOWLEDGE_BASE_AGENT_NAME, null,
+//				StringConstants.SWF_KB, ProvaCommunicatorImpl.SYNC);
+//
+//		try {
+//			comm.consultSync(in, "0", new Object[] {});
+//
+//			String goal = provaRule.substring(0, provaRule.indexOf(" :-"));
+//			String input1 = ":- solve(" + goal + ").";
+//
+//			BufferedReader in1 = new BufferedReader(new StringReader(input1));
+//
+//			List<ProvaSolution[]> resultSets = comm.consultSync(in1, "0",
+//					new Object[] {});
+//			if (resultSets.get(0).length == 0) {
+//				comm.unconsultSync("0");
+//				comm.shutdown();
+//				logger.error("The following rule is unproved: \n'" + provaRule);
+//				return false;
+//			} else {
+//				validate = true;
+//				comm.unconsultSync("0");
+//				logger.info("The following rule is proved: \n'" + provaRule);
+//			}
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//
+//		comm.shutdown();
+//
+//		return validate;
+//	}
 
-		Document doc = null;
-		Element preconditionElement = null;
-		Element taskElement = null;
-		try {
-			doc = new SAXReader().read(new URL(StringConstants.SWF_ONTOLOGY));
-			Iterator iter = doc.getRootElement().elementIterator();
-			while (iter.hasNext()) {
-				Element ele = (Element) iter.next();
-				if (ele.attribute("ID") != null
-						&& ele.attributeValue("ID").equalsIgnoreCase(
-								serviceName.toString())) {
-					taskElement = ele;
-					break;
-				}
-			}
-			preconditionElement = taskElement.element("hasPrecondition");
-			if (preconditionElement == null)
-				return "";
-		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (DocumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//	/**
+//	 * @param number
+//	 * @return Return a random number to select the available agent and service
+//	 *         randomly
+//	 */
+//	public static int getRandomNumber(Integer number) {
+//		int num = number.intValue();
+//		return (int) (Math.random() * (num));
+//	}
 
-		provaRule = transalteSWRLExpression2Prova(preconditionElement);
-		// Each variable in the rule begins with "#" and ends with "!".
+//	private static InputStream inputStreamFromString(String str) {
+//		byte[] bytes = null;
+//		try {
+//			bytes = str.getBytes("GB2312");
+//		} catch (UnsupportedEncodingException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		return new ByteArrayInputStream(bytes);
+//	}
 
-		ProvaObject[] objects = userInputs.getFixed();
-		Pattern pattern1 = Pattern.compile(regex);
-		Matcher m1 = pattern1.matcher(provaRule);
-		String variable = "";
-		while (m1.find()) {
-			variable = m1.group();
-			Element ele = (Element) doc
-					.selectSingleNode("//service:Input[@rdf:ID='"
-							+ variable.substring(1, variable.length() - 1)
-							+ "']");
-			if (ele != null) {
-				provaRule = provaRule.replaceAll(
-						variable,
-						"'"
-								+ objects[Integer.parseInt(ele
-										.elementText("sequence")) - 1] + "'");
-			}
-		}
+//	/**
+//	 * Construct the result from Prova agent
+//	 * 
+//	 * @param operation
+//	 * @param inList
+//	 * @param outList
+//	 * @param paraListResult
+//	 * @return
+//	 */
+//	public static ProvaList prepareProvaResult(ProvaList inputList,
+//			Object taskID, ProvaList paraListResult) {
+//		ProvaObject taskIDObject = ProvaConstantImpl.create(taskID);
+//
+//		ProvaList inList, outList;
+//		AbstractTask task = TaskManagementCenter.taskMap.get(taskID);
+//
+//		inList = task.getInList();
+//		outList = task.getOutList();
+//		ProvaObject[] inObjects = new ProvaObject[inList.getFixed().length + 1];
+//		inObjects[0] = ProvaConstantImpl.create("inArgs");
+//		for (int i = 1; i < inObjects.length; i++)
+//			inObjects[i] = inList.getFixed()[i - 1];
+//
+//		List outObjectsList = identifyOutputs(inputList, paraListResult);
+//		ProvaObject[] outObjects = new ProvaObject[outObjectsList.size() + 1];
+//		outObjects[0] = ProvaConstantImpl.create("outArgs");
+//		for (int i = 1; i < outObjects.length; i++)
+//			outObjects[i] = (ProvaObject) outObjectsList.get(i - 1);
+//		ProvaList list = ProvaListImpl.create(new ProvaObject[] { taskIDObject,
+//				ProvaListImpl.create(inObjects),
+//				ProvaListImpl.create(outObjects) });
+//		return list;
+//	}
+//
+//	/**
+//	 * @param inputList
+//	 * @param paraListResult
+//	 * @return
+//	 */
+//	private static List identifyOutputs(ProvaList inputList,
+//			ProvaList resultList) {
+//		// TODO Auto-generated method stub
+//		List list = new ArrayList();
+//		for (int i = 0; i < inputList.getFixed().length; i++) {
+//			Object obj = inputList.getFixed()[i];
+//			if (obj instanceof ProvaVariablePtrImpl) {
+//				list.add(resultList.getFixed()[i]);
+//			}
+//			if (obj instanceof ProvaList) {
+//				List l1 = identifyOutputs((ProvaList) inputList.getFixed()[i],
+//						(ProvaList) resultList.getFixed()[i]);
+//				for (int j = 0; j < l1.size(); j++)
+//					list.add(l1.get(i));
+//			}
+//		}
+//		return list;
+//	}
+//
+//	public static ProvaList prepareProvaInput(Object interfaceName,
+//			Object taskID) {
+//		String provaInterface = interfaceName.toString();
+//		AbstractTask task = TaskManagementCenter.taskMap.get(taskID);
+//
+//		ProvaList inList, outList;
+//		inList = task.getInList();
+//		outList = task.getOutList();
+//
+//		int inputs = inList.getFixed().length;
+//		for (int i = 0; i < inputs; i++) {
+//			provaInterface = provaInterface.replaceFirst("\\+",
+//					inList.getFixed()[i].toString());
+//		}
+//
+//		int outputs = outList.getFixed().length;
+//
+//		for (int i = 0; i < outputs; i++) {
+//			provaInterface = provaInterface.replaceFirst("\"-\"", "X" + i);
+//		}
+//
+//		ProvaList list = parse(provaInterface);
+//		return list;
+//	}
+//
+//	private static ProvaList parse(String t) {
+//		ProvaKnowledgeBase kb = new ProvaKnowledgeBaseImpl();
+//		ProvaResultSet resultSet = new ProvaResultSetImpl();
+//		StringReader sr = new StringReader("interface(" + t
+//				+ "):- println([\"\"]).\n");
+//		BufferedReader in = new BufferedReader(sr);
+//
+//		ProvaParserImpl parser = new ProvaParserImpl("inline1", new Object[] {});
+//		try {
+//			List<ProvaRule> rules = parser.parse(kb, resultSet, in);
+//			// Run each goal
+//			for (ProvaRule rule : rules) {
+//				if (rule.getHead() != null)
+//					return (ProvaList) rule.getHead().getTerms().getFixed()[0];
+//			}
+//		} catch (ProvaParsingException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		return null;
+//	}
 
-		return provaRule;
-	}
-
-	public static boolean validatePrecondition(Object taskID, Object serviceName) {
-		ProvaList userInputs;
-		AbstractTask task = TaskManagementCenter.taskMap.get(taskID);
-		if (task.isModified()) {
-			userInputs = task.getNewInlist();
-		} else {
-			userInputs = task.getInList();
-		}
-		String provaRule = "";
-		// return true if there is no precondition exists
-		if (provaRule == "")
-			return true;
-		return validateSWRLExpressionTranslate(provaRule, userInputs, null);
-
-	}
-
-	/**
-	 * Validate precondition of a task with Prova agent and knowledge base
-	 * 
-	 * @param provaRules
-	 * @param list
-	 * @param object
-	 * @return
-	 */
-	private static synchronized boolean validateSWRLExpressionTranslate(
-			String provaRule, ProvaList list, Object resultList) {
-		boolean validate = false;
-
-		BufferedReader in = new BufferedReader(new StringReader(provaRule));
-		comm = new ProvaCommunicatorImpl(
-				StringConstants.PROVA_KNOWLEDGE_BASE_AGENT_NAME, null,
-				StringConstants.SWF_KB, ProvaCommunicatorImpl.SYNC);
-
-		try {
-			comm.consultSync(in, "0", new Object[] {});
-
-			String goal = provaRule.substring(0, provaRule.indexOf(" :-"));
-			String input1 = ":- solve(" + goal + ").";
-
-			BufferedReader in1 = new BufferedReader(new StringReader(input1));
-
-			List<ProvaSolution[]> resultSets = comm.consultSync(in1, "0",
-					new Object[] {});
-			if (resultSets.get(0).length == 0) {
-				comm.unconsultSync("0");
-				comm.shutdown();
-				logger.error("The following rule is unproved: \n'" + provaRule);
-				return false;
-			} else {
-				validate = true;
-				comm.unconsultSync("0");
-				logger.info("The following rule is proved: \n'" + provaRule);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		comm.shutdown();
-
-		return validate;
-	}
-
-	/**
-	 * @param number
-	 * @return Return a random number to select the available agent and service
-	 *         randomly
-	 */
-	public static int getRandomNumber(Integer number) {
-		int num = number.intValue();
-		return (int) (Math.random() * (num));
-	}
-
-	private static InputStream inputStreamFromString(String str) {
-		byte[] bytes = null;
-		try {
-			bytes = str.getBytes("GB2312");
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return new ByteArrayInputStream(bytes);
-	}
-
-	/**
-	 * Construct the result from Prova agent
-	 * 
-	 * @param operation
-	 * @param inList
-	 * @param outList
-	 * @param paraListResult
-	 * @return
-	 */
-	public static ProvaList prepareProvaResult(ProvaList inputList,
-			Object taskID, ProvaList paraListResult) {
-		ProvaObject taskIDObject = ProvaConstantImpl.create(taskID);
-
-		ProvaList inList, outList;
-		AbstractTask task = TaskManagementCenter.taskMap.get(taskID);
-
-		inList = task.getInList();
-		outList = task.getOutList();
-		ProvaObject[] inObjects = new ProvaObject[inList.getFixed().length + 1];
-		inObjects[0] = ProvaConstantImpl.create("inArgs");
-		for (int i = 1; i < inObjects.length; i++)
-			inObjects[i] = inList.getFixed()[i - 1];
-
-		List outObjectsList = identifyOutputs(inputList, paraListResult);
-		ProvaObject[] outObjects = new ProvaObject[outObjectsList.size() + 1];
-		outObjects[0] = ProvaConstantImpl.create("outArgs");
-		for (int i = 1; i < outObjects.length; i++)
-			outObjects[i] = (ProvaObject) outObjectsList.get(i - 1);
-		ProvaList list = ProvaListImpl.create(new ProvaObject[] { taskIDObject,
-				ProvaListImpl.create(inObjects),
-				ProvaListImpl.create(outObjects) });
-		return list;
-	}
-
-	/**
-	 * @param inputList
-	 * @param paraListResult
-	 * @return
-	 */
-	private static List identifyOutputs(ProvaList inputList,
-			ProvaList resultList) {
-		// TODO Auto-generated method stub
-		List list = new ArrayList();
-		for (int i = 0; i < inputList.getFixed().length; i++) {
-			Object obj = inputList.getFixed()[i];
-			if (obj instanceof ProvaVariablePtrImpl) {
-				list.add(resultList.getFixed()[i]);
-			}
-			if (obj instanceof ProvaList) {
-				List l1 = identifyOutputs((ProvaList) inputList.getFixed()[i],
-						(ProvaList) resultList.getFixed()[i]);
-				for (int j = 0; j < l1.size(); j++)
-					list.add(l1.get(i));
-			}
-		}
-		return list;
-	}
-
-	public static ProvaList prepareProvaInput(Object interfaceName,
-			Object taskID) {
-		String provaInterface = interfaceName.toString();
-		AbstractTask task = TaskManagementCenter.taskMap.get(taskID);
-
-		ProvaList inList, outList;
-		inList = task.getInList();
-		outList = task.getOutList();
-
-		int inputs = inList.getFixed().length;
-		for (int i = 0; i < inputs; i++) {
-			provaInterface = provaInterface.replaceFirst("\\+",
-					inList.getFixed()[i].toString());
-		}
-
-		int outputs = outList.getFixed().length;
-
-		for (int i = 0; i < outputs; i++) {
-			provaInterface = provaInterface.replaceFirst("\"-\"", "X" + i);
-		}
-
-		ProvaList list = parse(provaInterface);
-		return list;
-	}
-
-	private static ProvaList parse(String t) {
-		ProvaKnowledgeBase kb = new ProvaKnowledgeBaseImpl();
-		ProvaResultSet resultSet = new ProvaResultSetImpl();
-		StringReader sr = new StringReader("interface(" + t
-				+ "):- println([\"\"]).\n");
-		BufferedReader in = new BufferedReader(sr);
-
-		ProvaParserImpl parser = new ProvaParserImpl("inline1", new Object[] {});
-		try {
-			List<ProvaRule> rules = parser.parse(kb, resultSet, in);
-			// Run each goal
-			for (ProvaRule rule : rules) {
-				if (rule.getHead() != null)
-					return (ProvaList) rule.getHead().getTerms().getFixed()[0];
-			}
-		} catch (ProvaParsingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return null;
-	}
-
-	public static ProvaList prepareMessage4HumanAgent(Object taskID) {
-		ProvaList inList, outList;
-		AbstractTask task = TaskManagementCenter.taskMap.get(taskID);
-		if (task.isModified()) {
-			inList = task.getNewInlist();
-			outList = task.getNewOutList();
-		} else {
-			inList = task.getInList();
-			outList = task.getOutList();
-		}
-
-		ProvaObject taskNameObject = ProvaConstantImpl.create(task
-				.getTaskName());
-
-		ProvaObject taskIDObject = ProvaConstantImpl.create(taskID);
-
-		ProvaObject[] inObjects = new ProvaObject[inList.getFixed().length + 1];
-		inObjects[0] = ProvaConstantImpl.create("inArgs");
-		for (int i = 1; i < inObjects.length; i++)
-			inObjects[i] = inList.getFixed()[i - 1];
-
-		ProvaObject[] outObjects = new ProvaObject[outList.getFixed().length + 1];
-		outObjects[0] = ProvaConstantImpl.create("outArgs");
-		for (int i = 1; i < outObjects.length; i++)
-			outObjects[i] = ProvaVariableImpl
-					.create("X"
-							+ ((ProvaVariablePtr) outList.getFixed()[i - 1])
-									.getIndex());
-
-		ProvaList list = ProvaListImpl.create(new ProvaObject[] {
-				taskNameObject, taskIDObject, ProvaListImpl.create(inObjects),
-				ProvaListImpl.create(outObjects) });
-
-		return list;
-	}
+//	public static ProvaList prepareMessage4HumanAgent(Object taskID) {
+//		ProvaList inList, outList;
+//		AbstractTask task = TaskManagementCenter.taskMap.get(taskID);
+//		if (task.isModified()) {
+//			inList = task.getNewInlist();
+//			outList = task.getNewOutList();
+//		} else {
+//			inList = task.getInList();
+//			outList = task.getOutList();
+//		}
+//
+//		ProvaObject taskNameObject = ProvaConstantImpl.create(task
+//				.getTaskName());
+//
+//		ProvaObject taskIDObject = ProvaConstantImpl.create(taskID);
+//
+//		ProvaObject[] inObjects = new ProvaObject[inList.getFixed().length + 1];
+//		inObjects[0] = ProvaConstantImpl.create("inArgs");
+//		for (int i = 1; i < inObjects.length; i++)
+//			inObjects[i] = inList.getFixed()[i - 1];
+//
+//		ProvaObject[] outObjects = new ProvaObject[outList.getFixed().length + 1];
+//		outObjects[0] = ProvaConstantImpl.create("outArgs");
+//		for (int i = 1; i < outObjects.length; i++)
+//			outObjects[i] = ProvaVariableImpl
+//					.create("X"
+//							+ ((ProvaVariablePtr) outList.getFixed()[i - 1])
+//									.getIndex());
+//
+//		ProvaList list = ProvaListImpl.create(new ProvaObject[] {
+//				taskNameObject, taskIDObject, ProvaListImpl.create(inObjects),
+//				ProvaListImpl.create(outObjects) });
+//
+//		return list;
+//	}
 
 }

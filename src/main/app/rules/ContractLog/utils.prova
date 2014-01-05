@@ -199,7 +199,4 @@ join(Me,XID,JoinID,Msg) :-
 	!,
 	derive(JoinID(Me,XID,Complete)).
 join(Me,XID,JoinID,Msg).
-
-arrayList2ProvaList(AL, PL) :-
-    PL = de.fub.csw.util.ProvaListUtil.arrayList2ProvaList(AL).
     

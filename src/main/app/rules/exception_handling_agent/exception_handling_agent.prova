@@ -15,10 +15,8 @@
 :-eval(consult('../ContractLog/list.prova')).
 :-eval(consult('../ContractLog/update.prova')).
 :-eval(consult('../ContractLog/utils.prova')).
-%:-eval(consult('calendar.prova')). % calendar API
 :-eval(consult('../ContractLog/owl.prova')).
 :-eval(consult('../swf_engine/engine.prova')).
-:-eval(consult('../swf_engine/agent.prova')).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Performative vocabulary of organizational agent
@@ -44,7 +42,7 @@ rcvMsg(XID,esb, From, Performative, [X|Args]) :-
 rcvMsg(XID,esb, From, Performative, [X|Args]) :-
 	understandPerformative(XID, From, Performative, [X|Args]),
 	WorkflowName =  de.fub.csw.TaskManagementCenter.getWfName(XID),
-	sendMsg(XID,esb,csw2012_HumanAgent, "inform", [WorkflowName, [X|Args]]),
+	sendMsg(XID,esb,humanAgent, "inform", [WorkflowName, [X|Args]]),
 	processMessage(XID, From, Performative, [X|Args]).
 		
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -67,90 +65,32 @@ processMessage(XID,From,"invalidate", [TaskID, Service]):-
      NewService = de.fub.csw.TaskManagementCenter.getAlternativeService(TaskID, Service),
      isNewServiceAvailable4Validation(XID, From, TaskID, NewService).
       
-     
-isNewServiceAvailable4Validation(XID, From, TaskID, Service, NewService) :-
-     unavailable(NewService),
-     println(["EXCEPTION HANDLING AGENT SENT THE INVALIDATION EXCEPTION TO HUMAN AGENT."]),
-     
-     L = de.fub.csw.TaskAux.prepareMessage4HumanAgent(TaskID),
-     
-     sendMsg(XID,esb,csw2012_HumanAgent,"HumanTask",L),
-     rcvMsg(XID,esb,csw2012_HumanAgent,"answer",[TaskName, TaskID, [inArgs|InListNew],[outArgs|OutListNew]]),
-     println(["Received the reply for INVALIDATE PRECONDITION for TASK:", Service, " from HUMAN AGENT:",InListNew]),
-     
-     de.fub.csw.TaskManagementCenter.setTaskModified(TaskID, InListNew, OutListNew),
-     
-     validateTask(XID, TaskID, Service),
-     
-     sendMsg(XID, esb, From, "answer", [validate, TaskID, Service]).
 
-isNewServiceAvailable4Validation(XID, From, TaskID, Service, NewService) :-
-     not(unavailable(NewService)), 
-     println(["ECEPTION HANDLING AGENT FINDS AN ALTERNATIVE Service:", NewService, " TO VALIDATE."]),
-     validateTask(XID, TaskID, NewService),
-     sendMsg(XID, esb, From, "answer", [validate, TaskID, NewService]).
-     
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-processMessage(XID, From, Performative, failed(TaskID, Service)):-
-     NewService = de.fub.csw.TaskManagementCenter.getAlternativeService(TaskID, Service),
-     invokeAlternativeService(XID, From, TaskID, NewService).
-     
-invokeAlternativeService(XID, From,TaskID, NewService) :-
-     unavailable(NewService),
-     processMessage(XID,From,"request", noServiceAvailable(TaskID, TaskName)). 
-
-invokeAlternativeService(XID, From, TaskID, NewService) :-
-     not(unavailable(NewService)), 
-     println(["ECEPTION HANDLING AGENT RESENT THE TASK:", TaskID,  " To AN ALTERNATIVE Service: ", NewService, " TO EXECUTE."]),
-     invokeService(XID, TaskID, NewService),
-     rcvMsg(XID, async, 0, "answer", [TaskID, Output]),
-     sendMsg(XID, esb, From, "answer", [TaskID, Output]).
-
-processMessage(XID,From,Performative,noServiceAvailable(TaskID, TaskName)):-
-     println(["NO SERVICE AVAILABLE for TASK:", TaskName, "(", TaskID,")."]),
-     WorkflowName =  de.fub.csw.TaskManagementCenter.getWfName(XID),
-     sendMsg(XID, esb, csw2012_HumanAgent, "request", noServiceAvailable(WorkflowName, TaskID, TaskName)),
-     rcvMsg(XID, esb, csw2012_HumanAgent, "answer", modified(ontology)),
-     println(["Received the reply for NO SERVICE AVAILABLE from the HUMAN AGENT. TASK_RESOURCE ONTOLOGY IS MODIFIED BY USER."]),
-     findAvaibleService(XID, TaskID, TaskName, Service),
-     sendMsg(XID, esb, From, "answer", [TaskID, Service]).
-     
-%processMessage(XID,From,"unavailable",[unavailableService(Service),TaskName,[inArgs|InList],[outArgs|OutList]]):-
+processMessage(XID,From,Performative, failedAgent(TaskName, TaskID, Agent)):-
      %TODO: write rule which checks signature and mode declarations (dynamic testing)
-%     append([TaskName],ParaList,Exception),
-%     NewService = de.fub.csw.TaskManagementCenter.getAlternativeService(TaskID, Service),
-%     isServiceAvailable(XID, From, TaskName, InList, OutList, NewService).
-     
-%isServiceAvailable(XID, From,TaskID, NewService) :-
-%     unavailable(NewService),
-%     processMessage(XID,From,"request",noServiceAvailable(TaskID, TaskName)). 
-
-%isServiceAvailable(XID, From, TaskID, NewService) :-
-%     not(unavailable(NewService)), 
-%     println(["ECEPTION HANDLING AGENT RESENT THE TASK:", TaskID,  " To A ALTERNATIVE Service:", NewService, " TO EXECUTE."]),
-%     sendMsg(XID, esb, From, "answer", [TaskID, NewService]).
-     
-unavailable("unavailable").
+     findall(A1,getResponsibleAgents(TaskName, A1),Agents),
+     NewAgent = de.fub.csw.TaskManagementCenter.findOptimalAgent(Agents),
+     isAgentAvailable(XID, From, TaskName, TaskID, NewAgent).     
 
 processMessage(XID,From,Performative, unavailableAgent(TaskName, TaskID, Agent)):-
      %TODO: write rule which checks signature and mode declarations (dynamic testing)
-     NewAgent = de.fub.csw.TaskManagementCenter.getAlternativeAgent(TaskID, Agent),
+     findall(A1,getResponsibleAgents(TaskName, A1),Agents),
+     NewAgent = de.fub.csw.TaskManagementCenter.findOptimalAgent(Agents),
      isAgentAvailable(XID, From, TaskName, TaskID, NewAgent).
 
-isAgentAvailable(XID, From, TaskName, TaskID, NewAgent) :-
-     unavailable(NewAgent),!,
-     processMessage(XID, From, "request", noAgentAvailable(TaskName)). 
+isAgentAvailable(XID, From, TaskName, TaskID, "none") :-
+     !,
+     processMessage(XID, From, "request", noAgentAvailable(TaskName, TaskID)).
 
 isAgentAvailable(XID, From, TaskName, TaskID, NewAgent) :-
-     not(unavailable(NewAgent)),!, 
-     println(["ECEPTION HANDLING AGENT FINDS AN ALTERNATIVE AGETN:", NewAgent, " FOR THE TASK ",TaskName,"."]),
+     bound(NewAgent),!, 
+     println(["EXCEPTION HANDLING AGENT FINDS AN ALTERNATIVE AGETN:", NewAgent, " FOR THE TASK ",TaskName,"."]),
      sendMsg(XID, esb, From, "answer", [TaskID, NewAgent]).
      
 processMessage(XID,From,Performative, noAgentAvailable(TaskName, TaskID)):-
      WorkflowName =  de.fub.csw.TaskManagementCenter.getWfName(XID),
-     sendMsg(XID, esb,csw2012_HumanAgent,"request", noAgentAvailable(WorkflowName, TaskName)),
-     rcvMsg(XID,esb,csw2012_HumanAgent,"answer", modified(ontology)),
+     sendMsg(XID, esb,humanAgent,"request", noAgentAvailable(WorkflowName, TaskName)),
+     rcvMsg(XID,esb,humanAgent,"answer", modified(ontology)),
      println(["Received the reply from the HUMAN AGENT. TASK_AGENT ONTOLOGY IS MODIFIED BY USER."]),
      allocateTask(XID, TaskName, TaskID, Agent),
      sendMsg(XID, esb, From, "answer", [TaskID, Agent]).

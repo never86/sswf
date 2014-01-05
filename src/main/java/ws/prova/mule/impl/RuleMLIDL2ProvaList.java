@@ -39,7 +39,7 @@ public class RuleMLIDL2ProvaList  extends AbstractTransformer {
 				if(ele.getName().equalsIgnoreCase("Fun"))
 					list.add(ProvaConstantImpl.create(ele.getTextTrim()));
 				if(ele.getName().equalsIgnoreCase("Var"))
-					list.add(createProvaVar(ele.attributeValue("mode"), ele.getTextTrim()));
+					list.add(createProvaVar(ele.attributeValue("mode"), ele.attributeValue("name"), ele.attributeValue("type"), ele.getTextTrim()));
 				if(ele.getName().equalsIgnoreCase("Expr"))
 					list.add(parseExpr(ele));
 			}
@@ -50,11 +50,11 @@ public class RuleMLIDL2ProvaList  extends AbstractTransformer {
 		return  ProvaListImpl.create(list);
 	}
 
-	private ProvaObject createProvaVar(String attributeValue, String textTrim) {
-		if(attributeValue.equalsIgnoreCase("-"))
-			return ProvaVariableImpl.create(textTrim);
+	private ProvaObject createProvaVar(String model, String name, String type, String value) {
+		if(model.equalsIgnoreCase("-"))
+			return ProvaVariableImpl.create(name);
 		else
-			return ProvaConstantImpl.create(textTrim);
+			return ProvaConstantImpl.create(JavaTypeGenerator.generateJavaTypeObject(type, value));
 		
 	}
 
@@ -66,7 +66,7 @@ public class RuleMLIDL2ProvaList  extends AbstractTransformer {
 			if(ele.getName().equalsIgnoreCase("Fun"))
 				list.add(ProvaConstantImpl.create(ele.getTextTrim()));
 			if(ele.getName().equalsIgnoreCase("Var"))
-				list.add(createProvaVar(ele.attributeValue("mode"), ele.getTextTrim()));
+				list.add(createProvaVar(ele.attributeValue("mode"), ele.attributeValue("name"), ele.attributeValue("type"), ele.getTextTrim()));
 			if(ele.getName().equalsIgnoreCase("Expr")){
 				list.add(parseExpr(ele));
 			}
@@ -74,6 +74,7 @@ public class RuleMLIDL2ProvaList  extends AbstractTransformer {
 		
 		return  ProvaListImpl.create(list);
 	}
+	
 
 	@Override
 	protected Object doTransform(Object payload, String enc)

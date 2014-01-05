@@ -15,7 +15,6 @@
 :-eval(consult('../ContractLog/list.prova')).
 :-eval(consult('../ContractLog/update.prova')).
 :-eval(consult('../ContractLog/utils.prova')).
-%:-eval(consult('calendar.prova')). % calendar API
 :-eval(consult('../ContractLog/owl.prova')).
 
 
@@ -25,17 +24,16 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 performative(request):-performative(query).
 performative(start).
-
-performative(isMatchRequest).
+performative(query).
 
 performative(XID,Performative):-
    performative(Performative).
 
-rcvMsg(XID,esb, From, "start", [TaskName|ParaList]) :-
-	understandPerformative(XID, From, "start", [TaskName|ParaList]),
-	processMessage(XID, From, "start", [TaskName|ParaList]).
-rcvMsg(XID,esb, From, "start", [TaskName|ParaList]) :-
-	understandPerformative(XID, From, "start", [TaskName|ParaList]),
+rcvMsg(XID,esb, From, Performative, [TaskName|ParaList]) :-
+	understandPerformative(XID, From, Performative, [TaskName|ParaList]),
+	processMessage(XID, From, Performative, [TaskName|ParaList]).
+rcvMsg(XID,esb, From, Performative, [TaskName|ParaList]) :-
+	understandPerformative(XID, From, Performative, [TaskName|ParaList]),
 	rcvMsg(XID,esb,Agent,no_further_answers, Payload),
 	sendMsg(XID,esb,From,no_further_answers,[TaskName|ParaList]),
 	println(["--------------------------------------------"]), 
@@ -56,124 +54,65 @@ understandPerformative(XID, From, Performative, PayLoad) :-
 	not(performative(Performative)),
 	sendMsg(XID,esb,From,"answer", notUnderstood("performative",Performative)),
 	sendMsg(XID,esb,From,"no_further_answers", PayLoad),
-	fail().	
-
-processMessage(XID,From,Primitive,[TaskName,[inArgs|InList],[outArgs|OutList]]):-
-     % send a message to trigger the event of "find available service"
-     sendMsgSync(XID,task,0,findAvaibleServiceRequest,task(TaskName)),
-     rcvMsg(XID,task,0,findAvaibleServiceReply,[allocate, TaskName, Service]),
-     println(["SERVICE:", Service, " is selected to executed TASK:", TaskName,"."]),
+	fail().
+	
+processMessage(XID,From,Primitive,[TaskName, TaskID, Inputs,Outputs]):-
+     % send a message to start the task
+     %findAvaibleService(XID, TaskID, TaskName, Service),
+     %println(["The Service:", Service, " is selected to perform the Task ", TaskName, "."]),
      
-     append([inArgs],InList,InList1),
-     append([outArgs],OutList,OutList1),
+     %validateTask(XID, TaskID, Service, NewService),
+     %println(["The PRECONDITION of the SERVICE:", Service, " is validate. The TASK is ", TaskID, "."]),
      
-      % send a message to trigger the event of "matching service"
-     sendMsgSync(XID,task,0,isMatchRequest,[Service,InList1,OutList1]),
-     rcvMsg(XID,task,0,isMatchReply,[matched,[inArgs|InListNew],[outArgs|OutListNew]]),
-     println(["The user specification is matched with the description of SERVICE:", Service, "."]),
-     
-     append([inArgs],InListNew,InListNew1),
-     append([outArgs],OutListNew,OutListNew1),
-     
-     % send a message to validate the service precondition
-     sendMsgSync(XID,task,0,validateTaskRequest,[Service,InListNew1]),
-     rcvMsg(XID,task,0,validateTaskReply,validate(InListNew2)),
-     println(["The PRECONDITION of the SERVICE:", Service, " is validate."]),
-     
-     % send a message to invoke the service
-     sendMsgSync(XID,task,0,invokeTaskRequest,[Service,taskName(TaskName),InListNew2,OutListNew1]),
-     rcvMsg(XID,task,0,invokeTaskReply,Output),
-     println(["SERVICE:", Service, " is completed."]),
-    
+     invoke(XID, TaskID, TaskName),
+     rcvMsg(XID, async, 0, "answer", [TaskID, Output]),
      sendMsg(XID,esb,From, "answer", Output).
-
-% receive the event of invoking service
-rcvMsg(XID,Protocol,From,invokeTaskRequest,[Service,taskName(TaskName),[inArgs|InList],[outArgs|OutList]]) :-
-    QueryString =  de.fub.csw.util.StringUtil.constructSPARQLQuery2(Service),
-	sparql_select(QueryString,[taskType(FullTaskType)]),
-	TaskType = de.fub.csw.TaskValidation.getTaskType(FullTaskType),
-	invoke(XID, Service, TaskName, TaskType, InList, OutList).
     
+wsdl("add", "add", "http://grid.lzu.edu.cn:6060/WSMath/services/Add?wsdl").
+wsdl("divide", "divide", "http://grid.lzu.edu.cn:6060/WSMath/services/Divide?wsdl"). 
+wsdl("minus", "minus", "http://grid.lzu.edu.cn:6060/WSMath/services/Minus?wsdl"). 
+wsdl("multiply", "multiply", "http://grid.lzu.edu.cn:6060/WSMath/services/Multiply?wsdl").    
 
-invoke(XID, Service, TaskName, "WebServiceOperation", InList, OutList) :-
-    QueryString =  de.fub.csw.util.StringUtil.constructSPARQLQuery1(Service),
-	sparql_select(QueryString,[wsdlDocument(WsdlDocument),operation(Operation)]),
-	Output = de.fub.csw.TaskValidation.dynamicInvokeService(Operation,TaskName, WsdlDocument,InList),
-	println(["SERVICE:", Service, " will be executed by a Web Service at:", WsdlDocument, "."]),
-	Size = de.fub.csw.TaskValidation.getResultSize(Output),
-	isSuccessful(XID,TaskName, Service, Output, Size).
+invoke(XID, TaskID, TaskName) :-
+	wsdl(TaskName, Operation, WsdlDocument),
+	currentSystemTime(StartTime),
+	Output = de.fub.csw.TaskAux.dynamicInvokeService(TaskID, Operation, WsdlDocument),
+	println(["TASK: ", TaskID," will be executed by a Web Service at:", WsdlDocument, "."]),
+	getResultSize(Output,Size),
+	isSuccessful(XID, TaskID, "calculateAgent", "WebService", WsdlDocument, StartTime, Output, Size). 
 	
-invoke(XID, Service, TaskName, "ProvaAgent", InList, OutList) :-
-    QueryString =  de.fub.csw.util.StringUtil.constructSPARQLQuery3(Service),
-	sparql_select(QueryString,[interface(Interface),agent(Agent)]),
-	println(["SERVICE:", Service, " will be executed by a PROVA AGENT:", Agent, "."]),
-	
-    append(InList,OutList,ParaList1),
-    append([Interface],ParaList1,ParaList),
-	sendMsg(XID,esb,Agent, "query", ParaList),
-	println(["Sent message to the RPOVA AGENT:",Agent,"."]),
-	
-	rcvMult(XID,esb,Agent,"answer", [Interface|ParaListResult]),
-	Output =  de.fub.csw.TaskValidation.prepareProvaResult(Interface,InList, OutList, ParaListResult),
-	Size = de.fub.csw.TaskValidation.getResultSize(Output),
-	isSuccessful(XID,TaskName, Service, Output, Size).  
+isSuccessful(XID,TaskID, Service, ServiceType, Address, StartTime, Output, 1) :-
+    !,
+    println(["SERVICE: ", Service, " is failed. The TASK is ", TaskID, "."]),
+    sendMsg(XID,esb,exceptionHandlingAgent, "request", failed(TaskID, Service)),
+    rcvMsg(XID,esb,exceptionHandlingAgent, "answer", [TaskID, Output1]),
+    sendMsg(XID, async, 0, "answer", [TaskID, Output1]).
+
+isSuccessful(XID,TaskID, Service, ServiceType, Address, StartTime, Output, Size) :-
+    notequ(Size,1),!,
+    % record the execution information
+    de.fub.csw.opm.ProvenanceRecording.serviceCompleted(XID,TaskID, Service, ServiceType, Address, StartTime, Output,"Agent_A1"),
+    sendMsg(XID, async, 0, "answer", [TaskID, Output]),
+    println(["TASK:", TaskID, " is completed."]).
     
-invoke(XID, Service, TaskName, "ProvaAgent", InList, OutList) :-
-    rcvMsg(XID,esb,Agent,"answer", [noPublicInterface|PayLoad]).
-	
-isSuccessful(XID,TaskName, Service, OutPut, 1) :-
-    println(["SERVICE:", Service, " is failed."]),
-    sendMsg(XID,task,csw2012_ExceptionHandlingAgent, "failed", [failed, Service]).
-
-isSuccessful(XID,TaskName, Service, Output, Size) :-
-    sendMsg(XID,task,0,invokeTaskReply,Output)[notequ(Size,1)].
+getResultSize(Output,S) :-
+    last(L, Output),
+    size(L,S).  
+    
+currentSystemTime(T) :-
+    D = java.util.Date(),
+    T = D.toLocaleString().  
 
 % receive the event of service validation
-rcvMsg(XID,Protocol,From,validateTaskRequest,[Service,[inArgs|InList]]) :-
-    Validation = de.fub.csw.TaskValidation.validatePrecondition(Service,InList),
-    isValidate(XID, Service, inArgs(InList), Validation).
+validateTask(XID, TaskID, Service, NewService) :-
+    Validation = de.fub.csw.TaskAux.validatePrecondition(TaskID, Service),
+    isValidate(XID,TaskID, Service, NewService, Validation).
 
-% receive the event of finding available service for a specific task
-rcvMsg(XID,Protocol,From,findAvaibleServiceRequest,task(TaskName)) :-
-    Services = de.fub.csw.TaskValidation.getAvailableServices(TaskName),
-    S = Services.size(),
-    findOptimalService(XID, TaskName, Services,S, Service).
-    
-findOptimalService(XID, TaskName, Services,0, Service) :-
-    println(["NO AVAILABLE SERVICE TO TASK", TaskName, ". THE EXCEPTION IS FORWARED TO EXCEPTION HANDLING AGENT."]),
-    sendMsg(XID,task,csw2012_ExceptionHandlingAgent, "unavailable", [noServiceAvailable, TaskName]).
-    
-findOptimalService(XID, TaskName, Services,S, Service) :-
-    element(0,Service,Services)[notequ(S,0)],
-    sendMsg(XID,task,0,findAvaibleServiceReply, [allocate, TaskName, Service]).
-     
-
-isValidate(XID, Service, [inArgs,InList], true) :-
-    append([inArgs],InList,InList1),
-	sendMsg(XID,task,0,validateTaskReply,[validate,InList1]).
+isValidate(XID, TaskID, Service, NewService, true):-
+    NewService = Service.
 	
-isValidate(XID,Service, [inArgs,InList], false) :-
-    println(["THE RPECONDITION OF THE SERVICE", Service, " is invalidate. THE EXCEPTION IS FORWARED TO EXCEPTION HANDLING AGENT."]),
+isValidate(XID, TaskID, Service, NewService, false) :-
+    println(["THE RPECONDITION OF THE SERVICE", Service, " is invalidate. The TASK is ", TaskID, ". THE EXCEPTION IS FORWARED TO EXCEPTION HANDLING AGENT."]),
     append([inArgs],InList,InList1),
-    sendMsg(XID,esb,csw2012_ExceptionHandlingAgent, "invalidate", [Service,InList1]).
-
-% receive the event of "matching service"
-rcvMsg(XID,Protocol,From,isMatchRequest,[Service,[inArgs|InList],[outArgs|OutList]]) :-
-    matchService(XID, Service, InList,OutList).
-
-matchService(XID, Service, InList,OutList) :-
-	Matched = de.fub.csw.TaskValidation.taskValidation(Service,InList,OutList),
-	ismatch(XID, Service, InList,OutList, Matched).
-
-ismatch(XID, Service, InList,OutList, "unmatched") :-
-    println(["THE USER SPECIFICATION IS UNMATCHED TO", TaskName, ". THE EXCEPTION IS FORWARED TO EXCEPTION HANDLING AGENT."]),
-    append([inArgs],InList,InList1),
-    append([outArgs],OutList,OutList1),
-    sendMsg(XID,esb,csw2012_ExceptionHandlingAgent, "unmatched", [TaskID,InList1,OutList1]),
-    !.
-    
-ismatch(XID, Service, InList,OutList, "matched") :-
-    append([inArgs],InList,InList1),
-    append([outArgs],OutList,OutList1),
-    sendMsg(XID,task,0,isMatchReply, ["matched",InList1,OutList1]).
-    
+    sendMsg(XID,esb,exceptionHandlingAgent, "invalidate", [TaskID, Service]),
+    rcvMsg(XID,esb,exceptionHandlingAgent, "answer", [validate, TaskID, NewService]).

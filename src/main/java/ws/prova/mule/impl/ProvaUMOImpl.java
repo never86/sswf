@@ -1,11 +1,14 @@
 package ws.prova.mule.impl;
 
+import java.net.URLDecoder;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.mule.api.MuleEventContext;
+import org.mule.api.MuleMessage;
 import org.mule.api.client.MuleClient;
 import org.mule.api.construct.FlowConstruct;
 import org.mule.api.construct.FlowConstructAware;
@@ -14,10 +17,12 @@ import org.mule.api.lifecycle.Callable;
 import org.mule.api.lifecycle.Initialisable;
 import org.mule.api.lifecycle.InitialisationException;
 import org.mule.api.lifecycle.RecoverableException;
+import org.mule.api.source.MessageSource;
 import org.mule.client.DefaultLocalMuleClient;
 import org.mule.component.simple.LogComponent;
 import org.mule.construct.Flow;
 import org.mule.endpoint.DefaultInboundEndpoint;
+import org.mule.source.StartableCompositeMessageSource;
 
 import ws.prova.api2.ProvaCommunicator;
 import ws.prova.api2.ProvaCommunicatorImpl;
@@ -46,18 +51,38 @@ public class ProvaUMOImpl extends LogComponent implements Initialisable,
 	public void initialise() throws InitialisationException,
 			RecoverableException {
 		String rulebase = "";
-		DefaultInboundEndpoint inboundEndpoint = (DefaultInboundEndpoint) ((Flow)fc).getMessageSource();
-		if (inboundEndpoint.getProperties() != null) {
-			if (inboundEndpoint.getProperties().containsKey("rulebase")) 
-				rulebase = (String) inboundEndpoint.getProperties()
-						.get("rulebase");
-		}	
-		agentName = inboundEndpoint.getName();
+		MessageSource msgSource = ((Flow) fc).getMessageSource();
+		if (msgSource instanceof DefaultInboundEndpoint) {
+			DefaultInboundEndpoint inboundEndpoint = (DefaultInboundEndpoint) ((Flow) fc)
+					.getMessageSource();
+			if (inboundEndpoint.getProperties() != null) {
+				if (inboundEndpoint.getProperties().containsKey("rulebase"))
+					rulebase = (String) inboundEndpoint.getProperties().get(
+							"rulebase");
+			}
+			agentName = inboundEndpoint.getName();
+		} else if (msgSource instanceof StartableCompositeMessageSource) {
+			StartableCompositeMessageSource compositeSource = (StartableCompositeMessageSource) ((Flow) fc)
+					.getMessageSource();
+			List list = compositeSource.getSources();
+			for (int i = 0; i < list.size(); i++) {
+				DefaultInboundEndpoint inboundEndpoint = (DefaultInboundEndpoint) list
+						.get(i);
+				if (inboundEndpoint.getProperties() != null) {
+					if (inboundEndpoint.getProperties().containsKey("rulebase"))
+						rulebase = (String) inboundEndpoint.getProperties()
+								.get("rulebase");
+					agentName = inboundEndpoint.getName();
+					break;
+				}
+			}
+		}
+
 		if (communicators.containsKey(agentName)) {
 			comm = communicators.get(agentName);
 			return;
 		}
-		
+
 		try {
 			comm = new ProvaCommunicatorImpl(agentName, null, rulebase,
 					ProvaCommunicatorImpl.ASYNC, this, null);
@@ -66,22 +91,31 @@ public class ProvaUMOImpl extends LogComponent implements Initialisable,
 			logger.error("Can not initialize Prova communicator");
 			ex.printStackTrace();
 		}
-		
+
 	}
 
 	/**
 	 * Process an inbound message that arrives on this endpoint
 	 */
 	public Object onCall(MuleEventContext context) throws Exception {
-		// Extract Prova RMessage
 		ProvaList incomingProvaMsg = null;
-		Object incomingMsg = context.getMessage().getPayload();
-				if (incomingMsg instanceof ProvaList)
-					incomingProvaMsg = (ProvaList) incomingMsg;
-
-		logger.info("AGENT:" + getAgentName() + " received the message:" + incomingProvaMsg);
+		MuleMessage inbound = context.getMessage();
+		if (inbound.getPayload() instanceof String) {
+			// the message is from Human agent
+			RuleML2ProvaTranslator ruleml2prova = new RuleML2ProvaTranslator();
+			String http_message = URLDecoder.decode(
+					inbound.getPayloadAsString(), inbound.getEncoding());
+			incomingProvaMsg = (ProvaList) ruleml2prova.transform(http_message.substring(http_message.indexOf("payload")+8));
+		} else if (inbound.getPayload() instanceof ProvaList) {
+			// The message is from other Prova agents
+			incomingProvaMsg = (ProvaList) inbound.getPayload();
+		}
+		
+		logger.info("AGENT: " + getAgentName() + " received the message:"
+				+ incomingProvaMsg);
 		comm.addMsg(incomingProvaMsg);
 		context.setStopFurtherProcessing(true);
+		
 		return null;
 	}
 
@@ -102,9 +136,14 @@ public class ProvaUMOImpl extends LogComponent implements Initialisable,
 			MuleClient client = new DefaultLocalMuleClient(fc.getMuleContext());
 			if (receiver.equalsIgnoreCase("httpEndpoint"))
 				client.dispatch(receiver, provaList.toString(), null);
-			else
+			else if (receiver.equalsIgnoreCase("humanAgent")) {
+				Object translatedSend = new Prova2RuleMLTranslator()
+						.transform(provaList);
+				client.dispatch(receiver, translatedSend, null);
+			} else
 				client.dispatch(receiver, provaList, null);
-			logger.info("AGENT:" + getAgentName() + " forwards " + provaList + " To:" + receiver);
+			logger.info("AGENT:" + getAgentName() + " forwards " + provaList
+					+ " To:" + receiver);
 
 		} catch (MalformedEndpointException e) {
 			// forwards the exception to the requester
@@ -134,7 +173,7 @@ public class ProvaUMOImpl extends LogComponent implements Initialisable,
 	@Override
 	public void receive(ProvaList arg0) throws Exception {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override

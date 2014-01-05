@@ -35,11 +35,13 @@ public class TaskManagementCenter {
 
 	public static Map<String, AbstractTask> taskMap = new HashMap<String, AbstractTask>();
 
-	public static Map<String, Map> taskAgents = new HashMap<String, Map>();
+//	public static Map<String, Map> taskAgents = new HashMap<String, Map>();
+	
+	public static Map<String, Boolean> agents = new HashMap<String, Boolean>();
 
-	public static Map<String, Map> taskServices = new HashMap<String, Map>();
+//	public static Map<String, Map> taskServices = new HashMap<String, Map>();
 
-	public static Map<String, Map> equivalentTasks = new HashMap<String, Map>();
+//	public static Map<String, Map> equivalentTasks = new HashMap<String, Map>();
 
 	public static Map<String, List> workflowMap = new HashMap<String, List>();
 
@@ -75,6 +77,24 @@ public class TaskManagementCenter {
 	//
 	// }
 	// }
+	
+	public static String findOptimalAgent(ArrayList candidateAgents){
+		for (int i = 0; i < candidateAgents.size(); i++) {
+			if (!agents.containsKey(candidateAgents.get(i).toString()))
+				return candidateAgents.get(i).toString();
+		}
+		return "none";
+	}
+	
+	public static void registerUnavailableAgent(Object agent){
+		if(!agents.containsKey(agent.toString()))
+		agents.put(agent.toString(), false);
+	}
+	
+	public static void removeUnavailableAgent(Object agent){
+		if(agents.containsKey(agent.toString()))
+		   agents.remove(agent.toString());
+	}
 
 	public static void registerWorkflow(Object cid, Object workflowName) {
 		if (!workflowMap.containsKey(cid.toString())) {
@@ -128,79 +148,79 @@ public class TaskManagementCenter {
 		return ProvaListImpl.create(objects1);
 	}
 
-	public static void registerAgentsOfTask(Object taskID, ArrayList agents) {
+//	public static void registerAgentsOfTask(Object taskID, ArrayList agents) {
+//
+//		if (taskAgents.containsKey(taskID))
+//			taskAgents.remove(taskID);
+//
+//		Map map = new HashMap<Object, String>();
+//		for (int i = 0; i < agents.size(); i++) {
+//			map.put(agents.get(i), "1");
+//		}
+//
+//		taskAgents.put(taskID.toString(), map);
+//	}
+//
+//	public static void registerServicesOfTask(Object taskID, ArrayList services) {
+//		if (taskServices.containsKey(taskID))
+//			taskServices.remove(taskID);
+//
+//		Map map = new HashMap<Object, String>();
+//		for (int i = 0; i < services.size(); i++) {
+//			map.put(services.get(i), "1");
+//		}
+//
+//		taskServices.put(taskID.toString(), map);
+//	}
 
-		if (taskAgents.containsKey(taskID))
-			taskAgents.remove(taskID);
+//	public static String getAlternativeAgent(Object taskID, Object agent) {
+//		Map map = taskAgents.get(taskID);
+//		map.remove(agent);
+//		map.put(agent, "0");
+//
+//		Iterator iter = map.keySet().iterator();
+//		while (iter.hasNext()) {
+//			String key = (String) iter.next();
+//			if (!key.equalsIgnoreCase(agent.toString())
+//					&& map.get(key).equals("1"))
+//				return key;
+//		}
+//
+//		return "unavailable";
+//	}
+//
+//	public static synchronized String getAlternativeService(Object taskID,
+//			Object service) {
+//		Map map = taskServices.get(taskID);
+//		map.remove(service);
+//		map.put(service, "0");
+//
+//		Iterator iter = map.keySet().iterator();
+//		while (iter.hasNext()) {
+//			String key = (String) iter.next();
+//			if (!key.equalsIgnoreCase(service.toString())
+//					&& map.get(key).equals("1"))
+//				return key;
+//		}
+//
+//		return "unavailable";
+//	}
 
-		Map map = new HashMap<Object, String>();
-		for (int i = 0; i < agents.size(); i++) {
-			map.put(agents.get(i), "1");
-		}
+//	public static void updateTagOFTaskService(Object taskID) {
+//		Map map = taskServices.get(taskID);
+//		Map newMap = new HashMap<Object, String>();
+//		Iterator iter = map.keySet().iterator();
+//		while (iter.hasNext()) {
+//			String key = (String) iter.next();
+//			newMap.put(key, "1");
+//		}
+//
+//		taskServices.remove(taskID);
+//		taskServices.put(taskID.toString(), newMap);
+//	}
 
-		taskAgents.put(taskID.toString(), map);
-	}
-
-	public static void registerServicesOfTask(Object taskID, ArrayList services) {
-		if (taskServices.containsKey(taskID))
-			taskServices.remove(taskID);
-
-		Map map = new HashMap<Object, String>();
-		for (int i = 0; i < services.size(); i++) {
-			map.put(services.get(i), "1");
-		}
-
-		taskServices.put(taskID.toString(), map);
-	}
-
-	public static String getAlternativeAgent(Object taskID, Object agent) {
-		Map map = taskAgents.get(taskID);
-		map.remove(agent);
-		map.put(agent, "0");
-
-		Iterator iter = map.keySet().iterator();
-		while (iter.hasNext()) {
-			String key = (String) iter.next();
-			if (!key.equalsIgnoreCase(agent.toString())
-					&& map.get(key).equals("1"))
-				return key;
-		}
-
-		return "unavailable";
-	}
-
-	public static synchronized String getAlternativeService(Object taskID,
-			Object service) {
-		Map map = taskServices.get(taskID);
-		map.remove(service);
-		map.put(service, "0");
-
-		Iterator iter = map.keySet().iterator();
-		while (iter.hasNext()) {
-			String key = (String) iter.next();
-			if (!key.equalsIgnoreCase(service.toString())
-					&& map.get(key).equals("1"))
-				return key;
-		}
-
-		return "unavailable";
-	}
-
-	public static void updateTagOFTaskService(Object taskID) {
-		Map map = taskServices.get(taskID);
-		Map newMap = new HashMap<Object, String>();
-		Iterator iter = map.keySet().iterator();
-		while (iter.hasNext()) {
-			String key = (String) iter.next();
-			newMap.put(key, "1");
-		}
-
-		taskServices.remove(taskID);
-		taskServices.put(taskID.toString(), newMap);
-	}
-
-	public static void clear(Object taskID) {
-		taskAgents.remove(taskID);
-		taskServices.remove(taskID);
-	}
+//	public static void clear(Object taskID) {
+//		taskAgents.remove(taskID);
+//		taskServices.remove(taskID);
+//	}
 }

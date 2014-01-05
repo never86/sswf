@@ -15,7 +15,6 @@
 :-eval(consult('../ContractLog/list.prova')).
 :-eval(consult('../ContractLog/update.prova')).
 :-eval(consult('../ContractLog/utils.prova')).
-%:-eval(consult('calendar.prova')). % calendar API
 :-eval(consult('engine.prova')).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -56,11 +55,10 @@ processMessage(XID,From,Primitive, [WorkflowName, Inputs, Outputs]):-
      de.fub.csw.TaskManagementCenter.registerWorkflow(XID, WorkflowName),
      % start a workflow
      workflow(XID, WorkflowName, Inputs, Outputs),
-   
+     
+          
      % waiting for outputs of workflows
      rcvMsg(XID, Protocol, 0, "answer", complete(WorkflowName, Outputs)),
-     
-   
      % send workflow outputs to user client   
      sendMsg(XID,esb,From, "answer", [WorkflowName,Inputs,Outputs]),
      sendMsg(XID,esb,From,no_further_answers, workflow(WorkflowName)),
@@ -80,15 +78,15 @@ workflow(XID, "wcp02_Parallel_Split_wcp03_Synchronization", inArgs(I11,I12), out
      
 branch(XID, I11, I12) :-
      assignTaskID(XID, TID1),
-     sendMsg(XID, async, 0, "request", executeTask('add', TID1, inArgs(I11,100),outArgs(O11))),
+     sendMsg(XID, async, 0, "request", executeTask('add', TID1, inArgs(I11,100.0),outArgs(O11))),
      @group(g1)
-     rcvMsg(XID, async, 0, "answer", [TID1, inArgs(I11,100),outArgs(O11)]). 
+     rcvMsg(XID, async, 0, "answer", [TID1, inArgs(I11,100.0),outArgs(O11)]). 
      
 branch(XID, I11, I12) :-
      assignTaskID(XID, TID2),
-     sendMsg(XID, async, 0, "request", executeTask('multiply', TID2, inArgs(I12,200),outArgs(O21))),
+     sendMsg(XID, async, 0, "request", executeTask('add', TID2, inArgs(I12,200.0),outArgs(O21))),
      @group(g1)
-     rcvMsg(XID, async, 0, "answer", [TID2, inArgs(I12,200),outArgs(O21)]).     
+     rcvMsg(XID, async, 0, "answer", [TID2, inArgs(I12,200.0),outArgs(O21)]).     
 
 branch(XID, I11, I12) :-
      @and(g1)
@@ -96,6 +94,7 @@ branch(XID, I11, I12) :-
      findall(O1,processReactionGroupResults(Events, O1), Outputs),
      Outputs1 = de.fub.csw.TaskAux.prepareReactionGroupResults(Outputs),
      sendMsg(XID, async, 0, "answer", complete("wcp02_Parallel_Split_wcp03_Synchronization", Outputs1)).
+    
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
      
@@ -104,15 +103,15 @@ workflow(XID, "wcp09_Structured_Discriminator", inArgs(I11,I12), outArgs(Workflo
      
 branch1(XID, I11, I12) :-
      assignTaskID(XID, TID1),
-     sendMsg(XID, async, 0, "request", executeTask('add', TID1, inArgs(I11,100),outArgs(O11))),
+     sendMsg(XID, async, 0, "request", executeTask('add', TID1, inArgs(I11,100.0),outArgs(O11))),
      @group(g1)
-     rcvMsg(XID, async, 0, "answer", [TID1, inArgs(I11,100),outArgs(O11)]). 
+     rcvMsg(XID, async, 0, "answer", [TID1, inArgs(I11,100.0),outArgs(O11)]). 
      
 branch1(XID, I11, I12) :-
      assignTaskID(XID, TID2),
-     sendMsg(XID, async, 0, "request", executeTask('add', TID2, inArgs(I12,200),outArgs(O21))),
+     sendMsg(XID, async, 0, "request", executeTask('add', TID2, inArgs(I12,200.0),outArgs(O21))),
      @group(g1)
-     rcvMsg(XID, async, 0, "answer", [TID2, inArgs(I12,200),outArgs(O21)]).
+     rcvMsg(XID, async, 0, "answer", [TID2, inArgs(I12,200.0),outArgs(O21)]).
      
 
 branch1(XID, I11, I12) :-
@@ -143,14 +142,14 @@ workflow(XID, "wcp04_ExclusiveChoice", inArgs(I11,I12), outArgs(WorkflowOutput))
 or(XID, Para, Output):-    
      more(Para,11),!,
      assignTaskID(XID, TID),
-     sendMsg(XID, async, 0, "request", executeTask('minus', TID, inArgs(Para, 100),outArgs(Output))),
-     rcvMsg(XID, async, 0, "answer", [TID, inArgs(Para, 100), outArgs(Output)]).
+     sendMsg(XID, async, 0, "request", executeTask('minus', TID, inArgs(Para, 100.0),outArgs(Output))),
+     rcvMsg(XID, async, 0, "answer", [TID, inArgs(Para, 100.0), outArgs(Output)]).
 
 or(XID, Para, Output):-
      lessequ(Para,11),!,
      assignTaskID(XID, TID),
-     sendMsg(XID, async, 0, "request", executeTask('add', TID, inArgs(Para, 100), outArgs(Output))),
-     rcvMsg(XID, async, 0, "answer", [TID, inArgs(Para, 100),outArgs(Output)]).
+     sendMsg(XID, async, 0, "request", executeTask('add', TID, inArgs(Para, 100.0), outArgs(Output))),
+     rcvMsg(XID, async, 0, "answer", [TID, inArgs(Para, 100.0),outArgs(Output)]).
      
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -183,9 +182,10 @@ workflow(XID, "nestedWorkflow", inArgs(I11,I12), outArgs(WorkflowOutput)) :-
      sendMsg(XID, async, 0, "request", executeTask('minus', TID, inArgs(I11,I12),outArgs(O11))),
      rcvMsg(XID, async, 0, "answer", [TID, inArgs(I11,I12),outArgs(O11)]),
      
+     println(["AAAAAAAAAAAAAAAAAAAAAA"]),
      % invoke an existing workflow
-     sendMsg(XID, esb, semantic_SWF_Engine, "query", ["wcp04_ExclusiveChoice", inArgs(O11,200), outArgs(WO1)]),
-     rcvMsg(XID, esb, semantic_SWF_Engine, "answer", ["wcp04_ExclusiveChoice", inArgs(O11,200), outArgs(WorkflowOutput)]),
+     sendMsg(XID, esb, semantic_SWF_Engine, "query", ["wcp04_ExclusiveChoice", inArgs(O11,200.0), outArgs(WO1)]),
+     rcvMsg(XID, esb, semantic_SWF_Engine, "answer", ["wcp04_ExclusiveChoice", inArgs(O11,200.0), outArgs(WorkflowOutput)]),
      
      sendMsg(XID, async, 0, "answer", complete("nestedWorkflow", outArgs(WorkflowOutput))).
      
@@ -210,8 +210,8 @@ workflow(XID, "human_interaction", inArgs(I11,I12), outArgs(WorkflowOutput)) :-
      sendMsg(XID, async, 0, "request", executeTask('add', TID1, inArgs(I11,I12),outArgs(O11))),
      rcvMsg(XID, async, 0, "answer", [TID1, inArgs(I11,I12),outArgs(O11)]),
      
-     sendMsg(XID, esb, csw2012_HumanAgent, "request", assign("human_interaction", value(Var))),
-     rcvMsg(XID, esb, csw2012_HumanAgent, "answer", value(Var)),
+     sendMsg(XID, esb, humanAgent, "request", assign("human_interaction", value(Var))),
+     rcvMsg(XID, esb, humanAgent, "answer", value(Var)),
      
      
      assignTaskID(XID, TID2),
