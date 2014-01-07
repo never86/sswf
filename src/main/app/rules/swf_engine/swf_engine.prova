@@ -54,6 +54,7 @@ processMessage(XID,From,Primitive, [WorkflowName, Inputs, Outputs]):-
      % register the workflow
      de.fub.csw.TaskManagementCenter.registerWorkflow(XID, WorkflowName),
      % start a workflow
+     
      workflow(XID, WorkflowName, Inputs, Outputs),
      
           

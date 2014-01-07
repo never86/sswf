@@ -5,10 +5,9 @@ rcvMsg(XID, Primitive, From, Performative, executeTask(TaskName, TaskID, Inputs,
     % record the inputs of a task
     de.fub.csw.opm.ProvenanceRecording.recordTaskInput(XID, TaskID, Inputs),
     % allocate a task to an agent
-    
     URL = de.fub.csw.constant.StringConstants.SEMANTIC_DATA_REPOSITORY_URL,
-    semanticDataConnection(URL, Connection),
-    
+    sparql_connect(Connection, URL),
+    %semanticDataConnection(URL, Connection),
     allocateTask(XID, TaskName, TaskID, Agent, Connection),
     
     % invoke the task  
@@ -40,8 +39,13 @@ getResponsibleAgents(TaskID, TaskName, Agent, Connection) :-
     QueryString =  de.fub.csw.constant.StringConstants.queryAgentByTask(TaskName),
 	sparql_select(Connection, QueryString, TaskID),
 	sparql_results(TaskID, FullAgentName),
-	getLocalName(FullAgentName, Agent)[bound(FullAgentName)].
+	getLocalName(FullAgentName, Agent)[bound(FullAgentName)],
+	!.
 
+getResponsibleAgents(TaskID, TaskName, Agent, Connection) :-
+    println(["NO AVAILABLE AGENT TO TASK: ", TaskName, "(", TaskID,"). THE EXCEPTION IS FORWARED TO EXCEPTION HANDLING AGENT."]),
+    sendMsg(XID,esb,exceptionHandlingAgent, "request", noAgentAvailable(TaskName, TaskID)),
+    rcvMsg(XID, esb, exceptionHandlingAgent, "answer", [TaskID, Agent]).
 
       
 invokeTask(XID, TaskName, TaskID, Agent, Inputs, Outputs, Connection) :-
