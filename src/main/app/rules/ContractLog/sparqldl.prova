@@ -1,0 +1,37 @@
+:- eval(test()).
+
+test() :-
+	println(["========== sparqldl_query test =========="]),
+	sparqldl_create(Engine, "http://grid.lzu.edu.cn:6060/sswf-3.0.owl"),
+	println(["==> An instance of SPARQL-DL engine has been created."]),
+	testSelectQuery(Engine),
+	println(["==> SPARQL-DL SELECT query done."]),
+	testAskQuery(Engine),
+	println(["==> SPARQL-DL ASK query done."]).
+   
+testSelectQuery(Engine) :-
+	QueryString = '
+		PREFIX : <http://www.corporate-semantic-web.de/sswf2013#>
+		SELECT ?role ?agent
+		WHERE {
+		Type(?agent, :Agent), 
+		PropertyValue(?agent, :hasRole, ?role)}
+	',
+	sparqldl_select(Engine, QueryString, a),
+	sparqldl_results(a, Role,  Agent),
+	println([Role, Agent], "  "),
+	fail().
+testSelectQuery(_).
+	
+testAskQuery(Engine) :-
+	QueryString = '
+		PREFIX : <http://www.corporate-semantic-web.de/sswf2013#>
+		ASK {
+		Type(:add, :Task)
+		} 
+	',
+	sparqldl_ask(Engine, QueryString, QueryId),
+	sparqldl_results(QueryId),
+	println(['yes']),
+	fail().
+testAskQuery(_).

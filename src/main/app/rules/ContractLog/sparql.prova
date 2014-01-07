@@ -1,17 +1,39 @@
-% Test sparql select with FROM clause
+:- eval(test()).
 
-:- solve(test01(X, Y)).
-
-test01(URL, Type) :-
+test() :-
+	println(["========== sparql_query test =========="]),
+	sparql_connect(Connection, "http://grid.lzu.edu.cn:6060/openrdf-sesame/repositories/sswf"),
+	println(["==> Connected1."]),
+	%testSelectQuery(Connection),
+	println(["==> SELECT query done."]),
+	testUpdate(Connection),
+	println(["==> ASK query done."]),
+	sparql_disconnect(Connection),
+	println(["==> Disconnected."]).
+   
+testSelectQuery(Connection) :-
 	QueryString = '
-		PREFIX foaf: <http://xmlns.com/foaf/0.1/>
-		PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-		SELECT ?contributor ?url ?type
-			FROM <http://teymourian.de/bloggers.rdf>
-			WHERE {
-				?contributor foaf:name "Bob DuCharme" .
-				?contributor foaf:weblog ?url .
-				?contributor rdf:type ?type .
-			}
+        PREFIX : <http://www.corporate-semantic-web.de/sswf2013#>
+        SELECT ?agent ?role WHERE {
+            ?agent a :Agent .
+            ?agent :hasRole ?role .
+        }
 	',
-	sparql_select(QueryString,[url(URL),type(Type)]).
+	sparql_select(Connection, QueryString, a),
+	sparql_results(a, Agent, Role),
+	println([a,": ", Agent, Role], "  "),
+	fail().
+testSelectQuery(_).
+	
+testUpdate(Connection) :-
+	UpdateString = '
+	    PREFIX : <http://www.corporate-semantic-web.de/sswf2013#>
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        DELETE DATA {:calculateAgent :available  "true"^^xsd:boolean};
+        INSERT DATA {:calculateAgent :available  "false"^^xsd:boolean}
+	',
+	sparql_ask(Connection, UpdateString, QueryId),
+	sparql_results(QueryId),
+	println(['yes']),
+	fail().
+testUpdate(_).

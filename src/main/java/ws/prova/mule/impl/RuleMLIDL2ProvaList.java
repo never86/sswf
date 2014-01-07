@@ -27,7 +27,6 @@ public class RuleMLIDL2ProvaList  extends AbstractTransformer {
 
 
 	private ProvaObject parseContent(String payload) {
-		payload= payload.replace("%20", " ");
 		List list = new ArrayList();
 		try {
 			Document doc = DocumentHelper.parseText(payload);

@@ -101,6 +101,7 @@ public class HttpEndpointUMOImpl extends LogComponent implements Initialisable,
 			incomingHttpMsg = URLDecoder.decode(inbound.getPayloadAsString(),
 					inbound.getEncoding());
 			int pos = incomingHttpMsg.indexOf("payload=");
+			incomingHttpMsg= incomingHttpMsg.replace("%20", " ");
 			if (pos != -1) {
 				// the message is from user, i.e., the request
 				req_content = incomingHttpMsg.substring(pos + 8);

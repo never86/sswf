@@ -5,10 +5,22 @@ rcvMsg(XID, Primitive, From, Performative, executeTask(TaskName, TaskID, Inputs,
     % record the inputs of a task
     de.fub.csw.opm.ProvenanceRecording.recordTaskInput(XID, TaskID, Inputs),
     % allocate a task to an agent
-    allocateTask(XID, TaskName, TaskID, Agent),
+    
+    URL = de.fub.csw.constant.StringConstants.SEMANTIC_DATA_REPOSITORY_URL,
+    semanticDataConnection(URL, Connection),
+    
+    allocateTask(XID, TaskName, TaskID, Agent, Connection),
     
     % invoke the task  
-    invokeTask(XID, TaskName, TaskID, Agent, Inputs, Outputs).
+    invokeTask(XID, TaskName, TaskID, Agent, Inputs, Outputs, Connection).
+    
+semanticDataConnection(URL, Connection):-
+    connection(URL, Connection),
+    !.
+    
+semanticDataConnection(URL, Connection):-
+    sparql_connect(Connection, URL),
+    assert(connection(URL, Connection)).
 
 % record the outputs of a task
 % remove its information from the task management center    
@@ -18,34 +30,36 @@ rcvMsg(XID, esb, From, "answer", [TaskID, [inArgs|Inputs], [outArgs|Outputs]]) :
     % distribute the message after the provenance information recording
     sendMsg(XID, async, 0, "answer", [TaskID, [inArgs|Inputs], [outArgs|Outputs]]).
 
-allocateTask(XID, TaskName, TaskID, Agent) :-
-    findall(A1,getResponsibleAgents(TaskName, A1),Agents),
-    Agent = de.fub.csw.TaskManagementCenter.findOptimalAgent(Agents),
+allocateTask(XID, TaskName, TaskID, Agent, Connection) :-
+    getResponsibleAgents(TaskID, TaskName, Agent, Connection),
     println(["The TASK: ", TaskName, "(", TaskID,") is allocated to AGENT:",Agent]).
 
 
 % find the optimal agent
-getResponsibleAgents(TaskName, Agent) :-
+getResponsibleAgents(TaskID, TaskName, Agent, Connection) :-
     QueryString =  de.fub.csw.constant.StringConstants.queryAgentByTask(TaskName),
-	sparql_select(QueryString,[agent(FullAgentName)]),
+	sparql_select(Connection, QueryString, TaskID),
+	sparql_results(TaskID, FullAgentName),
 	getLocalName(FullAgentName, Agent)[bound(FullAgentName)].
 
-      
-invokeTask(XID, TaskName, TaskID, Agent, Inputs, Outputs) :-
-    sendMsg(XID,esb, Agent, "start", [TaskName, TaskID,Inputs,Outputs]),
-    checkReceipt(XID, Agent, TaskName, TaskID,Inputs,Outputs).
 
-checkReceipt(XID, Agent, TaskName, TaskID, Inputs, Outputs):-
+      
+invokeTask(XID, TaskName, TaskID, Agent, Inputs, Outputs, Connection) :-
+    sendMsg(XID,esb, Agent, "start", [TaskName, TaskID,Inputs,Outputs]),
+    checkReceipt(XID, Agent, TaskName, TaskID,Inputs,Outputs, Connection).
+
+checkReceipt(XID, Agent, TaskName, TaskID, Inputs, Outputs, Connection):-
     rcvMsg(XID,Protocol,From, "answer" , unavailableAgent(TaskName, TaskID, Agent)),
     !,
-    de.fub.csw.TaskManagementCenter.registerUnavailableAgent(Agent),
+    UpdateString =  de.fub.csw.constant.StringConstants.updateAgent(Agent),
+    BASE_URL = de.fub.csw.constant.StringConstants.WF_ONTOLOGY_BASE_URL,
+    sparql_update(Connection, UpdateString, BASE_URL, TaskID),
     sendMsg(XID,esb,exceptionHandlingAgent, "request", unavailableAgent(TaskName, TaskID, Agent)),
     rcvMsg(XID, esb,exceptionHandlingAgent, "answer", [TaskID, NewAgent]),
     invokeTask(XID, TaskName, TaskID, NewAgent,Inputs,Outputs).
 
-checkReceipt(XID, Agent, TaskName, TaskID, Inputs, Outputs):-
+checkReceipt(XID, Agent, TaskName, TaskID, Inputs, Outputs, Connection):-
     !,
-    de.fub.csw.TaskManagementCenter.removeUnavailableAgent(Agent),
     println(["The workflow engine is waiting for the answer from the AGENT:", Agent]).
    
     

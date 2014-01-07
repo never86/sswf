@@ -37,7 +37,7 @@ public class TaskManagementCenter {
 
 //	public static Map<String, Map> taskAgents = new HashMap<String, Map>();
 	
-	public static Map<String, Boolean> agents = new HashMap<String, Boolean>();
+//	public static Map<String, Boolean> agents = new HashMap<String, Boolean>();
 
 //	public static Map<String, Map> taskServices = new HashMap<String, Map>();
 
@@ -78,23 +78,23 @@ public class TaskManagementCenter {
 	// }
 	// }
 	
-	public static String findOptimalAgent(ArrayList candidateAgents){
-		for (int i = 0; i < candidateAgents.size(); i++) {
-			if (!agents.containsKey(candidateAgents.get(i).toString()))
-				return candidateAgents.get(i).toString();
-		}
-		return "none";
-	}
-	
-	public static void registerUnavailableAgent(Object agent){
-		if(!agents.containsKey(agent.toString()))
-		agents.put(agent.toString(), false);
-	}
-	
-	public static void removeUnavailableAgent(Object agent){
-		if(agents.containsKey(agent.toString()))
-		   agents.remove(agent.toString());
-	}
+//	public static String findOptimalAgent(ArrayList candidateAgents){
+//		for (int i = 0; i < candidateAgents.size(); i++) {
+//			if (!agents.containsKey(candidateAgents.get(i).toString()))
+//				return candidateAgents.get(i).toString();
+//		}
+//		return "none";
+//	}
+//	
+//	public static void registerUnavailableAgent(Object agent){
+//		if(!agents.containsKey(agent.toString()))
+//		agents.put(agent.toString(), false);
+//	}
+//	
+//	public static void removeUnavailableAgent(Object agent){
+//		if(agents.containsKey(agent.toString()))
+//		   agents.remove(agent.toString());
+//	}
 
 	public static void registerWorkflow(Object cid, Object workflowName) {
 		if (!workflowMap.containsKey(cid.toString())) {

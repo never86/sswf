@@ -182,7 +182,6 @@ workflow(XID, "nestedWorkflow", inArgs(I11,I12), outArgs(WorkflowOutput)) :-
      sendMsg(XID, async, 0, "request", executeTask('minus', TID, inArgs(I11,I12),outArgs(O11))),
      rcvMsg(XID, async, 0, "answer", [TID, inArgs(I11,I12),outArgs(O11)]),
      
-     println(["AAAAAAAAAAAAAAAAAAAAAA"]),
      % invoke an existing workflow
      sendMsg(XID, esb, semantic_SWF_Engine, "query", ["wcp04_ExclusiveChoice", inArgs(O11,200.0), outArgs(WO1)]),
      rcvMsg(XID, esb, semantic_SWF_Engine, "answer", ["wcp04_ExclusiveChoice", inArgs(O11,200.0), outArgs(WorkflowOutput)]),
@@ -218,12 +217,4 @@ workflow(XID, "human_interaction", inArgs(I11,I12), outArgs(WorkflowOutput)) :-
      sendMsg(XID, async, 0, "request", executeTask('minus', TID2, inArgs(Var, O11),outArgs(O21))),
      rcvMsg(XID, async, 0, "answer", [TID2, inArgs(Var, O11),outArgs(WorkflowOutput)]),
      
-     sendMsg(XID, async, 0, "answer", complete("human_interaction", outArgs(WorkflowOutput))).
-     
-workflow(XID, "human_interaction1", inArgs(I11,I12), outArgs(WorkflowOutput)) :-
-     assignTaskID(XID, TID1),
-     sendMsg(XID, async, agent1, "request", add(1,2)),
-     rcvMsg(XID, async, 0, "answer", Result),
-     
-     sendMsg(XID, async, 0, "answer", complete("human_interaction1", outArgs(Result))).
-     
+     sendMsg(XID, async, 0, "answer", complete("human_interaction", outArgs(WorkflowOutput))).     

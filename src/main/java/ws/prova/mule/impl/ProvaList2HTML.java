@@ -15,7 +15,7 @@ import ws.prova.kernel2.ProvaList;
 import ws.prova.kernel2.ProvaObject;
 
 /**
- * @author never86
+ * @author Zhili Zhao
  *
  */
 public class ProvaList2HTML extends AbstractTransformer {
@@ -38,9 +38,9 @@ public class ProvaList2HTML extends AbstractTransformer {
 		try {
 			doc = DocumentHelper.parseText(req_content);
 			Element root = doc.getRootElement();
-			htmlContent = "<table cellpadding=\"0\" cellspacing=\"0\" border=\"1\"><tr><td height=\"40\"><span class=\"STYLE4\">&nbsp;<b>Workflow Name</b>: "
+			htmlContent = "<table cellpadding=\"3\" cellspacing=\"3\" border=\"1\"><tr><td height=\"25\"><span class=\"STYLE4\">&nbsp;<b>Workflow name</b>: "
 					+ root.elementText("Fun")
-					+ ".</span></td></tr><tr><td height=\"40\"><span class=\"STYLE4\"  style=\"line-height:1.2\">&nbsp;<b>Workflow Description</b>: "
+					+ ".</span></td></tr><tr><td height=\"25\"><span class=\"STYLE4\"  style=\"line-height:1.2\">&nbsp;<b>Workflow description</b>: "
 					+ root.element("label").element("Expr").elementText("Ind")+ "</span></td></tr>";
 			for(int i= 1; i<pList.getFixed().length;i++){
 				ProvaObject obj = pList.getFixed()[i];
@@ -61,7 +61,7 @@ public class ProvaList2HTML extends AbstractTransformer {
 	}
 	
 	private String constantToHtml(Element ele, ProvaConstant obj, String space) {
-		String indContent = "<tr><td height=\"30\">" + space;
+		String indContent = "<tr><td height=\"20\">" + space;
 		String value = "";
 		if (ele.attribute("default") != null)
 			value = ele.attributeValue("default");
@@ -79,7 +79,7 @@ public class ProvaList2HTML extends AbstractTransformer {
 		for(int i=0; i<pList.getFixed().length;i++){
 			ProvaObject obj = pList.getFixed()[i];
 			if(obj instanceof ProvaConstant && i == 0)
-				provaListContent +="<tr><td height=\"30\"><b>" + space + obj + "</b></td></tr>";
+				provaListContent +="<tr><td height=\"20\"><b>" + space + obj + "</b></td></tr>";
 			else if(obj instanceof ProvaConstant && i != 0)
 				provaListContent +=constantToHtml((Element)ele.elements().get(i), (ProvaConstant) obj, space+"&nbsp;&nbsp;");
 			else if(obj instanceof ProvaList){
