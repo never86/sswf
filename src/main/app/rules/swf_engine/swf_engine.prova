@@ -202,6 +202,13 @@ workflow(XID, "wcp01_Sequence_test", inArgs(I11,I12, I22), outArgs(WorkflowOutpu
      
      sendMsg(XID, async, 0, "answer", complete("wcp01_Sequence_test", outArgs(WorkflowOutput))).
      
+
+workflow(XID, "proteinPredicitonAnalysisProcess", inArgs(Protein, GOTerm), outArgs(Result)) :-
+     assignTaskID(XID, TID1),
+     sendMsg(XID, async, 0, "request", executeTask('proteinPredicitonAnalysis', TID1, inArgs(Protein, GOTerm), outArgs(Result))),
+     rcvMsg(XID, async, 0, "answer", [TID1, inArgs(Protein, GOTerm),outArgs(Result)]),
+     sendMsg(XID, async, 0, "answer", complete("proteinPredicitonAnalysisProcess", outArgs(Result))).
+     
      
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

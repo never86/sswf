@@ -115,6 +115,7 @@ public class HttpEndpointUMOImpl extends LogComponent implements Initialisable,
 			}
 
 		} catch (Exception ex) {
+			ex.printStackTrace();
 			logger.error("Translation of message into Prova message failed: "
 					+ req_content);
 			return "Translation of the following request into Prova message failed:\n\n"

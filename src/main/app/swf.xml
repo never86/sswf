@@ -67,6 +67,30 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
 		</jms:inbound-endpoint>
 		<component class="ws.prova.mule.impl.ProvaUMOImpl" />
 	</flow>
+	
+	<jms:endpoint name="proteinPredictionAnalysisAgent" topic="proteinPredictionAnalysis_agent"
+		connector-ref="jmsConnector" />
+	<flow name="ProteinPredictionAnalysis_Model">
+		<jms:inbound-endpoint ref="proteinPredictionAnalysisAgent">
+			<properties>
+				<spring:entry key="rulebase"
+					value="${app.home}/rules/protein_prediction_analysis/proteinGOTerms.prova" />
+			</properties>
+		</jms:inbound-endpoint>
+		<component class="ws.prova.mule.impl.ProvaUMOImpl" />
+	</flow>
+	
+	<jms:endpoint name="similarityAnalyzer" topic="similarityAnalyzer_agent"
+		connector-ref="jmsConnector" />
+	<flow name="SimilarityAnalyzer_Model">
+		<jms:inbound-endpoint ref="similarityAnalyzer">
+			<properties>
+				<spring:entry key="rulebase"
+					value="${app.home}/rules/protein_prediction_analysis/simiarity_analysis.prova" />
+			</properties>
+		</jms:inbound-endpoint>
+		<component class="ws.prova.mule.impl.ProvaUMOImpl" />
+	</flow>
 
 <!--  
 	<jms:endpoint name="wsJmsEndpoint" topic="master_agent_b"

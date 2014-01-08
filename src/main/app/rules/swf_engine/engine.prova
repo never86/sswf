@@ -1,4 +1,4 @@
-rcvMsg(XID, Primitive, From, Performative, executeTask(TaskName, TaskID, Inputs, Outputs)) :-
+rcvMsg(XID, Primitive, 0, request, executeTask(TaskName, TaskID, Inputs, Outputs)) :-
     % register the information of a task into the task management center
     de.fub.csw.TaskManagementCenter.registerTask(TaskID, TaskName, Inputs, Outputs),
     
@@ -19,7 +19,12 @@ semanticDataConnection(URL, Connection):-
     
 semanticDataConnection(URL, Connection):-
     sparql_connect(Connection, URL),
-    assert(connection(URL, Connection)).
+    assert(connection(URL, Connection)),
+    !.
+    
+semanticDataConnection(URL, Connection):-
+    println(["Connect ", URL, " failed"]).
+
 
 % record the outputs of a task
 % remove its information from the task management center    

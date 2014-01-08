@@ -122,7 +122,7 @@ public class TaskManagementCenter {
 			workflows.add(workflowName);
 		}
 	}
-
+	
 	public static void registerTask(Object taskID, Object taskName,
 			ProvaList inList, ProvaList outList) {
 		if (!taskMap.containsKey(taskID.toString())) {

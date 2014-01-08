@@ -16,6 +16,7 @@
 :-eval(consult('../ContractLog/update.prova')).
 :-eval(consult('../ContractLog/utils.prova')).
 :-eval(consult('../ContractLog/owl.prova')).
+:-eval(consult('../swf_engine/agent.prova')).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -91,17 +92,14 @@ isSuccessful(XID,TaskID, Service, ServiceType, Address, StartTime, Output, 1) :-
 isSuccessful(XID,TaskID, Service, ServiceType, Address, StartTime, Output, Size) :-
     notequ(Size,1),!,
     % record the execution information
-    de.fub.csw.opm.ProvenanceRecording.serviceCompleted(XID,TaskID, Service, ServiceType, Address, StartTime, Output,"Agent_A1"),
+    de.fub.csw.opm.ProvenanceRecording.taskCompleted(XID,TaskID, Service, ServiceType, Address, StartTime, Output,"calculate_agent"),
     sendMsg(XID, async, 0, "answer", [TaskID, Output]),
     println(["TASK:", TaskID, " is completed."]).
     
 getResultSize(Output,S) :-
     last(L, Output),
     size(L,S).  
-    
-currentSystemTime(T) :-
-    D = java.util.Date(),
-    T = D.toLocaleString().  
+
 
 % receive the event of service validation
 validateTask(XID, TaskID, Service, NewService) :-

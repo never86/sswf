@@ -11,7 +11,6 @@
  */
 package de.fub.csw.constant;
 
-
 /**
  * class description
  * 
@@ -23,7 +22,7 @@ package de.fub.csw.constant;
  */
 
 public class StringConstants {
-	
+
 	public static String appDir = "";
 
 	public static String ENTITIES_DECLARATION = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
@@ -39,7 +38,7 @@ public class StringConstants {
 			+ "]>\n";
 
 	public static String SEMANTIC_DATA_REPOSITORY_URL = "http://grid.lzu.edu.cn:6060/openrdf-sesame/repositories/sswf";
-	
+
 	public static String WF_ONTOLOGY_BASE_URL = "http://www.corporate-semantic-web.de/sswf2013#";
 
 	public static String queryAgentByTask(Object taskName) {
@@ -59,6 +58,11 @@ public class StringConstants {
 				+ "DELETE DATA {:" + agent
 				+ " :available  \"true\"^^xsd:boolean};\n" + "INSERT DATA {:"
 				+ agent + " :available  \"false\"^^xsd:boolean}";
+	}
+
+	public static String goTermAnalysisQuery(Object goTerm, Object targetGOTerm) {
+		return "PREFIX : <http://www.geneontology.org/go#>\n" + "ASK {\n"
+				+ "Individual(:" +  goTerm + ")\n" + "} ";
 	}
 
 }

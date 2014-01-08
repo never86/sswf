@@ -52,10 +52,10 @@ public class ProvenanceRecording {
 	 * @param agentName
 	 *            : the agent which is responsible the service
 	 */
-	public static void serviceCompleted(Object cid, Object taskID,
+	public static void taskCompleted(Object cid, Object taskID,
 			Object service, Object serviceType, Object address,
 			Object startTime, ProvaList output, Object agentName) {
-
+try{
 		ProvaObject[] objects = output.getFixed();
 
 		AbstractTask task = TaskManagementCenter.taskMap.get(taskID);
@@ -137,6 +137,9 @@ public class ProvenanceRecording {
 						taskID + "_o" + i, taskID, "wasGeneratedBy_" + i);
 			}
 		}
+}catch(Exception e){
+	e.printStackTrace();
+}
 	}
 	
 
