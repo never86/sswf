@@ -1,0 +1,3 @@
+currentSystemTime(T) :-
+    D = java.util.Date(),
+    T = D.toLocaleString().  

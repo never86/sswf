@@ -33,14 +33,15 @@ public class ProvaList2HTML extends AbstractTransformer {
 	protected Object doTransform(Object payload, String enc)
 			throws TransformerException {
 		ProvaList pList = (ProvaList) ((ProvaList) payload).getFixed()[4];
+		
 		Document doc = null;
 		String htmlContent = "";
 		try {
 			doc = DocumentHelper.parseText(req_content);
 			Element root = doc.getRootElement();
-			htmlContent = "<table cellpadding=\"3\" cellspacing=\"3\" border=\"1\"><tr><td height=\"25\"><span class=\"STYLE4\">&nbsp;<b>Workflow name</b>: "
+			htmlContent = "<table cellpadding=\"3\" cellspacing=\"3\" border=\"1\"><tr><td height=\"25\"><span class=\"STYLE4\">&nbsp;<b>Workflow</b>: "
 					+ root.elementText("Fun")
-					+ ".</span></td></tr><tr><td height=\"25\"><span class=\"STYLE4\"  style=\"line-height:1.2\">&nbsp;<b>Workflow description</b>: "
+					+ ".</span></td></tr><tr><td height=\"25\"><span class=\"STYLE4\"  style=\"line-height:1.2\">&nbsp;<b>Description</b>: "
 					+ root.element("label").element("Expr").elementText("Ind")+ "</span></td></tr>";
 			for(int i= 1; i<pList.getFixed().length;i++){
 				ProvaObject obj = pList.getFixed()[i];
@@ -57,6 +58,7 @@ public class ProvaList2HTML extends AbstractTransformer {
 		
 		
 		htmlContent += "</table>";
+	
 		return htmlContent;
 	}
 	
@@ -66,8 +68,7 @@ public class ProvaList2HTML extends AbstractTransformer {
 		if (ele.attribute("default") != null)
 			value = ele.attributeValue("default");
 			indContent += "&nbsp;&nbsp;name=\""
-					+ ele.attributeValue("name") + "\"&nbsp;&nbsp; default=\"" + value
-					+ "\"&nbsp;&nbsp;value = \""+obj+"\"&nbsp;&nbsp;<span class=\"STYLE4\">("
+					+ ele.attributeValue("name") + "\"&nbsp;&nbsp; value = \""+obj+"\"&nbsp;&nbsp;<span class=\"STYLE4\">("
 					+ ele.attributeValue("meta") + ")</span>";
 		indContent += "</td></tr>";
 		return indContent;

@@ -2,8 +2,6 @@ rcvMsg(XID, Primitive, 0, request, executeTask(TaskName, TaskID, Inputs, Outputs
     % register the information of a task into the task management center
     de.fub.csw.TaskManagementCenter.registerTask(TaskID, TaskName, Inputs, Outputs),
     
-    % record the inputs of a task
-    de.fub.csw.opm.ProvenanceRecording.recordTaskInput(XID, TaskID, Inputs),
     % allocate a task to an agent
     URL = de.fub.csw.constant.StringConstants.SEMANTIC_DATA_REPOSITORY_URL,
     sparql_connect(Connection, URL),
@@ -25,14 +23,6 @@ semanticDataConnection(URL, Connection):-
 semanticDataConnection(URL, Connection):-
     println(["Connect ", URL, " failed"]).
 
-
-% record the outputs of a task
-% remove its information from the task management center    
-rcvMsg(XID, esb, From, "answer", [TaskID, [inArgs|Inputs], [outArgs|Outputs]]) :-
-    de.fub.csw.opm.ProvenanceRecording.recordTaskOutput(XID, TaskID, Outputs),
-   
-    % distribute the message after the provenance information recording
-    sendMsg(XID, async, 0, "answer", [TaskID, [inArgs|Inputs], [outArgs|Outputs]]).
 
 allocateTask(XID, TaskName, TaskID, Agent, Connection) :-
     getResponsibleAgents(TaskID, TaskName, Agent, Connection),

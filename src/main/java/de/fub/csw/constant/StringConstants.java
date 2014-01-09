@@ -11,6 +11,8 @@
  */
 package de.fub.csw.constant;
 
+import java.util.List;
+
 /**
  * class description
  * 
@@ -60,9 +62,11 @@ public class StringConstants {
 				+ agent + " :available  \"false\"^^xsd:boolean}";
 	}
 
-	public static String goTermAnalysisQuery(Object goTerm, Object targetGOTerm) {
-		return "PREFIX : <http://www.geneontology.org/go#>\n" + "ASK {\n"
-				+ "Individual(:" +  goTerm + ")\n" + "} ";
+	public static String goTermAnalysisQuery(String goTerm, Object targetGOTerm) {
+		String query = "PREFIX : <http://www.geneontology.org/go#>\n"+
+			"ASK {Individual(:" +  goTerm + ")}";
+    	return query;
+		
 	}
 
 }

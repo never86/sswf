@@ -17,21 +17,19 @@ import ws.prova.reference2.ProvaConstantImpl;
 import ws.prova.reference2.ProvaListImpl;
 import ws.prova.reference2.ProvaVariableImpl;
 
-public class String2ProvaList extends AbstractTransformer{
+public class String2ProvaList extends AbstractTransformer {
 
 	// public ProvaKnowledgeBase kb = new ProvaKnowledgeBaseImpl();
 	private String regex = "\\.?@\\d+=";
 	private LinkedList ll = new LinkedList();
-	
-		
-	public static void main(String[] args){
+
+	public static void main(String[] args) {
 		String b = "[semantic_SWF_Engine, esb, User, query-sync, [workflow,2.3,7.7,7.7]]";
 		String a = "RuleML-2010,esb,User,query-sync,[getContact,ruleml2010_GeneralChair,update,Contact]";
 		String temp = "semantic_SWF_Engine,esb,User,query-sync,[wcp01_Sequence,[inArgs,2.3,7.7,3.4],[outArgs,Output]]";
 		String temp1 = "semantic_SWF_Engine,esb,User,query-sync,[wcp04_ExclusiveChoice,[inArgs,2.3,7.7],[outArgs,Output]]";
 		String temp2 = "semantic_SWF_Engine,esb,User,query-sync,[nestedWorkflow,[inArgs,2.3,7.7],[outArgs,Output]]";
 	}
-
 
 	private String removeQutationMark(String string) {
 		// TODO Auto-generated method stub
@@ -111,18 +109,8 @@ public class String2ProvaList extends AbstractTransformer{
 			if (temp.equals(""))
 				return;
 			char firstChar = temp.charAt(0);
-			if (Character.isLetter(firstChar)
-					&& Character.isUpperCase(firstChar)) {
-				list.add(constructProvaVariable(objs[j]));
-			} else if (Character.isLetter(firstChar)
-					&& Character.isLowerCase(firstChar))
-				list.add(constructProvaConstant(objs[j]));
-			else if (firstChar == ('\"') || firstChar == ('\''))
-				list.add(constructProvaConstant(removeQutationMark(objs[j])));
-			else if (isNumeric(objs[j]))
-				list.add(constructProvaConstant(objs[j]));
-			else if (firstChar == '@')
-				list.add(ProvaVariableImpl.create(removeQutationMark(objs[j])));
+			//the items of the content are constants, since the content is a workflow result
+			list.add(constructProvaConstant(removeQutationMark(objs[j])));
 		}
 	}
 
@@ -144,8 +132,6 @@ public class String2ProvaList extends AbstractTransformer{
 			return ProvaConstantImpl.create(constantStr);
 	}
 
-	
-
 	/**
 	 * @param string
 	 * @return
@@ -163,7 +149,6 @@ public class String2ProvaList extends AbstractTransformer{
 			return ProvaVariableImpl.create(obj);
 	}
 
-	
 	private boolean isNumeric(String str) {
 		for (int i = str.length(); --i >= 0;) {
 			int chr = str.charAt(i);
@@ -175,14 +160,13 @@ public class String2ProvaList extends AbstractTransformer{
 		return true;
 	}
 
-
 	@Override
 	protected Object doTransform(Object src, String enc)
 			throws TransformerException {
 		String output = src.toString();
 		if (output.startsWith("["))
-			output = output.substring(1, output.length()-1);
-		
+			output = output.substring(1, output.length() - 1);
+
 		String[] items = output.split(",");
 		int i = 0;
 		if (items[0].indexOf("id") != -1)
@@ -195,7 +179,7 @@ public class String2ProvaList extends AbstractTransformer{
 				ProvaConstantImpl.create(removeQutationMark(items[i + 2])),
 				ProvaConstantImpl.create(removeQutationMark(items[i + 3])),
 				parseContent(output.substring(output.indexOf(items[i + 3])
-						+ items[i + 3].length() + 1, output.length() )) });
+						+ items[i + 3].length() + 1, output.length())) });
 
 		return list;
 	}

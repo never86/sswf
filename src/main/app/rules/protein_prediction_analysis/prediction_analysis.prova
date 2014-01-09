@@ -1,0 +1,97 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% The Super Organizational Agent
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Import external rules/ContractLog libraries for
+% mathematical, lists and date / time computations
+% and access to external data sources, e.g.
+% Semantic Web ontologies, iCal Calendars etc.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+:-eval(consult('../ContractLog/math.prova')).
+:-eval(consult('../ContractLog/datetime.prova')).
+:-eval(consult('../ContractLog/list.prova')).
+:-eval(consult('../ContractLog/update.prova')).
+:-eval(consult('../ContractLog/utils.prova')).
+:-eval(consult('../ContractLog/owl.prova')).
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Performative vocabulary of organizational agent
+% More complex vocabularies (e.g. FIPA ACL) might be defined as Semantic Web ontologies	
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+performative(request):-performative(query).
+performative(start).
+performative(query).
+
+performative(XID,Performative):-
+   performative(Performative).
+
+rcvMsg(XID,esb, From, Performative, [TaskName|ParaList]) :-
+	understandPerformative(XID, From, Performative, [TaskName|ParaList]),
+	processMessage(XID, From, Performative, [TaskName|ParaList]).
+rcvMsg(XID,esb, From, Performative, [TaskName|ParaList]) :-
+	understandPerformative(XID, From, Performative, [TaskName|ParaList]),
+	rcvMsg(XID,esb,Agent,no_further_answers, Payload),
+	sendMsg(XID,esb,From,no_further_answers,[TaskName|ParaList]),
+	println(["--------------------------------------------"]), 
+	println(["                 COMPLETE                   "]), 
+	println(["--------------------------------------------"]).
+		
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% rules for processing the message
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%	
+	
+% try to understand the performative of the message
+understandPerformative(XID, From, "answer", PayLoad) :- !, fail().
+understandPerformative(XID, From, "end_of_transmission", PayLoad) :- !, fail().
+understandPerformative(XID, From, "no_further_answers", PayLoad) :- !,fail().  	
+understandPerformative(XID, From, Performative, PayLoad) :-
+	performative(Performative).
+understandPerformative(XID, From, Performative, PayLoad) :-
+	not(performative(Performative)),
+	sendMsg(XID,esb,From,"answer", notUnderstood("performative",Performative)),
+	sendMsg(XID,esb,From,"no_further_answers", PayLoad),
+	fail().
+	
+processMessage(XID,From,Primitive, analysis(Protein, TargetGOTerm, Result)):-
+     analysis(Protein, TargetGOTerm, Result),
+     sendMsg(XID,esb,From, "answer", analysis(Protein, TargetGOTerm, Result)).
+
+
+analysis(Protein, TargetGOTerm, Result):-
+   GOTerms = de.fub.csw.protein.prediction.QuickGOClient.getGOTermsByProteinID(Protein),
+   element(GOTerm, GOTerms),
+   %concat(["http://amigo.geneontology.org/cgi-bin/amigo/browse.cgi?&format=rdfxml&term=", TargetGOTerm], OntologyURL),
+   OntologyURL = "http://grid.lzu.edu.cn:6060/0006564.xml",
+   reasonEngine(OntologyURL, Engine),
+   QueryString = de.fub.csw.constant.StringConstants.goTermAnalysisQuery(GOTerm, TargetGOTerm),
+   askQuery(Engine, QueryString, Result),
+   Result = "yes", 
+   !.
+   
+analysis(Protein, TargetGOTerm, Result):-
+   Result = "no".
+   
+askQuery(Engine, QueryString, Result):-
+   sparqldl_ask(Engine, QueryString, QueryId),
+   Result = "yes",
+   !.
+   
+askQuery(Engine, QueryString, Result):-
+   Result = "no".
+   
+reasonEngine(URL, Engine):-
+    engine(URL, Engine),
+    !.
+    
+reasonEngine(URL, Engine):-
+    sparqldl_create(Engine, URL),
+    println(["An SPARQL-DL engine for ", URL, " has been created"]),
+    assert(engine(URL, Engine)),
+    !.
+reasonEngine(URL, Engine):-
+    println(["Create SPARQL-DL engine for ", URL, " failed"]),
+    fail().

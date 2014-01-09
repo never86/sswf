@@ -180,7 +180,7 @@
     </global-element>
     <global-element name="JMS" type="http://www.mulesoft.org/schema/mule/jms/endpoint" entity-id="JMS#4">
         <properties>
-            <property name="topic" value="similarityAnalyzer_agent"/>
+            <property name="topic" value="predictionAnalyzer_agent"/>
             <property name="queue"/>
             <property name="durableName"/>
             <property name="businessEventsLabel"/>
@@ -191,7 +191,7 @@
             <property name="ref"/>
             <property name="transformer-refs"/>
             <property name="address"/>
-            <property name="name" value="similarityAnalyzer"/>
+            <property name="name" value="predictionAnalyzer"/>
             <property name="encoding"/>
             <property name="responseTransformer-refs"/>
             <property name="auxiliary;index" value="33"/>
@@ -280,7 +280,7 @@
             <property name="connector-ref"/>
         </properties>
     </global-element>
-    <flow SubFlow="false" name="Sentinel" type="http://www.mulesoft.org/schema/mule/core/flow" entity-id="d457bf91-50f4-421e-9695-3da990940b4e">
+    <flow SubFlow="false" name="Sentinel" type="http://www.mulesoft.org/schema/mule/core/flow" entity-id="dea49153-fa52-42eb-9ceb-a66a518e065c">
         <properties>
             <property name="initialState"/>
             <property name="processingStrategy2"/>
@@ -340,7 +340,7 @@
             </pattern>
         </lane>
     </flow>
-    <flow SubFlow="false" name="WorklfowEngine" type="http://www.mulesoft.org/schema/mule/core/flow" entity-id="34cc3f76-1458-43c8-8943-6768e525b7fd">
+    <flow SubFlow="false" name="WorklfowEngine" type="http://www.mulesoft.org/schema/mule/core/flow" entity-id="6191c3c0-02e8-477f-b3ec-0f6c4e6a8185">
         <properties>
             <property name="initialState"/>
             <property name="processingStrategy2"/>
@@ -382,7 +382,7 @@
             </pattern>
         </lane>
     </flow>
-    <flow SubFlow="false" name="Calculate_Agent_Model" type="http://www.mulesoft.org/schema/mule/core/flow" entity-id="dcf9caa4-5f4c-4f64-ba8d-bf068318adbc">
+    <flow SubFlow="false" name="Calculate_Agent_Model" type="http://www.mulesoft.org/schema/mule/core/flow" entity-id="af2e3796-9e36-4529-a8bf-eb2248c6d750">
         <properties>
             <property name="initialState"/>
             <property name="processingStrategy2"/>
@@ -424,7 +424,7 @@
             </pattern>
         </lane>
     </flow>
-    <flow SubFlow="false" name="ProteinPredictionAnalysis_Model" type="http://www.mulesoft.org/schema/mule/core/flow" entity-id="3da69505-4ecc-480e-9994-2211c872d222">
+    <flow SubFlow="false" name="ProteinPredictionAnalysis_Model" type="http://www.mulesoft.org/schema/mule/core/flow" entity-id="76325edd-3f54-46cc-8933-b35b6cbc8494">
         <properties>
             <property name="initialState"/>
             <property name="processingStrategy2"/>
@@ -466,7 +466,7 @@
             </pattern>
         </lane>
     </flow>
-    <flow SubFlow="false" name="SimilarityAnalyzer_Model" type="http://www.mulesoft.org/schema/mule/core/flow" entity-id="e8818039-0378-427b-9ffa-5f830626e87b">
+    <flow SubFlow="false" name="PredictionAnalyzer_Model" type="http://www.mulesoft.org/schema/mule/core/flow" entity-id="e7712394-a150-4d04-b1bd-5c1e9f61c2ce">
         <properties>
             <property name="initialState"/>
             <property name="processingStrategy2"/>
@@ -488,7 +488,7 @@
                     <property name="disableTemporaryReplyToDestinations"/>
                     <property name="exchange-pattern"/>
                     <property name="tracking:enable-default-events"/>
-                    <property name="ref" value="similarityAnalyzer"/>
+                    <property name="ref" value="predictionAnalyzer"/>
                     <property name="transformer-refs"/>
                     <property name="address"/>
                     <property name="encoding"/>
@@ -508,7 +508,7 @@
             </pattern>
         </lane>
     </flow>
-    <flow SubFlow="false" name="Exception_Handling" type="http://www.mulesoft.org/schema/mule/core/flow" entity-id="4adefcf6-fb07-4915-bcd5-40b3ad723d78">
+    <flow SubFlow="false" name="Exception_Handling" type="http://www.mulesoft.org/schema/mule/core/flow" entity-id="c1755738-6d15-48f8-aa38-54dfbc8578f8">
         <properties>
             <property name="initialState"/>
             <property name="processingStrategy2"/>

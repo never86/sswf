@@ -50,7 +50,6 @@ understandPerformative(XID, From, Performative, PayLoad) :-
 processMessage(XID,From,Primitive, [WorkflowName, Inputs, Outputs]):-
      println(["The WORKFLOW:", WorkflowName, " is started."]),
      % record the workflow inputs
-     de.fub.csw.opm.ProvenanceRecording.workflowStarted(XID,WorkflowName, Inputs),
      % register the workflow
      de.fub.csw.TaskManagementCenter.registerWorkflow(XID, WorkflowName),
      % start a workflow
@@ -66,11 +65,8 @@ processMessage(XID,From,Primitive, [WorkflowName, Inputs, Outputs]):-
      println(["The WORKFLOW:", WorkflowName, " is completed."]),
    
      % record the workflow outputs
-     de.fub.csw.opm.ProvenanceRecording.workflowCompleted(XID, WorkflowName, Outputs),
      % unregister the workflow
-     de.fub.csw.TaskManagementCenter.cleanWorkflow(XID, WorkflowName),
-     % create OPM graph of provenance information dynamically
-     de.fub.csw.opm.OpenProvenanceModel.createOPMGraph(XID, WorkflowName).
+     de.fub.csw.TaskManagementCenter.cleanWorkflow(XID, WorkflowName).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -81,13 +77,13 @@ branch(XID, I11, I12) :-
      assignTaskID(XID, TID1),
      sendMsg(XID, async, 0, "request", executeTask('add', TID1, inArgs(I11,100.0),outArgs(O11))),
      @group(g1)
-     rcvMsg(XID, async, 0, "answer", [TID1, inArgs(I11,100.0),outArgs(O11)]). 
+     rcvMsg(XID, esb, From, "answer", [TID1, inArgs(I11,100.0),outArgs(O11)]). 
      
 branch(XID, I11, I12) :-
      assignTaskID(XID, TID2),
      sendMsg(XID, async, 0, "request", executeTask('add', TID2, inArgs(I12,200.0),outArgs(O21))),
      @group(g1)
-     rcvMsg(XID, async, 0, "answer", [TID2, inArgs(I12,200.0),outArgs(O21)]).     
+     rcvMsg(XID, esb, From, "answer", [TID2, inArgs(I12,200.0),outArgs(O21)]).     
 
 branch(XID, I11, I12) :-
      @and(g1)
@@ -106,13 +102,13 @@ branch1(XID, I11, I12) :-
      assignTaskID(XID, TID1),
      sendMsg(XID, async, 0, "request", executeTask('add', TID1, inArgs(I11,100.0),outArgs(O11))),
      @group(g1)
-     rcvMsg(XID, async, 0, "answer", [TID1, inArgs(I11,100.0),outArgs(O11)]). 
+     rcvMsg(XID, esb, From, "answer", [TID1, inArgs(I11,100.0),outArgs(O11)]). 
      
 branch1(XID, I11, I12) :-
      assignTaskID(XID, TID2),
      sendMsg(XID, async, 0, "request", executeTask('add', TID2, inArgs(I12,200.0),outArgs(O21))),
      @group(g1)
-     rcvMsg(XID, async, 0, "answer", [TID2, inArgs(I12,200.0),outArgs(O21)]).
+     rcvMsg(XID, esb, From, "answer", [TID2, inArgs(I12,200.0),outArgs(O21)]).
      
 
 branch1(XID, I11, I12) :-
@@ -134,7 +130,7 @@ retrieveOutput([XID, Protocol, Sender, Performative, [TaskID, [inArgs|Inputs], [
 workflow(XID, "wcp04_ExclusiveChoice", inArgs(I11,I12), outArgs(WorkflowOutput)) :-
      assignTaskID(XID, TID1),
      sendMsg(XID, async, 0, "request", executeTask('add', TID1, inArgs(I11,I12),outArgs(O11))),
-     rcvMsg(XID, async, 0, "answer", [TID1, inArgs(I11,I12),outArgs(O11)]),
+     rcvMsg(XID, esb, From, "answer", [TID1, inArgs(I11,I12),outArgs(O11)]),
      
      or(XID, O11, WorkflowOutput),
      
@@ -144,24 +140,24 @@ or(XID, Para, Output):-
      more(Para,11),!,
      assignTaskID(XID, TID),
      sendMsg(XID, async, 0, "request", executeTask('minus', TID, inArgs(Para, 100.0),outArgs(Output))),
-     rcvMsg(XID, async, 0, "answer", [TID, inArgs(Para, 100.0), outArgs(Output)]).
+     rcvMsg(XID, esb, From, "answer", [TID, inArgs(Para, 100.0), outArgs(Output)]).
 
 or(XID, Para, Output):-
      lessequ(Para,11),!,
      assignTaskID(XID, TID),
      sendMsg(XID, async, 0, "request", executeTask('add', TID, inArgs(Para, 100.0), outArgs(Output))),
-     rcvMsg(XID, async, 0, "answer", [TID, inArgs(Para, 100.0),outArgs(Output)]).
+     rcvMsg(XID, esb, From, "answer", [TID, inArgs(Para, 100.0),outArgs(Output)]).
      
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 workflow(XID, "wcp01_Sequence", inArgs(I11,I12, I22), outArgs(WorkflowOutput)) :-
      assignTaskID(XID, TID1),
      sendMsg(XID, async, 0, "request", executeTask('add', TID1, inArgs(I11,I12),outArgs(T))),
-     rcvMsg(XID, async, From1, "answer", [TID1, inArgs(I11,I12),outArgs(T)]),
+     rcvMsg(XID, esb, From, "answer", [TID1, inArgs(I11,I12),outArgs(T)]),
      
      assignTaskID(XID, TID2),
      sendMsg(XID, async, 0, "request", executeTask('add', TID2, inArgs(T, I22),outArgs(O21))),
-     rcvMsg(XID, async, 0, "answer", [TID2, inArgs(T, I22),outArgs(WorkflowOutput)]),
+     rcvMsg(XID, esb, From, "answer", [TID2, inArgs(T, I22),outArgs(WorkflowOutput)]),
      
      sendMsg(XID, async, 0, "answer", complete("wcp01_Sequence", outArgs(WorkflowOutput))).
      
@@ -172,8 +168,7 @@ workflow(XID, "wcp01_Sequence1", inArgs(I11,I12, I22), outArgs(WorkflowOutput)) 
 workflow(XID, "consumingWS", inArgs(I11,I12), outArgs(Output)) :-
      sendMsg(XID, esb, wsJmsEndpoint, "request", inArgs(I11,I12)),
      rcvMsg(XID, esb, From, "answer", outArgs(Output)),
-     println([":EEEEEEEEEEEEEEEEEE:",Output]),
-     sendMsg(XID, async, 0, "answer", complete("consumingWS", outArgs(Output))).
+     sendMsg(XID, async, From, "answer", complete("consumingWS", outArgs(Output))).
      
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -181,7 +176,7 @@ workflow(XID, "consumingWS", inArgs(I11,I12), outArgs(Output)) :-
 workflow(XID, "nestedWorkflow", inArgs(I11,I12), outArgs(WorkflowOutput)) :-
      assignTaskID(XID, TID),
      sendMsg(XID, async, 0, "request", executeTask('minus', TID, inArgs(I11,I12),outArgs(O11))),
-     rcvMsg(XID, async, 0, "answer", [TID, inArgs(I11,I12),outArgs(O11)]),
+     rcvMsg(XID, esb, From, "answer", [TID, inArgs(I11,I12),outArgs(O11)]),
      
      % invoke an existing workflow
      sendMsg(XID, esb, semantic_SWF_Engine, "query", ["wcp04_ExclusiveChoice", inArgs(O11,200.0), outArgs(WO1)]),
@@ -194,11 +189,11 @@ workflow(XID, "nestedWorkflow", inArgs(I11,I12), outArgs(WorkflowOutput)) :-
 workflow(XID, "wcp01_Sequence_test", inArgs(I11,I12, I22), outArgs(WorkflowOutput)) :-
      assignTaskID(XID, TID1),
      sendMsg(XID, async, 0, "request", executeTask('minus', TID1, inArgs(I11,I12),outArgs(O11))),
-     rcvMsg(XID, async, 0, "answer", [TID1, inArgs(I11,I12),outArgs(O11)]),
+     rcvMsg(XID, esb, From, "answer", [TID1, inArgs(I11,I12),outArgs(O11)]),
      
      assignTaskID(XID, TID2),
      sendMsg(XID, async, 0, "request", executeTask('minus', TID2, inArgs(O11, I22),outArgs(O21))),
-     rcvMsg(XID, async, 0, "answer", [TID2, inArgs(O11, I22),outArgs(WorkflowOutput)]),
+     rcvMsg(XID, esb, From, "answer", [TID2, inArgs(O11, I22),outArgs(WorkflowOutput)]),
      
      sendMsg(XID, async, 0, "answer", complete("wcp01_Sequence_test", outArgs(WorkflowOutput))).
      
@@ -206,7 +201,7 @@ workflow(XID, "wcp01_Sequence_test", inArgs(I11,I12, I22), outArgs(WorkflowOutpu
 workflow(XID, "proteinPredicitonAnalysisProcess", inArgs(Protein, GOTerm), outArgs(Result)) :-
      assignTaskID(XID, TID1),
      sendMsg(XID, async, 0, "request", executeTask('proteinPredicitonAnalysis', TID1, inArgs(Protein, GOTerm), outArgs(Result))),
-     rcvMsg(XID, async, 0, "answer", [TID1, inArgs(Protein, GOTerm),outArgs(Result)]),
+     rcvMsg(XID, esb, From, "answer", [TID1, inArgs(Protein, GOTerm),outArgs(Result)]),
      sendMsg(XID, async, 0, "answer", complete("proteinPredicitonAnalysisProcess", outArgs(Result))).
      
      
@@ -215,7 +210,7 @@ workflow(XID, "proteinPredicitonAnalysisProcess", inArgs(Protein, GOTerm), outAr
 workflow(XID, "human_interaction", inArgs(I11,I12), outArgs(WorkflowOutput)) :-
      assignTaskID(XID, TID1),
      sendMsg(XID, async, 0, "request", executeTask('add', TID1, inArgs(I11,I12),outArgs(O11))),
-     rcvMsg(XID, async, 0, "answer", [TID1, inArgs(I11,I12),outArgs(O11)]),
+     rcvMsg(XID, esb, From, "answer", [TID1, inArgs(I11,I12),outArgs(O11)]),
      
      sendMsg(XID, esb, humanAgent, "request", assign("human_interaction", value(Var))),
      rcvMsg(XID, esb, humanAgent, "answer", value(Var)),
@@ -223,6 +218,6 @@ workflow(XID, "human_interaction", inArgs(I11,I12), outArgs(WorkflowOutput)) :-
      
      assignTaskID(XID, TID2),
      sendMsg(XID, async, 0, "request", executeTask('minus', TID2, inArgs(Var, O11),outArgs(O21))),
-     rcvMsg(XID, async, 0, "answer", [TID2, inArgs(Var, O11),outArgs(WorkflowOutput)]),
+     rcvMsg(XID, esb, From, "answer", [TID2, inArgs(Var, O11),outArgs(WorkflowOutput)]),
      
      sendMsg(XID, async, 0, "answer", complete("human_interaction", outArgs(WorkflowOutput))).     
