@@ -160,20 +160,20 @@ public class HttpEndpointUMOImpl extends LogComponent implements Initialisable,
 			int i = 0;
 			MuleClient client = new DefaultLocalMuleClient(fc.getMuleContext());
 			int timeout = 1000000; // default timeout of receiving workflow results
-			do {
+//			do {
 				m = client.request("jms://topic:" + tmpAgent, timeout);
 				if (m != null) {
-					if (m.getPayloadAsString().indexOf("no_further_answers") != -1) {
-						timeout = 10;
-						continue;
-					}
+//					if (m.getPayloadAsString().indexOf("no_further_answers") != -1) {
+//						timeout = 10;
+//						continue;
+//					}
 					String payload = (String) new ProvaList2HTML(req_content).transform(m.getPayload());
 					answer = answer + payload;
 					if (i > 0)
 						i--;
-				} else
-					i++;
-			} while (i < 2); // terminate if no further answers are received
+				} else {}
+//					i++;
+//			} while (i < 2); // terminate if no further answers are received
 
 			// unregister temp UMO
 			try {
