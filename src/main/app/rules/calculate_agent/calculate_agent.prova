@@ -16,7 +16,7 @@
 :-eval(consult('../ContractLog/update.prova')).
 :-eval(consult('../ContractLog/utils.prova')).
 :-eval(consult('../ContractLog/owl.prova')).
-:-eval(consult('../swf_engine/agent.prova')).
+:-eval(consult('../swf_engine/utils.prova')).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

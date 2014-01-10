@@ -37,10 +37,23 @@ rcvMsg(XID,esb, From, Performative, [X|Args]) :-
 	println(["--------------------------------------------"]), 
 	println(["                 COMPLETE                   "]), 
 	println(["--------------------------------------------"]).
+
+
+understandFunction(failedAgent).
+understandFunction(noAgentAvailable).
+understandFunction(unavailableAgent).
+
+rcvMsg(XID,esb, From, Performative, [X|Args]) :-
+    understandPerformative(XID, From, Performative, [X|Args]),
+    not(understandFunction(X)),
+	sendMsg(XID,esb,humanAgent, "request", [X|Args]),
+	rcvMsg(XID,esb,humanAgent, "answer", [X1|Args1]), 
+	sendMsg(XID, esb, From, "answer", [X1|Args1]).
 	
 % rules for recording exceptions	
 rcvMsg(XID,esb, From, Performative, [X|Args]) :-
 	understandPerformative(XID, From, Performative, [X|Args]),
+	understandFunction(X),
 	WorkflowName =  de.fub.csw.TaskManagementCenter.getWfName(XID),
 	sendMsg(XID,esb,humanAgent, "inform", [WorkflowName, [X|Args]]),
 	processMessage(XID, From, Performative, [X|Args]).

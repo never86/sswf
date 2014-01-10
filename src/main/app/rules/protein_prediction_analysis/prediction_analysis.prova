@@ -16,7 +16,7 @@
 :-eval(consult('../ContractLog/update.prova')).
 :-eval(consult('../ContractLog/utils.prova')).
 :-eval(consult('../ContractLog/owl.prova')).
-
+:-eval(consult('../swf_engine/utils.prova')).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Performative vocabulary of organizational agent
@@ -82,16 +82,3 @@ askQuery(Engine, QueryString, Result):-
    
 askQuery(Engine, QueryString, Result):-
    Result = "no".
-   
-reasonEngine(URL, Engine):-
-    engine(URL, Engine),
-    !.
-    
-reasonEngine(URL, Engine):-
-    sparqldl_create(Engine, URL),
-    println(["An SPARQL-DL engine for ", URL, " has been created"]),
-    assert(engine(URL, Engine)),
-    !.
-reasonEngine(URL, Engine):-
-    println(["Create SPARQL-DL engine for ", URL, " failed"]),
-    fail().

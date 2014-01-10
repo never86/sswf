@@ -1,0 +1,30 @@
+currentSystemTime(T) :-
+    D = java.util.Date(),
+    T = D.toLocaleString().
+    
+reasonEngine(URL, Engine):-
+    engine(URL, Engine),
+    !.
+    
+reasonEngine(URL, Engine):-
+    sparqldl_create(Engine, URL),
+    println(["An SPARQL-DL engine for ", URL, " has been created"]),
+    assert(engine(URL, Engine)),
+    !.
+reasonEngine(URL, Engine):-
+    println(["Create SPARQL-DL engine for ", URL, " failed"]),
+    fail().
+    
+    
+semanticDataConnection(URL, Connection):-
+    connection(URL, Connection),
+    !.
+    
+semanticDataConnection(URL, Connection):-
+    sparql_connect(Connection, URL),
+    assert(connection(URL, Connection)),
+    !.
+    
+semanticDataConnection(URL, Connection):-
+    println(["Connect ", URL, " failed"]),
+    fail().

@@ -11,19 +11,6 @@ executeTask(XID, TaskName, TaskID, Inputs, Outputs) :-
     % invoke the task  
     invokeTask(XID, TaskName, TaskID, Agent, Inputs, Outputs, Connection).
     
-semanticDataConnection(URL, Connection):-
-    connection(URL, Connection),
-    !.
-    
-semanticDataConnection(URL, Connection):-
-    sparql_connect(Connection, URL),
-    assert(connection(URL, Connection)),
-    !.
-    
-semanticDataConnection(URL, Connection):-
-    println(["Connect ", URL, " failed"]).
-
-
 allocateTask(XID, TaskName, TaskID, Agent, Connection) :-
     getResponsibleAgents(TaskID, TaskName, Agent, Connection),
     println(["The TASK: ", TaskName, "(", TaskID,") is allocated to AGENT:",Agent]).

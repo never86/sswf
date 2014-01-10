@@ -70,7 +70,7 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
 	
 	<jms:endpoint name="proteinPredictionAnalysisAgent" topic="proteinPredictionAnalysis_agent"
 		connector-ref="jmsConnector" />
-	<flow name="ProteinPredictionAnalysis_Model">
+	<flow name="ProteinPredictionAnalysisManager">
 		<jms:inbound-endpoint ref="proteinPredictionAnalysisAgent">
 			<properties>
 				<spring:entry key="rulebase"
@@ -82,7 +82,7 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
 	
 	<jms:endpoint name="predictionAnalyzer" topic="predictionAnalyzer_agent"
 		connector-ref="jmsConnector" />
-	<flow name="PredictionAnalyzer_Model">
+	<flow name="PredictionAnalyzer">
 		<jms:inbound-endpoint ref="predictionAnalyzer">
 			<properties>
 				<spring:entry key="rulebase"
@@ -121,6 +121,18 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
 			<http:inbound-endpoint ref="httpEndpointEH" />
 		</composite-source>
 
+		<component class="ws.prova.mule.impl.ProvaUMOImpl" />
+	</flow>
+	
+	<jms:endpoint name="humanAgentProxy" topic="human_agent_proxy"
+		connector-ref="jmsConnector" />
+	<flow name="HumanAgentProxyFlow">
+			<jms:inbound-endpoint ref="humanAgentProxy">
+				<properties>
+					<spring:entry key="rulebase"
+						value="${app.home}/rules/human_agent/human_agent.prova" />
+				</properties>
+			</jms:inbound-endpoint>
 		<component class="ws.prova.mule.impl.ProvaUMOImpl" />
 	</flow>
 

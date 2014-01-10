@@ -16,7 +16,7 @@
 :-eval(consult('../ContractLog/update.prova')).
 :-eval(consult('../ContractLog/utils.prova')).
 :-eval(consult('../ContractLog/owl.prova')).
-:-eval(consult('../swf_engine/agent.prova')).
+:-eval(consult('../swf_engine/utils.prova')).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -58,14 +58,10 @@ understandPerformative(XID, From, Performative, PayLoad) :-
 	fail().
 
 processMessage(XID,From,Primitive, proteinPredicitonAnalysis(TID, inArgs(Protein, GOTerm), outArgs(Result))):-
-     currentSystemTime(StartTime),
      proteinPredicitonAnalysis(XID, From, Protein, GOTerm, Result),
      sendMsg(XID,esb,From, "answer", [TID, inArgs(Protein, GOTerm), outArgs(Result)]).
      
 
 proteinPredicitonAnalysis(XID, From, Protein, TargetGOTerm, Result):-
    sendMsg(XID,esb, predictionAnalyzer, "request", analysis(Protein, TargetGOTerm, Result)),
-   
-   rcvMsg(XID, esb, predictionAnalyzer, "answer", analysis(Protein, TargetGOTerm, Result)),
-   
-   sendMsg(XID,esb,From, no_further_answers, proteinPredicitonAnalysis(_)).
+   rcvMsg(XID, esb, predictionAnalyzer, "answer", analysis(Protein, TargetGOTerm, Result)).

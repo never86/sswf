@@ -16,6 +16,7 @@
 :-eval(consult('../ContractLog/update.prova')).
 :-eval(consult('../ContractLog/utils.prova')).
 :-eval(consult('engine.prova')).
+:-eval(consult('utils.prova')).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Performative vocabulary of organizational agent
@@ -196,9 +197,8 @@ workflow(XID, From, "human_interaction", inArgs(I11,I12), outArgs(WorkflowOutput
      executeTask(XID, 'add', TID1, inArgs(I11,I12),outArgs(O11)),
      rcvMsg(XID, esb, _, "answer", [TID1, inArgs(I11,I12),outArgs(O11)]),
      
-     sendMsg(XID, esb, humanAgent, "request", assign("human_interaction", value(Var))),
-     rcvMsg(XID, esb, humanAgent, "answer", value(Var)),
-     
+     sendMsg(XID, esb, humanAgentProxy, "request", assign("human_interaction", value(Var))),
+     rcvMsg(XID, esb, humanAgentProxy, "answer", value(Var)),
      
      assignTaskID(XID, TID2),
      executeTask(XID, 'minus', TID2, inArgs(Var, O11),outArgs(O21)),

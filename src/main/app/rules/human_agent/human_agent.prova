@@ -28,14 +28,10 @@ performative(query).
 
 performative(XID,Performative):-
    performative(Performative).
-
-rcvMsg(XID,esb, "exceptionHandlingAgent", "inform", [X|Args]) :-
-	sendMsg(XID,esb,humanAgent, "inform", [X|Args]).
-	
 	
 rcvMsg(XID,esb, From, "request", [X|Args]) :-
-	sendMsg(XID,esb,humanAgent, "request", [X|Args]),
-	rcvMsg(XID,esb,humanAgent, "answer", [X1|Args1]), 
+	sendMsg(XID,esb,exceptionHandlingAgent, "request", [X|Args]),
+	rcvMsg(XID,esb,exceptionHandlingAgent, "answer", [X1|Args1]), 
 	sendMsg(XID, esb, From, "answer", [X1|Args1]).
 	
 	
