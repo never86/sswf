@@ -29,7 +29,7 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
 	<global-property name="MULE_IMPLEMENTATION" value="ws.prova.mule.impl.ProvaUMOImpl" />
 	<global-property name="TOMCAT" value="http://127.0.0.1:8080" />
 
-	<http:endpoint name="httpEndpoint" host="localhost" port="8888" />
+	<http:endpoint name="httpEndpoint" host="localhost" port="8888" contentType="text/html"/>
 
 	<flow name="Sentinel">
 		<http:inbound-endpoint ref="httpEndpoint">
@@ -58,7 +58,7 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
 
 	<jms:endpoint name="calculateAgent" topic="calculate_agent"
 		connector-ref="jmsConnector" />
-	<flow name="Calculate_Agent_Model">
+	<flow name="Calculate_Agent">
 		<jms:inbound-endpoint ref="calculateAgent">
 			<properties>
 				<spring:entry key="rulebase"
@@ -127,16 +127,21 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
 	<jms:endpoint name="humanAgentProxy" topic="human_agent_proxy"
 		connector-ref="jmsConnector" />
 	<flow name="HumanAgentProxyFlow">
+			<composite-source>
 			<jms:inbound-endpoint ref="humanAgentProxy">
 				<properties>
 					<spring:entry key="rulebase"
-						value="${app.home}/rules/human_agent/human_agent.prova" />
+						value="${app.home}/rules/human_agent/human_agent_proxy.prova" />
 				</properties>
 			</jms:inbound-endpoint>
+			<http:inbound-endpoint ref="httpEndpointHT" />
+			</composite-source>
 		<component class="ws.prova.mule.impl.ProvaUMOImpl" />
 	</flow>
 
 	<http:endpoint name="httpEndpointEH" host="localhost"
+		port="9993" />
+		<http:endpoint name="httpEndpointHT" host="localhost"
 		port="9992" />
 
 	<http:endpoint name="humanAgent"

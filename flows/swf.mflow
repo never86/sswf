@@ -86,7 +86,7 @@
     <global-element name="HTTP" type="http://www.mulesoft.org/schema/mule/http/endpoint" entity-id="HTTP#1">
         <properties>
             <property name="port" value="8888"/>
-            <property name="contentType"/>
+            <property name="contentType" value="text/html"/>
             <property name="password"/>
             <property name="tracking:enable-default-events"/>
             <property name="exchange-pattern"/>
@@ -246,7 +246,7 @@
     </global-element>
     <global-element name="HTTP" type="http://www.mulesoft.org/schema/mule/http/endpoint" entity-id="HTTP#2">
         <properties>
-            <property name="port" value="9992"/>
+            <property name="port" value="9993"/>
             <property name="contentType"/>
             <property name="password"/>
             <property name="tracking:enable-default-events"/>
@@ -255,7 +255,7 @@
             <property name="encoding"/>
             <property name="path"/>
             <property name="responseTransformer-refs"/>
-            <property name="auxiliary;index" value="53"/>
+            <property name="auxiliary;index" value="55"/>
             <property name="mimeType"/>
             <property name="responseTimeout"/>
             <property name="host" value="localhost"/>
@@ -275,6 +275,35 @@
     </global-element>
     <global-element name="HTTP" type="http://www.mulesoft.org/schema/mule/http/endpoint" entity-id="HTTP#3">
         <properties>
+            <property name="port" value="9992"/>
+            <property name="contentType"/>
+            <property name="password"/>
+            <property name="tracking:enable-default-events"/>
+            <property name="exchange-pattern"/>
+            <property name="name" value="httpEndpointHT"/>
+            <property name="encoding"/>
+            <property name="path"/>
+            <property name="responseTransformer-refs"/>
+            <property name="auxiliary;index" value="56"/>
+            <property name="mimeType"/>
+            <property name="responseTimeout"/>
+            <property name="host" value="localhost"/>
+            <property name="businessEventsLabel"/>
+            <property name="followRedirects"/>
+            <property name="org.mule.tooling.ui.modules.core.widgets.meta.ModeAttribute" value="http://www.mulesoft.org/schema/mule/http/endpoint"/>
+            <property name="keep-alive"/>
+            <property name="disableTransportTransformer"/>
+            <property name="ref"/>
+            <property name="httpLabel"/>
+            <property name="transformer-refs"/>
+            <property name="address"/>
+            <property name="method"/>
+            <property name="user"/>
+            <property name="connector-ref"/>
+        </properties>
+    </global-element>
+    <global-element name="HTTP" type="http://www.mulesoft.org/schema/mule/http/endpoint" entity-id="HTTP#4">
+        <properties>
             <property name="port"/>
             <property name="contentType"/>
             <property name="password"/>
@@ -284,7 +313,7 @@
             <property name="encoding"/>
             <property name="path"/>
             <property name="responseTransformer-refs"/>
-            <property name="auxiliary;index" value="54"/>
+            <property name="auxiliary;index" value="57"/>
             <property name="mimeType"/>
             <property name="responseTimeout"/>
             <property name="host"/>
@@ -302,7 +331,7 @@
             <property name="connector-ref"/>
         </properties>
     </global-element>
-    <flow SubFlow="false" name="Sentinel" type="http://www.mulesoft.org/schema/mule/core/flow" entity-id="b3ab528a-9275-4dfd-b4b9-651ad7479bcd">
+    <flow SubFlow="false" name="Sentinel" type="http://www.mulesoft.org/schema/mule/core/flow" entity-id="6e6f1e7d-4105-4166-abe0-9d1fe3e5ae75">
         <properties>
             <property name="initialState"/>
             <property name="processingStrategy2"/>
@@ -313,7 +342,7 @@
         </properties>
         <lane hadOnlyOneElement="false" index="0" isChoiceOtherwiseLane="false" entity-id="compartment-lane#1">
             <graphicalData x="0" y="0" width="0" height="0"/>
-            <endpoint direction="Inbound" message-exchange-pattern="RequestResponse" name="HTTP" type="http://www.mulesoft.org/schema/mule/http/endpoint" entity-id="HTTP#4">
+            <endpoint direction="Inbound" message-exchange-pattern="RequestResponse" name="HTTP" type="http://www.mulesoft.org/schema/mule/http/endpoint" entity-id="HTTP#5">
                 <graphicalData x="0" y="0" width="0" height="0"/>
                 <properties>
                     <property name="port"/>
@@ -362,7 +391,7 @@
             </pattern>
         </lane>
     </flow>
-    <flow SubFlow="false" name="WorklfowEngine" type="http://www.mulesoft.org/schema/mule/core/flow" entity-id="d55cbf77-89fa-425c-b81f-d74fa178be3b">
+    <flow SubFlow="false" name="WorklfowEngine" type="http://www.mulesoft.org/schema/mule/core/flow" entity-id="f0b762bf-a42b-43aa-adce-bef40e053e02">
         <properties>
             <property name="initialState"/>
             <property name="processingStrategy2"/>
@@ -404,7 +433,7 @@
             </pattern>
         </lane>
     </flow>
-    <flow SubFlow="false" name="Calculate_Agent_Model" type="http://www.mulesoft.org/schema/mule/core/flow" entity-id="e1dba325-6f1d-44a0-b01e-b1b10e94af5b">
+    <flow SubFlow="false" name="Calculate_Agent" type="http://www.mulesoft.org/schema/mule/core/flow" entity-id="9eaf1588-fa45-4bb4-b59b-ac5d9b2498a7">
         <properties>
             <property name="initialState"/>
             <property name="processingStrategy2"/>
@@ -446,7 +475,7 @@
             </pattern>
         </lane>
     </flow>
-    <flow SubFlow="false" name="ProteinPredictionAnalysisManager" type="http://www.mulesoft.org/schema/mule/core/flow" entity-id="9dfe7e86-e103-4692-a5da-2949bb9dd30a">
+    <flow SubFlow="false" name="ProteinPredictionAnalysisManager" type="http://www.mulesoft.org/schema/mule/core/flow" entity-id="f6cfc491-31d5-4099-9a5e-76f8bcccce5c">
         <properties>
             <property name="initialState"/>
             <property name="processingStrategy2"/>
@@ -488,7 +517,7 @@
             </pattern>
         </lane>
     </flow>
-    <flow SubFlow="false" name="PredictionAnalyzer" type="http://www.mulesoft.org/schema/mule/core/flow" entity-id="49bd9f7e-bf78-41d1-8328-a0cc4e3524ad">
+    <flow SubFlow="false" name="PredictionAnalyzer" type="http://www.mulesoft.org/schema/mule/core/flow" entity-id="824f289d-27dc-46a3-b196-91cf5f37484a">
         <properties>
             <property name="initialState"/>
             <property name="processingStrategy2"/>
@@ -530,7 +559,7 @@
             </pattern>
         </lane>
     </flow>
-    <flow SubFlow="false" name="Exception_Handling" type="http://www.mulesoft.org/schema/mule/core/flow" entity-id="56cee2a5-e252-4be3-8a21-d3511cbcee97">
+    <flow SubFlow="false" name="Exception_Handling" type="http://www.mulesoft.org/schema/mule/core/flow" entity-id="38d72167-51d3-4368-b4dc-c28f8dcb4315">
         <properties>
             <property name="initialState"/>
             <property name="processingStrategy2"/>
@@ -568,7 +597,7 @@
                         <property name="connector-ref"/>
                     </properties>
                 </endpoint>
-                <endpoint direction="Inbound" message-exchange-pattern="RequestResponse" name="HTTP" type="http://www.mulesoft.org/schema/mule/http/endpoint" entity-id="HTTP#5">
+                <endpoint direction="Inbound" message-exchange-pattern="RequestResponse" name="HTTP" type="http://www.mulesoft.org/schema/mule/http/endpoint" entity-id="HTTP#6">
                     <graphicalData x="0" y="0" width="0" height="0"/>
                     <properties>
                         <property name="port"/>
@@ -607,7 +636,7 @@
             </pattern>
         </lane>
     </flow>
-    <flow SubFlow="false" name="HumanAgentProxyFlow" type="http://www.mulesoft.org/schema/mule/core/flow" entity-id="f9a864d0-4844-46df-81af-8d41eceae0e0">
+    <flow SubFlow="false" name="HumanAgentProxyFlow" type="http://www.mulesoft.org/schema/mule/core/flow" entity-id="440e4740-961f-4ffc-bf09-a64e2357447a">
         <properties>
             <property name="initialState"/>
             <property name="processingStrategy2"/>
@@ -618,33 +647,68 @@
         </properties>
         <lane hadOnlyOneElement="false" index="0" isChoiceOtherwiseLane="false" entity-id="compartment-lane#7">
             <graphicalData x="0" y="0" width="0" height="0"/>
-            <endpoint direction="Inbound" message-exchange-pattern="OneWay" name="JMS" type="http://www.mulesoft.org/schema/mule/jms/endpoint" entity-id="JMS#12">
+            <multi-source index="0" name="Composite Source" type="http://www.mulesoft.org/schema/mule/core/composite-source" entity-id="Composite Source#2">
                 <graphicalData x="0" y="0" width="0" height="0"/>
                 <properties>
-                    <property name="topic"/>
-                    <property name="queue"/>
-                    <property name="durableName"/>
-                    <property name="businessEventsLabel"/>
-                    <property name="disableTransportTransformer"/>
-                    <property name="disableTemporaryReplyToDestinations"/>
-                    <property name="exchange-pattern"/>
-                    <property name="tracking:enable-default-events"/>
-                    <property name="ref" value="humanAgentProxy"/>
-                    <property name="transformer-refs"/>
-                    <property name="address"/>
-                    <property name="encoding"/>
-                    <property name="responseTransformer-refs"/>
                     <property name="auxiliary;index" value="49"/>
-                    <property name="mimeType"/>
-                    <property name="responseTimeout"/>
-                    <property name="connector-ref"/>
                 </properties>
-            </endpoint>
+                <endpoint direction="Inbound" message-exchange-pattern="OneWay" name="JMS" type="http://www.mulesoft.org/schema/mule/jms/endpoint" entity-id="JMS#12">
+                    <graphicalData x="0" y="0" width="0" height="0"/>
+                    <properties>
+                        <property name="topic"/>
+                        <property name="queue"/>
+                        <property name="durableName"/>
+                        <property name="businessEventsLabel"/>
+                        <property name="disableTransportTransformer"/>
+                        <property name="disableTemporaryReplyToDestinations"/>
+                        <property name="exchange-pattern"/>
+                        <property name="tracking:enable-default-events"/>
+                        <property name="ref" value="humanAgentProxy"/>
+                        <property name="transformer-refs"/>
+                        <property name="address"/>
+                        <property name="encoding"/>
+                        <property name="responseTransformer-refs"/>
+                        <property name="auxiliary;index" value="50"/>
+                        <property name="mimeType"/>
+                        <property name="responseTimeout"/>
+                        <property name="connector-ref"/>
+                    </properties>
+                </endpoint>
+                <endpoint direction="Inbound" message-exchange-pattern="RequestResponse" name="HTTP" type="http://www.mulesoft.org/schema/mule/http/endpoint" entity-id="HTTP#7">
+                    <graphicalData x="0" y="0" width="0" height="0"/>
+                    <properties>
+                        <property name="port"/>
+                        <property name="host"/>
+                        <property name="businessEventsLabel"/>
+                        <property name="followRedirects"/>
+                        <property name="org.mule.tooling.ui.modules.core.widgets.meta.ModeAttribute" value="http://www.mulesoft.org/schema/mule/http/endpoint"/>
+                        <property name="keep-alive"/>
+                        <property name="contentType"/>
+                        <property name="disableTransportTransformer"/>
+                        <property name="password"/>
+                        <property name="exchange-pattern"/>
+                        <property name="tracking:enable-default-events"/>
+                        <property name="ref" value="httpEndpointHT"/>
+                        <property name="transformer-refs"/>
+                        <property name="httpLabel"/>
+                        <property name="address"/>
+                        <property name="path"/>
+                        <property name="encoding"/>
+                        <property name="responseTransformer-refs"/>
+                        <property name="method"/>
+                        <property name="user"/>
+                        <property name="auxiliary;index" value="53"/>
+                        <property name="responseTimeout"/>
+                        <property name="mimeType"/>
+                        <property name="connector-ref"/>
+                    </properties>
+                </endpoint>
+            </multi-source>
             <pattern name="Java" type="http://www.mulesoft.org/schema/mule/core/component" entity-id="Java#9">
                 <graphicalData x="0" y="0" width="0" height="0"/>
                 <properties>
                     <property name="class" value="ws.prova.mule.impl.ProvaUMOImpl"/>
-                    <property name="auxiliary;index" value="52"/>
+                    <property name="auxiliary;index" value="54"/>
                 </properties>
             </pattern>
         </lane>
