@@ -1,0 +1,119 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% The Super Organizational Agent
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Import external rules/ContractLog libraries for
+% mathematical, lists and date / time computations
+% and access to external data sources, e.g.
+% Semantic Web ontologies, iCal Calendars etc.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+:-eval(consult('../ContractLog/math.prova')).
+:-eval(consult('../ContractLog/datetime.prova')).
+:-eval(consult('../ContractLog/list.prova')).
+:-eval(consult('../ContractLog/update.prova')).
+:-eval(consult('../ContractLog/utils.prova')).
+:-eval(consult('../ContractLog/owl.prova')).
+:-eval(consult('../swf_engine/utils.prova')).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Performative vocabulary of organizational agent
+% More complex vocabularies (e.g. FIPA ACL) might be defined as Semantic Web ontologies	
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+performative(request):-performative(query).
+performative(start).
+performative(query).
+
+performative(XID,Performative):-
+   performative(Performative).
+
+rcvMsg(XID,esb, From, Performative, [TaskName|ParaList]) :-
+	understandPerformative(XID, From, Performative, [TaskName|ParaList]),
+	processMessage(XID, From, Performative, [TaskName|ParaList]).
+rcvMsg(XID,esb, From, Performative, [TaskName|ParaList]) :-
+	understandPerformative(XID, From, Performative, [TaskName|ParaList]),
+	rcvMsg(XID,esb,Agent,no_further_answers, Payload),
+	sendMsg(XID,esb,From,no_further_answers,[TaskName|ParaList]),
+	println(["--------------------------------------------"]), 
+	println(["                 COMPLETE                   "]), 
+	println(["--------------------------------------------"]).
+		
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% rules for processing the message
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%	
+	
+% try to understand the performative of the message
+understandPerformative(XID, From, "answer", PayLoad) :- !, fail().
+understandPerformative(XID, From, "end_of_transmission", PayLoad) :- !, fail().
+understandPerformative(XID, From, "no_further_answers", PayLoad) :- !,fail().  	
+understandPerformative(XID, From, Performative, PayLoad) :-
+	performative(Performative).
+understandPerformative(XID, From, Performative, PayLoad) :-
+	not(performative(Performative)),
+	sendMsg(XID,esb,From,"answer", notUnderstood("performative",Performative)),
+	sendMsg(XID,esb,From,"no_further_answers", PayLoad),
+	fail().
+	
+processMessage(XID,From,Primitive, antIdentification(TID, Nest, Node, Color, Thorax, Seg, Club, Des, HColor, S, Worker, Long, Food, X)):-
+     antIdentification(X, Nest, Node, Color, Thorax, Seg, Club, Des, HColor, S, Worker, Long, Food),
+     sendMsg(XID,esb,From, "answer", antIdentification(TID, X)).
+
+antIdentification(X, Nest, Node, Color, Thorax, Seg, Club, Des, HColor, S, Worker, Long, Food) :-
+   bodyFeature(X, Node, Color, Thorax, Seg, Club, Des, HColor, S, Worker, Long),
+   nest(X,Nest),
+   food(X, Food), !.
+   
+antIdentification(X, Nest, Node, Color, Thorax, Seg, Club, Des, HColor, S, Worker, Long, Food) :-
+   X = "Identification failed".
+
+% facts
+node(argentineAnt, one).
+node(littleBlackAnt, two).
+
+color(argentineAnt, lightbrown).
+color(littleBlackAnt, black).
+
+thorax(argentineAnt, uneven).
+thorax(littleBlackAnt, uneven).
+
+antennae(argentineAnt,twelve,zero).
+antennae(littleBlackAnt,twelve,three).
+
+hair(argentineAnt, sparse, _).
+hair(littleBlackAnt, _, _).
+
+stinger(argentineAnt, no).
+stinger(littleBlackAnt, indeterminate).
+
+worker(argentineAnt, monomorphic).
+worker(littleBlackAnt, monomorphic).
+
+long(argentineAnt, 0.125,0.125).
+long(littleBlackAnt, 0.0625,0.0625).
+
+nest(argentineAnt, moist).
+nest(littleBlackAnt, fineSoil).
+
+food(argentineAnt, sweets).
+food(argentineAnt, proteins).
+food(littleBlackAnt, grease).
+food(littleBlackAnt, vegetable).
+food(littleBlackAnt, insects).
+
+% rules
+
+
+
+bodyFeature(X, Node, Color, Thorax, Seg, Club, Des, HColor, S, Worker, Long) :-
+   node(X, Node),
+   color(X, Color),
+   thorax(X, Thorax),
+   antennae(X, Seg, Club),
+   hair(X, Des, HColor),
+   stinger(X, S),
+   worker(X, Worker),
+   long(X, Min1, Max1),
+   moreequ(Long, Min1),
+   lessequ(Max1, Long).

@@ -91,6 +91,42 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
 		</jms:inbound-endpoint>
 		<component class="ws.prova.mule.impl.ProvaUMOImpl" />
 	</flow>
+	
+    <jms:endpoint name="snowDataIdentificationAgent" topic="snowDataIdentification_agent"
+		connector-ref="jmsConnector" />
+	<flow name="SnowDataIdentification">
+		<jms:inbound-endpoint ref="snowDataIdentificationAgent">
+			<properties>
+				<spring:entry key="rulebase"
+					value="${app.home}/rules/snow_depth_monitoring/sample_identification.prova" />
+			</properties>
+		</jms:inbound-endpoint>
+		<component class="ws.prova.mule.impl.ProvaUMOImpl" />
+	</flow>
+	
+	 <jms:endpoint name="antIdentificationManager" topic="antIdentification_agent"
+		connector-ref="jmsConnector" />
+	<flow name="AntIdentificationManager">
+		<jms:inbound-endpoint ref="antIdentificationManager">
+			<properties>
+				<spring:entry key="rulebase"
+					value="${app.home}/rules/ant_identification/identification_manager.prova" />
+			</properties>
+		</jms:inbound-endpoint>
+		<component class="ws.prova.mule.impl.ProvaUMOImpl" />
+	</flow>
+	
+	 <jms:endpoint name="antIdentificationAgent" topic="antIdentification_agent"
+		connector-ref="jmsConnector" />
+	<flow name="AntIdentification">
+		<jms:inbound-endpoint ref="antIdentificationAgent">
+			<properties>
+				<spring:entry key="rulebase"
+					value="${app.home}/rules/ant_identification/ant_identification.prova" />
+			</properties>
+		</jms:inbound-endpoint>
+		<component class="ws.prova.mule.impl.ProvaUMOImpl" />
+	</flow>
 
 <!--  
 	<jms:endpoint name="wsJmsEndpoint" topic="master_agent_b"

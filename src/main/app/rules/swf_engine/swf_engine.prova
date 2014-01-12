@@ -52,7 +52,6 @@ processMessage(XID,From,Primitive, [WorkflowName, Inputs, Outputs]):-
      println(["The WORKFLOW:", WorkflowName, " is started."]),
      % register the workflow
      de.fub.csw.TaskManagementCenter.registerWorkflow(XID, WorkflowName),
-    
      % start a workflow
      workflow(XID, From, WorkflowName, Inputs, Outputs),
      
@@ -189,6 +188,19 @@ workflow(XID, From, "proteinPredicitonAnalysisProcess", inArgs(Protein, GOTerm),
      
      sendMsg(XID, esb, From, "answer", ["proteinPredicitonAnalysisProcess", inArgs(Protein, GOTerm), outArgs(Result)]).
      
+     
+workflow(XID, From, "snowSampleIdentificationProcess", inArgs(File), outArgs(Result)) :-
+     assignTaskID(XID, TID1),
+     executeTask(XID, 'snowSampleIdentification', TID1, inArgs(File), outArgs(Result)),
+     rcvMsg(XID, esb, _, "answer", [TID1, inArgs(File),outArgs(Result)]),
+     
+     sendMsg(XID, esb, From, "answer", ["snowSampleIdentificationProcess", inArgs(File), outArgs(Result)]).
+     
+workflow(XID, From, "antIdentificationProcess", inArgs(Nest, Node, Color, Thorax, Seg, Club, Des, HColor, S, Worker, Long, Food, Location), outArgs(Result)) :-
+     assignTaskID(XID, TID1),
+     executeTask(XID, 'antIdentification', TID1, inArgs(Nest, Node, Color, Thorax, Seg, Club, Des, HColor, S, Worker, Long, Food, Location), outArgs(Result)),
+     rcvMsg(XID, esb, _, "answer", [TID1, inArgs(Nest, Node, Color, Thorax, Seg, Club, Des, HColor, S, Worker, Long, Food, Location), outArgs(Result)]),
+     sendMsg(XID, esb, From, "answer", ["antIdentificationProcess", inArgs(Nest, Node, Color, Thorax, Seg, Club, Des, HColor, S, Worker, Long, Food, Location), outArgs(Result)]).
      
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

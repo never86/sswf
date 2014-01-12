@@ -1,0 +1,70 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% The Super Organizational Agent
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Import external rules/ContractLog libraries for
+% mathematical, lists and date / time computations
+% and access to external data sources, e.g.
+% Semantic Web ontologies, iCal Calendars etc.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+:-eval(consult('../ContractLog/math.prova')).
+:-eval(consult('../ContractLog/datetime.prova')).
+:-eval(consult('../ContractLog/list.prova')).
+:-eval(consult('../ContractLog/update.prova')).
+:-eval(consult('../ContractLog/utils.prova')).
+:-eval(consult('../ContractLog/owl.prova')).
+:-eval(consult('../swf_engine/utils.prova')).
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Performative vocabulary of organizational agent
+% More complex vocabularies (e.g. FIPA ACL) might be defined as Semantic Web ontologies	
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+performative(request):-performative(query).
+performative(start).
+performative(query).
+
+performative(XID,Performative):-
+   performative(Performative).
+
+rcvMsg(XID,esb, From, Performative, [TaskName|ParaList]) :-
+	understandPerformative(XID, From, Performative, [TaskName|ParaList]),
+	processMessage(XID, From, Performative, [TaskName|ParaList]).
+rcvMsg(XID,esb, From, Performative, [TaskName|ParaList]) :-
+	understandPerformative(XID, From, Performative, [TaskName|ParaList]),
+	rcvMsg(XID,esb,Agent,no_further_answers, Payload),
+	sendMsg(XID,esb,From,no_further_answers,[TaskName|ParaList]),
+	println(["--------------------------------------------"]), 
+	println(["                 COMPLETE                   "]), 
+	println(["--------------------------------------------"]).
+		
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% rules for processing the message
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%	
+	
+% try to understand the performative of the message
+understandPerformative(XID, From, "answer", PayLoad) :- !, fail().
+understandPerformative(XID, From, "end_of_transmission", PayLoad) :- !, fail().
+understandPerformative(XID, From, "no_further_answers", PayLoad) :- !,fail().  	
+understandPerformative(XID, From, Performative, PayLoad) :-
+	performative(Performative).
+understandPerformative(XID, From, Performative, PayLoad) :-
+	not(performative(Performative)),
+	sendMsg(XID,esb,From,"answer", notUnderstood("performative",Performative)),
+	sendMsg(XID,esb,From,"no_further_answers", PayLoad),
+	fail().
+
+processMessage(XID,From,Primitive, antIdentification(TID, inArgs(Nest, Node, Color, Thorax, Seg, Club, Des, HColor, S, Worker, Long, Food, Location), outArgs(Result))):-
+     antIdentification(XID, From, Nest, Node, Color, Thorax, Seg, Club, Des, HColor, S, Worker, Long, Food, Location, Result),
+     sendMsg(XID,esb,From, "answer", [TID, inArgs(Nest, Node, Color, Thorax, Seg, Club, Des, HColor, S, Worker, Long, Food, Location), outArgs(Result)]).
+
+allocate("Berlin", antIdentificationAgent).     
+
+antIdentification(XID, From, Nest, Node, Color, Thorax, Seg, Club, Des, HColor, S, Worker, Long, Food, Location, Result):-
+   allocate(Location, Agent),
+   TID1 = java.util.UUID.randomUUID(),
+   sendMsg(XID,esb, Agent, "request", antIdentification(TID1, Nest, Node, Color, Thorax, Seg, Club, Des, HColor, S, Worker, Long, Food, Result)),
+   rcvMsg(XID, esb, Agent, "answer", antIdentification(TID1, Result)).
