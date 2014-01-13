@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?> 
 <!--	
 
-	Translation based on RuleML 1.0, Reaction RuleML 0.1 and RBSLA 0.3:
+	Translation based on RuleML 0.91, Reaction RuleML 0.1 and RBSLA 0.3:
 
-			RuleML 1.0 : 	http://www.ruleml.org/1.0/xsd/datalog.xsd
+			RuleML 0.91 : 	http://www.ruleml.org/0.91/xsd
 
 			RBSLA 0.2 :	    http://ibis.in.tum.de/projects/rbsla
 
@@ -32,7 +32,7 @@
 <xsl:stylesheet  version="1.0"	
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 	xmlns:fn="http://www.w3.org/2004/07/xpath-functions" 		
-	xmlns:ruleml="http://www.ruleml.org/1.0/xsd/datalog.xsd">
+	xmlns:ruleml="http://www.ruleml.org/0.91/xsd">
 <xsl:output method="text"	encoding="UTF-8"/>
 <xsl:strip-space elements="*"/>
 <xsl:variable name="alphabet" select=" 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ' "/>
@@ -95,7 +95,7 @@
 
 
 <!-- ASSERT 
-		See http://ruleml.org/1.0/glossary/#gloss-Assert 
+		See http://www.ruleml.org/0.91/glossary/#gloss-Assert 
 		content model: 	
 			( 	
 				oid?, 
@@ -222,7 +222,7 @@
 		*** Rulebase ***
 		A collection of rules that can be ordered or unordered, without or with duplicates.
 
-		See  http://ruleml.org/1.0/glossary/#gloss-Rulebase
+		See http://www.ruleml.org/0.91/glossary/#gloss-Rulebase
 		
 		content model:
 		( oid?, (formula | Atom | Implies | Equivalent | Forall | Equal)* )
@@ -717,7 +717,7 @@
 </xsl:template>
 
 <!-- REL - optional attribute - uri
-		See http://ruleml.org/1.0/glossary/#gloss-Rel 					<xsl:value-of select="name(../..)"/>
+		See http://www.ruleml.org/0.91/glossary/#gloss-Rel 					<xsl:value-of select="name(../..)"/>
 		content model: (#PCDATA)
 -->
 <xsl:template match="ruleml:Rel">
@@ -2007,7 +2007,7 @@ content model:
 
 
 <!-- EXPR - optional attribute - type
-		See http://ruleml.org/1.0/glossary/#gloss-Expr
+		See http://www.ruleml.org/0.91/glossary/#gloss-Expr
 
 		content model:
 			( (op | Fun), (slot)*,(resl)?, (arg|Ind|Data|Var|Expr|Plex)*, (repo)?,(slot)* ,(resl)? )

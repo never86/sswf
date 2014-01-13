@@ -213,9 +213,9 @@ public class Prova2RuleMLTranslator extends AbstractTransformer {
 
 				String rulemlMes = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
 						+ "<RuleML "
-						+ "xmlns=\"http://www.ruleml.org/0.91/xsd\" "
+						+ "xmlns=\"http://ruleml.org/spec\" "
 						+ "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
-						+ "xsi:schemaLocation=\"http://www.ruleml.org/0.91/xsd "
+						+ "xsi:schemaLocation=\"http://ruleml.org/spec http://www.ruleml.org/1.0/xsd/datalog.xsd "
 						+ "http://ibis.in.tum.de/research/ReactionRuleML/0.2/rr.xsd\">\n"
 						+ "<Message mode=\"outbound\" directive=\""
 						+ pmes.performative()
