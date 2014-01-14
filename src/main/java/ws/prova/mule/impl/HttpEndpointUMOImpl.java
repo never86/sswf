@@ -1,18 +1,12 @@
 package ws.prova.mule.impl;
 
 import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.dom4j.Document;
-import org.dom4j.DocumentException;
-import org.dom4j.DocumentHelper;
-import org.dom4j.Element;
 import org.mule.api.MuleEventContext;
 import org.mule.api.MuleMessage;
 import org.mule.api.client.MuleClient;
@@ -41,6 +35,14 @@ import ws.prova.reference2.ProvaConstantImpl;
 import ws.prova.reference2.ProvaListImpl;
 import de.fub.csw.constant.StringConstants;
 
+/**
+ * @author never86
+ *
+ */
+/**
+ * @author never86
+ *
+ */
 public class HttpEndpointUMOImpl extends LogComponent implements Initialisable,
 		Callable, FlowConstructAware, ProvaAgent {
 
@@ -88,8 +90,8 @@ public class HttpEndpointUMOImpl extends LogComponent implements Initialisable,
 				.get("app.home");
 	}
 
-	/**
-	 * Process an inbound message that arrives on this endpoint
+	/* Process an inbound message that arrives on this endpoint
+	 * @see org.mule.component.simple.LogComponent#onCall(org.mule.api.MuleEventContext)
 	 */
 	public Object onCall(MuleEventContext context) throws Exception {
 		MuleMessage inbound = context.getMessage();
@@ -122,9 +124,7 @@ public class HttpEndpointUMOImpl extends LogComponent implements Initialisable,
 					+ req_content;
 		}
 
-		logger.info("AGENT:" + getAgentName() + " received the message:"
-				+ incomingProvaMsg);
-		System.out.println("AGENT:" + getAgentName() + " received the message:"
+		logger.info("AGENT: " + getAgentName() + " received the message:"
 				+ incomingProvaMsg);
 
 		// the message is from Prova agent, i.e., the answer
@@ -191,11 +191,17 @@ public class HttpEndpointUMOImpl extends LogComponent implements Initialisable,
 	
 	
 
+	/* (non-Javadoc)
+	 * @see ws.prova.esb2.ProvaAgent#getAgentName()
+	 */
 	public String getAgentName() {
 		return agentName;
 	}
 
-	// this method is invoked when the 'sendMsg' primitive is executed
+
+	/* this method is invoked when the 'sendMsg' primitive is executed
+	 * @see ws.prova.esb2.ProvaAgent#send(java.lang.String, ws.prova.kernel2.ProvaList)
+	 */
 	public void send(String receiver, ProvaList provaList) throws Exception {
 		try {
 			MuleClient client = new DefaultLocalMuleClient(fc.getMuleContext());
@@ -229,6 +235,9 @@ public class HttpEndpointUMOImpl extends LogComponent implements Initialisable,
 
 	}
 
+	/* (non-Javadoc)
+	 * @see ws.prova.esb2.ProvaAgent#receive(ws.prova.kernel2.ProvaList)
+	 */
 	@Override
 	public void receive(ProvaList arg0) throws Exception {
 		// TODO Auto-generated method stub

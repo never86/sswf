@@ -1,6 +1,7 @@
 package ws.prova.mule.impl;
 
 import java.net.URLDecoder;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -94,8 +95,8 @@ public class ProvaUMOImpl extends LogComponent implements Initialisable,
 
 	}
 
-	/**
-	 * Process an inbound message that arrives on this endpoint
+	/* Process an inbound message that arrives on this endpoint
+	 * @see org.mule.component.simple.LogComponent#onCall(org.mule.api.MuleEventContext)
 	 */
 	public Object onCall(MuleEventContext context) throws Exception {
 		ProvaList incomingProvaMsg = null;
@@ -123,7 +124,9 @@ public class ProvaUMOImpl extends LogComponent implements Initialisable,
 		return agentName;
 	}
 
-	// this method is invoked when the 'sendMsg' primitive is executed
+	/* this method is invoked when the 'sendMsg' primitive is executed
+	 * @see ws.prova.esb2.ProvaAgent#send(java.lang.String, ws.prova.kernel2.ProvaList)
+	 */
 	public void send(String receiver, ProvaList provaList) throws Exception {
 		try {
 			// overwrites messages
@@ -144,14 +147,38 @@ public class ProvaUMOImpl extends LogComponent implements Initialisable,
 				client.dispatch(receiver, provaList, null);
 			logger.info("AGENT:" + getAgentName() + " forwards " + provaList
 					+ " To:" + receiver);
+			
+			ProvaList okList = null;
+			List list = new ArrayList();
+			//send a feedback to the task request
+			if (provaList.getFixed()[3].toString().equalsIgnoreCase("start")) {
+				list.add(provaList.getFixed()[0]);
+				list.add(ProvaConstantImpl.create("esb"));
+				list.add(ProvaConstantImpl.create(this.getAgentName()));
+				list.add(ProvaConstantImpl.create("answer"));
+				ProvaConstant taskName = (ProvaConstant) ((ProvaList) provaList
+						.getFixed()[4]).getFixed()[0];
+				ProvaConstant taskID = (ProvaConstant) ((ProvaList) provaList
+						.getFixed()[4]).getFixed()[1];
+				ProvaObject[] objects1 = new ProvaObject[] {
+						ProvaConstantImpl.create("sentSuccessful"), taskName,
+						taskID, ProvaConstantImpl.create(receiver) };
+				list.add(ProvaListImpl.create(objects1));
+				okList = ProvaListImpl.create(list);
+				comm.addMsg(okList);
+			}
 
 		} catch (MalformedEndpointException e) {
+			ProvaList noList = null;
+			List list = new ArrayList();
 			// forwards the exception to the requester
 			if (provaList.getFixed()[3].toString().equalsIgnoreCase("start")) {
+				list.add(provaList.getFixed()[0]);
+				list.add(provaList.getFixed()[1]);
+				list.add(provaList.getFixed()[2]);
+				list.add(ProvaConstantImpl.create("answer"));
 				ProvaConstant receiverAgent = ProvaConstantImpl
 						.create(receiver);
-				provaList.getFixed()[3] = ProvaConstantImpl.create("answer");
-
 				ProvaObject[] payloads = ((ProvaList) provaList.getFixed()[4])
 						.getFixed();
 				ProvaObject[] newObjects = new ProvaObject[payloads.length];
@@ -159,9 +186,9 @@ public class ProvaUMOImpl extends LogComponent implements Initialisable,
 				newObjects[1] = payloads[0];
 				newObjects[2] = payloads[1];
 				newObjects[3] = receiverAgent;
-
-				provaList.getFixed()[4] = ProvaListImpl.create(newObjects);
-				comm.addMsg(provaList);
+				list.add(ProvaListImpl.create(newObjects));
+				noList = ProvaListImpl.create(list);
+				comm.addMsg(noList);
 			} else
 				e.printStackTrace();
 		} catch (Exception e) {

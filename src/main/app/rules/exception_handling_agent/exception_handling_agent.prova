@@ -39,21 +39,9 @@ rcvMsg(XID,esb, From, Performative, [X|Args]) :-
 	println(["--------------------------------------------"]).
 
 
-understandFunction(failedAgent).
-understandFunction(noAgentAvailable).
-understandFunction(unavailableAgent).
-
-rcvMsg(XID,esb, From, Performative, [X|Args]) :-
-    understandPerformative(XID, From, Performative, [X|Args]),
-    not(understandFunction(X)),
-	sendMsg(XID,esb,humanAgent, "request", [X|Args]),
-	rcvMsg(XID,esb,humanAgent, "answer", [X1|Args1]), 
-	sendMsg(XID, esb, From, "answer", [X1|Args1]).
-	
 % rules for recording exceptions	
 rcvMsg(XID,esb, From, Performative, [X|Args]) :-
 	understandPerformative(XID, From, Performative, [X|Args]),
-	understandFunction(X),
 	WorkflowName =  de.fub.csw.TaskManagementCenter.getWfName(XID),
 	sendMsg(XID,esb,humanAgent, "inform", [WorkflowName, [X|Args]]),
 	processMessage(XID, From, Performative, [X|Args]).
@@ -80,24 +68,15 @@ processMessage(XID,From,"invalidate", [TaskID, Service]):-
       
 
 processMessage(XID,From,Performative, failedAgent(TaskName, TaskID, Agent)):-
-     %TODO: write rule which checks signature and mode declarations (dynamic testing)
-     findall(A1,getResponsibleAgents(TaskName, A1),Agents),
-     NewAgent = de.fub.csw.TaskManagementCenter.findOptimalAgent(Agents),
-     isAgentAvailable(XID, From, TaskName, TaskID, NewAgent).     
+     URL = de.fub.csw.constant.StringConstants.SEMANTIC_DATA_REPOSITORY_URL,
+     semanticDataConnection(URL, Connection),
+     getResponsibleAgents(TaskID, TaskName, NewAgent, Connection),
+     sendMsg(XID, esb, From, "answer", [TaskID, NewAgent]).     
 
 processMessage(XID,From,Performative, unavailableAgent(TaskName, TaskID, Agent)):-
-     %TODO: write rule which checks signature and mode declarations (dynamic testing)
-     findall(A1,getResponsibleAgents(TaskName, A1),Agents),
-     NewAgent = de.fub.csw.TaskManagementCenter.findOptimalAgent(Agents),
-     isAgentAvailable(XID, From, TaskName, TaskID, NewAgent).
-
-isAgentAvailable(XID, From, TaskName, TaskID, "none") :-
-     !,
-     processMessage(XID, From, "request", noAgentAvailable(TaskName, TaskID)).
-
-isAgentAvailable(XID, From, TaskName, TaskID, NewAgent) :-
-     bound(NewAgent),!, 
-     println(["EXCEPTION HANDLING AGENT FINDS AN ALTERNATIVE AGETN:", NewAgent, " FOR THE TASK ",TaskName,"."]),
+     URL = de.fub.csw.constant.StringConstants.SEMANTIC_DATA_REPOSITORY_URL,
+     semanticDataConnection(URL, Connection),
+     getResponsibleAgents(TaskID, TaskName, NewAgent, Connection),
      sendMsg(XID, esb, From, "answer", [TaskID, NewAgent]).
      
 processMessage(XID,From,Performative, noAgentAvailable(TaskName, TaskID)):-

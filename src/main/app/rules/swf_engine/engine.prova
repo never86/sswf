@@ -1,42 +1,49 @@
+:-eval(consult('../swf_engine/utils.prova')).
+
 executeTask(XID, TaskName, TaskID, Inputs, Outputs) :-
     % register the information of a task into the task management center
     de.fub.csw.TaskManagementCenter.registerTask(TaskID, TaskName, Inputs, Outputs),
     
     % allocate a task to an agent
-    URL = de.fub.csw.constant.StringConstants.SEMANTIC_DATA_REPOSITORY_URL,
-    sparql_connect(Connection, URL),
-    %semanticDataConnection(URL, Connection),
-    allocateTask(XID, TaskName, TaskID, Agent, Connection),
+    allocateTask(XID, TaskName, TaskID, Agent),
     
     % invoke the task  
-    invokeTask(XID, TaskName, TaskID, Agent, Inputs, Outputs, Connection).
+    invokeTask(XID, TaskName, TaskID, Agent, Inputs, Outputs).
     
-allocateTask(XID, TaskName, TaskID, Agent, Connection) :-
+allocateTask(XID, TaskName, TaskID, Agent) :-
+    URL = de.fub.csw.constant.StringConstants.SEMANTIC_DATA_REPOSITORY_URL,
+    semanticDataConnection(URL, Connection),
     getResponsibleAgents(TaskID, TaskName, Agent, Connection),
     println(["The TASK: ", TaskName, "(", TaskID,") is allocated to AGENT:",Agent]).
 
 
-% find the optimal agent
+% find an available agent
 getResponsibleAgents(TaskID, TaskName, Agent, Connection) :-
     QueryString =  de.fub.csw.constant.StringConstants.queryAgentByTask(TaskName),
+    println(["------------------------SPARQL Query--------------------------------"]),
+    println([QueryString]),
+    println(["---------------------------END-----------------------------"]),
 	sparql_select(Connection, QueryString, TaskID),
 	sparql_results(TaskID, FullAgentName),
 	getLocalName(FullAgentName, Agent)[bound(FullAgentName)],
 	!.
 
+% no agent is found
 getResponsibleAgents(TaskID, TaskName, Agent, Connection) :-
     println(["NO AVAILABLE AGENT TO TASK: ", TaskName, "(", TaskID,"). THE EXCEPTION IS FORWARED TO EXCEPTION HANDLING AGENT."]),
     sendMsg(XID,esb,exceptionHandlingAgent, "request", noAgentAvailable(TaskName, TaskID)),
     rcvMsg(XID, esb, exceptionHandlingAgent, "answer", [TaskID, Agent]).
 
       
-invokeTask(XID, TaskName, TaskID, Agent, Inputs, Outputs, Connection) :-
+invokeTask(XID, TaskName, TaskID, Agent, Inputs, Outputs) :-
     sendMsg(XID,esb, Agent, "start", [TaskName, TaskID,Inputs,Outputs]),
-    checkReceipt(XID, Agent, TaskName, TaskID,Inputs,Outputs, Connection).
+    checkReceipt(XID, Agent, TaskName, TaskID,Inputs,Outputs).
 
-checkReceipt(XID, Agent, TaskName, TaskID, Inputs, Outputs, Connection):-
+checkReceipt(XID, Agent, TaskName, TaskID, Inputs, Outputs):-
     rcvMsg(XID,Protocol,From, "answer" , unavailableAgent(TaskName, TaskID, Agent)),
     !,
+    URL = de.fub.csw.constant.StringConstants.SEMANTIC_DATA_REPOSITORY_URL,
+    semanticDataConnection(URL, Connection),
     UpdateString =  de.fub.csw.constant.StringConstants.updateAgent(Agent),
     BASE_URL = de.fub.csw.constant.StringConstants.WF_ONTOLOGY_BASE_URL,
     sparql_update(Connection, UpdateString, BASE_URL, TaskID),
@@ -44,7 +51,8 @@ checkReceipt(XID, Agent, TaskName, TaskID, Inputs, Outputs, Connection):-
     rcvMsg(XID, esb,exceptionHandlingAgent, "answer", [TaskID, NewAgent]),
     invokeTask(XID, TaskName, TaskID, NewAgent,Inputs,Outputs).
 
-checkReceipt(XID, Agent, TaskName, TaskID, Inputs, Outputs, Connection):-
+checkReceipt(XID, Agent, TaskName, TaskID, Inputs, Outputs):-
+    rcvMsg(XID,Protocol,From, "answer" ,[sentSuccessful,TaskName, TaskID, Agent]),
     !,
     println(["The workflow engine is waiting for the answer from the AGENT:", Agent]).
    
