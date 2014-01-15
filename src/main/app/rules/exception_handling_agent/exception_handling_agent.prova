@@ -62,28 +62,32 @@ understandPerformative(XID, From, Performative, PayLoad) :-
 	 sendMsg(XID,esb,From,"no_further_answers", PayLoad),
 	 fail().	 
      
-processMessage(XID,From,"invalidate", [TaskID, Service]):-
-     NewService = de.fub.csw.TaskManagementCenter.getAlternativeService(TaskID, Service),
-     isNewServiceAvailable4Validation(XID, From, TaskID, NewService).
-      
 
 processMessage(XID,From,Performative, failedAgent(TaskName, TaskID, Agent)):-
-     URL = de.fub.csw.constant.StringConstants.SEMANTIC_DATA_REPOSITORY_URL,
-     semanticDataConnection(URL, Connection),
-     getResponsibleAgents(TaskID, TaskName, NewAgent, Connection),
+     updateAgentAvailability(Agent),
+     getResponsibleAgents(XID, TaskID, TaskName, NewAgent),
      sendMsg(XID, esb, From, "answer", [TaskID, NewAgent]).     
 
 processMessage(XID,From,Performative, unavailableAgent(TaskName, TaskID, Agent)):-
-     URL = de.fub.csw.constant.StringConstants.SEMANTIC_DATA_REPOSITORY_URL,
-     semanticDataConnection(URL, Connection),
-     getResponsibleAgents(TaskID, TaskName, NewAgent, Connection),
+     updateAgentAvailability(Agent),
+     getResponsibleAgents(XID, TaskID, TaskName, NewAgent),
      sendMsg(XID, esb, From, "answer", [TaskID, NewAgent]).
      
 processMessage(XID,From,Performative, noAgentAvailable(TaskName, TaskID)):-
      WorkflowName =  de.fub.csw.TaskManagementCenter.getWfName(XID),
-     sendMsg(XID, esb,humanAgent,"request", noAgentAvailable(WorkflowName, TaskName)),
-     rcvMsg(XID,esb,humanAgent,"answer", modified(ontology)),
+     sendMsg(XID, esb, humanAgent, "request", noAgentAvailable(WorkflowName, TaskName)),
+     rcvMsg(XID,esb, humanAgent, "answer", modified(ontology)),
      println(["Received the reply from the HUMAN AGENT. TASK_AGENT ONTOLOGY IS MODIFIED BY USER."]),
-     allocateTask(XID, TaskName, TaskID, Agent),
-     sendMsg(XID, esb, From, "answer", [TaskID, Agent]).
+     getResponsibleAgents(XID, TaskID, TaskName, NewAgent),
+     sendMsg(XID, esb, From, "answer", [TaskID, NewAgent]).
+     
+ updateAgentAvailability(Agent):-
+     URL = de.fub.csw.constant.StringConstants.SEMANTIC_DATA_REPOSITORY_URL,
+     semanticDataConnection(URL, Connection),
+     UpdateString =  de.fub.csw.constant.StringConstants.updateAgent(Agent),
+     BASE_URL = de.fub.csw.constant.StringConstants.WF_ONTOLOGY_BASE_URL,
+     sparql_update(Connection, UpdateString, BASE_URL, updateID),
+     println(["--------------", Agent, " was updated to unavailable.-------------------"]),
+     % remove the results from the knowledge base
+     retract(sparql_results(updateID)).
      

@@ -9,27 +9,31 @@ executeTask(XID, TaskName, TaskID, Inputs, Outputs) :-
     
     % invoke the task  
     invokeTask(XID, TaskName, TaskID, Agent, Inputs, Outputs).
-    
+
+
 allocateTask(XID, TaskName, TaskID, Agent) :-
-    URL = de.fub.csw.constant.StringConstants.SEMANTIC_DATA_REPOSITORY_URL,
-    semanticDataConnection(URL, Connection),
-    getResponsibleAgents(TaskID, TaskName, Agent, Connection),
+    getResponsibleAgents(XID, TaskID, TaskName, Agent),
     println(["The TASK: ", TaskName, "(", TaskID,") is allocated to AGENT:",Agent]).
 
 
 % find an available agent
-getResponsibleAgents(TaskID, TaskName, Agent, Connection) :-
+getResponsibleAgents(XID, TaskID, TaskName, Agent) :-
+    URL = de.fub.csw.constant.StringConstants.SEMANTIC_DATA_REPOSITORY_URL,
+    semanticDataConnection(URL, Connection),
     QueryString =  de.fub.csw.constant.StringConstants.queryAgentByTask(TaskName),
-    println(["------------------------SPARQL Query--------------------------------"]),
+    println(["------------------------Query an available agent--------------------------------"]),
     println([QueryString]),
     println(["---------------------------END-----------------------------"]),
-	sparql_select(Connection, QueryString, TaskID),
-	sparql_results(TaskID, FullAgentName),
-	getLocalName(FullAgentName, Agent)[bound(FullAgentName)],
+	sparql_select(Connection, QueryString, queryID),
+	sparql_results(queryID, FullAgentName),
+	% remove the results from the knowledge base
+	retract(sparql_results(queryID,_)),
+	getLocalName(FullAgentName, Agent),
+	println(["----------------------", Agent, " is selected-----------------------------"]),
 	!.
 
 % no agent is found
-getResponsibleAgents(TaskID, TaskName, Agent, Connection) :-
+getResponsibleAgents(XID, TaskID, TaskName, Agent) :-
     println(["NO AVAILABLE AGENT TO TASK: ", TaskName, "(", TaskID,"). THE EXCEPTION IS FORWARED TO EXCEPTION HANDLING AGENT."]),
     sendMsg(XID,esb,exceptionHandlingAgent, "request", noAgentAvailable(TaskName, TaskID)),
     rcvMsg(XID, esb, exceptionHandlingAgent, "answer", [TaskID, Agent]).
@@ -42,11 +46,6 @@ invokeTask(XID, TaskName, TaskID, Agent, Inputs, Outputs) :-
 checkReceipt(XID, Agent, TaskName, TaskID, Inputs, Outputs):-
     rcvMsg(XID,Protocol,From, "answer" , unavailableAgent(TaskName, TaskID, Agent)),
     !,
-    URL = de.fub.csw.constant.StringConstants.SEMANTIC_DATA_REPOSITORY_URL,
-    semanticDataConnection(URL, Connection),
-    UpdateString =  de.fub.csw.constant.StringConstants.updateAgent(Agent),
-    BASE_URL = de.fub.csw.constant.StringConstants.WF_ONTOLOGY_BASE_URL,
-    sparql_update(Connection, UpdateString, BASE_URL, TaskID),
     sendMsg(XID,esb,exceptionHandlingAgent, "request", unavailableAgent(TaskName, TaskID, Agent)),
     rcvMsg(XID, esb,exceptionHandlingAgent, "answer", [TaskID, NewAgent]),
     invokeTask(XID, TaskName, TaskID, NewAgent,Inputs,Outputs).
