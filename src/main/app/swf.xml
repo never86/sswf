@@ -17,11 +17,12 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
 
 
 	<context:property-placeholder location="classpath:mule-app.properties" />
+<!-- 
 	<custom-transformer class="de.fub.csw.transformers.ProvaList2ObjectArrays"
 		name="provaList2ObjectArrays" doc:name="Java" />
 	<custom-transformer class="de.fub.csw.transformers.WSReturn2ProvaList"
 		name="wsReturn2ProvaList" doc:name="Java" />
-
+ -->
 	<jms:activemq-connector name="jmsConnector"
 		specification="1.1" brokerURL="vm://localhost" />
 
@@ -146,6 +147,8 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
 
 	<jms:endpoint name="exceptionHandlingAgent" topic="exception_handling"
 		connector-ref="jmsConnector" />
+	<http:endpoint name="httpEndpointEH" host="localhost"
+		port="9993" />
 	<flow name="Exception_Handling">
 		<composite-source>
 			<jms:inbound-endpoint ref="exceptionHandlingAgent">
@@ -162,6 +165,8 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
 	
 	<jms:endpoint name="humanAgentProxy" topic="human_agent_proxy"
 		connector-ref="jmsConnector" />
+	<http:endpoint name="httpEndpointHT" host="localhost"
+		port="9992" />
 	<flow name="HumanAgentProxyFlow">
 			<composite-source>
 			<jms:inbound-endpoint ref="humanAgentProxy">
@@ -174,11 +179,6 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
 			</composite-source>
 		<component class="ws.prova.mule.impl.ProvaUMOImpl" />
 	</flow>
-
-	<http:endpoint name="httpEndpointEH" host="localhost"
-		port="9993" />
-		<http:endpoint name="httpEndpointHT" host="localhost"
-		port="9992" />
 
 	<http:endpoint name="humanAgent"
 		address="http://localhost:8080/sswfc/ReceiveExceptionServlet" />

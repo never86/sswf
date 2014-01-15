@@ -1,7 +1,8 @@
 package ws.prova.mule.impl;
 
+import java.io.BufferedReader;
+import java.io.StringReader;
 import java.net.URLDecoder;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -28,11 +29,7 @@ import org.mule.source.StartableCompositeMessageSource;
 import ws.prova.api2.ProvaCommunicator;
 import ws.prova.api2.ProvaCommunicatorImpl;
 import ws.prova.esb2.ProvaAgent;
-import ws.prova.kernel2.ProvaConstant;
 import ws.prova.kernel2.ProvaList;
-import ws.prova.kernel2.ProvaObject;
-import ws.prova.reference2.ProvaConstantImpl;
-import ws.prova.reference2.ProvaListImpl;
 
 public class ProvaUMOImpl extends LogComponent implements Initialisable,
 		Callable, FlowConstructAware, ProvaAgent {
@@ -95,8 +92,12 @@ public class ProvaUMOImpl extends LogComponent implements Initialisable,
 
 	}
 
-	/* Process an inbound message that arrives on this endpoint
-	 * @see org.mule.component.simple.LogComponent#onCall(org.mule.api.MuleEventContext)
+	/*
+	 * Process an inbound message that arrives on this endpoint
+	 * 
+	 * @see
+	 * org.mule.component.simple.LogComponent#onCall(org.mule.api.MuleEventContext
+	 * )
 	 */
 	public Object onCall(MuleEventContext context) throws Exception {
 		ProvaList incomingProvaMsg = null;
@@ -106,17 +107,18 @@ public class ProvaUMOImpl extends LogComponent implements Initialisable,
 			RuleML2ProvaTranslator ruleml2prova = new RuleML2ProvaTranslator();
 			String http_message = URLDecoder.decode(
 					inbound.getPayloadAsString(), inbound.getEncoding());
-			incomingProvaMsg = (ProvaList) ruleml2prova.transform(http_message.substring(http_message.indexOf("payload")+8));
+			incomingProvaMsg = (ProvaList) ruleml2prova.transform(http_message
+					.substring(http_message.indexOf("payload") + 8));
 		} else if (inbound.getPayload() instanceof ProvaList) {
 			// The message is from other Prova agents
 			incomingProvaMsg = (ProvaList) inbound.getPayload();
 		}
-		
+
 		logger.info("AGENT: " + getAgentName() + " received the message:"
 				+ incomingProvaMsg);
 		comm.addMsg(incomingProvaMsg);
 		context.setStopFurtherProcessing(true);
-		
+
 		return null;
 	}
 
@@ -124,10 +126,14 @@ public class ProvaUMOImpl extends LogComponent implements Initialisable,
 		return agentName;
 	}
 
-	/* this method is invoked when the 'sendMsg' primitive is executed
-	 * @see ws.prova.esb2.ProvaAgent#send(java.lang.String, ws.prova.kernel2.ProvaList)
+	/*
+	 * this method is invoked when the 'sendMsg' primitive is executed
+	 * 
+	 * @see ws.prova.esb2.ProvaAgent#send(java.lang.String,
+	 * ws.prova.kernel2.ProvaList)
 	 */
 	public void send(String receiver, ProvaList provaList) throws Exception {
+
 		try {
 			// overwrites messages
 			if (receiver.equals("httpEndpoint")) {
@@ -147,52 +153,25 @@ public class ProvaUMOImpl extends LogComponent implements Initialisable,
 				client.dispatch(receiver, provaList, null);
 			logger.info("AGENT:" + getAgentName() + " forwards " + provaList
 					+ " To:" + receiver);
-			
-			ProvaList okList = null;
-			List list = new ArrayList();
-			//send a feedback to the task request
+
+			// add feedback to the knowledge base
 			if (provaList.getFixed()[3].toString().equalsIgnoreCase("start")) {
-				list.add(provaList.getFixed()[0]);
-				list.add(ProvaConstantImpl.create("esb"));
-				list.add(ProvaConstantImpl.create(this.getAgentName()));
-				list.add(ProvaConstantImpl.create("answer"));
-				ProvaConstant taskName = (ProvaConstant) ((ProvaList) provaList
-						.getFixed()[4]).getFixed()[0];
-				ProvaConstant taskID = (ProvaConstant) ((ProvaList) provaList
-						.getFixed()[4]).getFixed()[1];
-				ProvaObject[] objects1 = new ProvaObject[] {
-						ProvaConstantImpl.create("sentSuccessful"), taskName,
-						taskID, ProvaConstantImpl.create(receiver) };
-				list.add(ProvaListImpl.create(objects1));
-				okList = ProvaListImpl.create(list);
-				comm.addMsg(okList);
+				String taskID = ((ProvaList) provaList.getFixed()[4])
+						.getFixed()[1].toString();
+				BufferedReader inRules = new BufferedReader(new StringReader(
+						"feedback(" + taskID + ", success)."));
+				comm.consultSync(inRules, "success©\rules", new Object[] {});
 			}
 
 		} catch (MalformedEndpointException e) {
-			ProvaList noList = null;
-			List list = new ArrayList();
-			// forwards the exception to the requester
+			// add feedback to the knowledge base
 			if (provaList.getFixed()[3].toString().equalsIgnoreCase("start")) {
-				list.add(provaList.getFixed()[0]);
-				list.add(provaList.getFixed()[1]);
-				list.add(provaList.getFixed()[2]);
-				list.add(ProvaConstantImpl.create("answer"));
-				ProvaConstant receiverAgent = ProvaConstantImpl
-						.create(receiver);
-				ProvaObject[] payloads = ((ProvaList) provaList.getFixed()[4])
-						.getFixed();
-				ProvaObject[] newObjects = new ProvaObject[payloads.length];
-				newObjects[0] = ProvaConstantImpl.create("unavailableAgent");
-				newObjects[1] = payloads[0];
-				newObjects[2] = payloads[1];
-				newObjects[3] = receiverAgent;
-				list.add(ProvaListImpl.create(newObjects));
-				noList = ProvaListImpl.create(list);
-				comm.addMsg(noList);
-			} else
-				e.printStackTrace();
-		} catch (Exception e) {
-			e.printStackTrace();
+				String taskID = ((ProvaList) provaList.getFixed()[4])
+						.getFixed()[1].toString();
+				BufferedReader inRules = new BufferedReader(new StringReader(
+						"feedback(" + taskID + ", failed)."));
+				comm.consultSync(inRules, "failed©\rules", new Object[] {});
+			}
 		}
 
 	}

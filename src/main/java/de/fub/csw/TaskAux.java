@@ -16,16 +16,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.cxf.jaxws.endpoint.dynamic.JaxWsDynamicClientFactory;
-import org.apache.log4j.Logger;
 
-import ws.prova.api2.ProvaCommunicator;
 import ws.prova.kernel2.ProvaConstant;
 import ws.prova.kernel2.ProvaList;
 import ws.prova.kernel2.ProvaObject;
 import ws.prova.reference2.ProvaConstantImpl;
 import ws.prova.reference2.ProvaListImpl;
-import de.fub.csw.log.LogTool;
 
 /**
  * class description
@@ -38,13 +37,11 @@ import de.fub.csw.log.LogTool;
  */
 public class TaskAux {
 
-	private static String regex = "(\\#[^,]*!)";
 
-	private static LogTool logTool = new LogTool(TaskAux.class);
-	private static Logger logger = logTool.getLogger();
+	protected static transient Log logger = LogFactory
+			.getLog(TaskAux.class);
 	private static Map<String, org.apache.cxf.endpoint.Client> wsClients = new HashMap<String, org.apache.cxf.endpoint.Client>();
 
-	private static ProvaCommunicator comm;
 
 	static org.apache.cxf.jaxws.endpoint.dynamic.JaxWsDynamicClientFactory dcf = null;
 

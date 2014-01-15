@@ -44,18 +44,19 @@ invokeTask(XID, TaskName, TaskID, Agent, Inputs, Outputs) :-
     checkReceipt(XID, Agent, TaskName, TaskID,Inputs,Outputs).
 
 checkReceipt(XID, Agent, TaskName, TaskID, Inputs, Outputs):-
-    rcvMsg(XID,Protocol,From, "answer" , unavailableAgent(TaskName, TaskID, Agent)),
+    feedback(TaskID, failed),
     !,
+    retract(feedback(TaskID, failed)),
     sendMsg(XID,esb,exceptionHandlingAgent, "request", unavailableAgent(TaskName, TaskID, Agent)),
     rcvMsg(XID, esb,exceptionHandlingAgent, "answer", [TaskID, NewAgent]),
     invokeTask(XID, TaskName, TaskID, NewAgent,Inputs,Outputs).
 
 checkReceipt(XID, Agent, TaskName, TaskID, Inputs, Outputs):-
-    rcvMsg(XID,Protocol,From, "answer" ,[sentSuccessful,TaskName, TaskID, Agent]),
-    !,
+    feedback(TaskID, success),
+    retract(feedback(TaskID, success)),
     println(["The workflow engine is waiting for the answer from the AGENT:", Agent]).
-   
-    
+
+
 assignTaskID(XID, TID) :-
     R = java.util.UUID.randomUUID(),
     concat([XID,"_",R],R1),

@@ -211,27 +211,8 @@ public class HttpEndpointUMOImpl extends LogComponent implements Initialisable,
 					+ " To:" + receiver);
 
 		} catch (MalformedEndpointException e) {
-			// forwards the exception to the requester
-			if (provaList.getFixed()[3].toString().equalsIgnoreCase("start")) {
-				ProvaConstant receiverAgent = ProvaConstantImpl
-						.create(receiver);
-				provaList.getFixed()[3] = ProvaConstantImpl.create("answer");
-
-				ProvaObject[] payloads = ((ProvaList) provaList.getFixed()[4])
-						.getFixed();
-				ProvaObject[] newObjects = new ProvaObject[payloads.length];
-				newObjects[0] = ProvaConstantImpl.create("unavailableAgent");
-				newObjects[1] = payloads[0];
-				newObjects[2] = payloads[1];
-				newObjects[3] = receiverAgent;
-
-				provaList.getFixed()[4] = ProvaListImpl.create(newObjects);
-				comm.addMsg(provaList);
-			} else
 				e.printStackTrace();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		} 
 
 	}
 
