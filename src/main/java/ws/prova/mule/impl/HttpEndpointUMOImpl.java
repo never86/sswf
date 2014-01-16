@@ -28,11 +28,8 @@ import org.mule.transport.service.DefaultTransportServiceDescriptor;
 import ws.prova.api2.ProvaCommunicator;
 import ws.prova.api2.ProvaCommunicatorImpl;
 import ws.prova.esb2.ProvaAgent;
-import ws.prova.kernel2.ProvaConstant;
 import ws.prova.kernel2.ProvaList;
-import ws.prova.kernel2.ProvaObject;
 import ws.prova.reference2.ProvaConstantImpl;
-import ws.prova.reference2.ProvaListImpl;
 import de.fub.csw.constant.StringConstants;
 
 /**
@@ -41,7 +38,7 @@ import de.fub.csw.constant.StringConstants;
  */
 /**
  * @author never86
- *
+ * 
  */
 public class HttpEndpointUMOImpl extends LogComponent implements Initialisable,
 		Callable, FlowConstructAware, ProvaAgent {
@@ -90,8 +87,12 @@ public class HttpEndpointUMOImpl extends LogComponent implements Initialisable,
 				.get("app.home");
 	}
 
-	/* Process an inbound message that arrives on this endpoint
-	 * @see org.mule.component.simple.LogComponent#onCall(org.mule.api.MuleEventContext)
+	/*
+	 * Process an inbound message that arrives on this endpoint
+	 * 
+	 * @see
+	 * org.mule.component.simple.LogComponent#onCall(org.mule.api.MuleEventContext
+	 * )
 	 */
 	public Object onCall(MuleEventContext context) throws Exception {
 		MuleMessage inbound = context.getMessage();
@@ -103,7 +104,7 @@ public class HttpEndpointUMOImpl extends LogComponent implements Initialisable,
 			incomingHttpMsg = URLDecoder.decode(inbound.getPayloadAsString(),
 					inbound.getEncoding());
 			int pos = incomingHttpMsg.indexOf("payload=");
-			incomingHttpMsg= incomingHttpMsg.replace("%20", " ");
+			incomingHttpMsg = incomingHttpMsg.replace("%20", " ");
 			if (pos != -1) {
 				// the message is from user, i.e., the request
 				req_content = incomingHttpMsg.substring(pos + 8);
@@ -133,7 +134,8 @@ public class HttpEndpointUMOImpl extends LogComponent implements Initialisable,
 			comm.addMsg(incomingProvaMsg);
 			context.setStopFurtherProcessing(true);
 			return null;
-		} else {// the message is from user, and a temporary UMO is registered to act as the user
+		} else {// the message is from user, and a temporary UMO is registered
+				// to act as the user
 			tmpAgent = System.currentTimeMillis() + "";
 			incomingProvaMsg.getFixed()[2] = ProvaConstantImpl.create(tmpAgent);
 			try {
@@ -142,7 +144,7 @@ public class HttpEndpointUMOImpl extends LogComponent implements Initialisable,
 						tmpAgent, new Properties(), null)
 						.createEndpointBuilder("jms://topic:" + tmpAgent);
 				helper.registerEndpointBuilder(tmpAgent, builder);
-				logger.info("A temporary UMO '"+ tmpAgent +"' is registered.");
+				logger.info("A temporary UMO '" + tmpAgent + "' was registered.");
 			} catch (Exception e) {
 				e.printStackTrace();
 				context.setStopFurtherProcessing(true);
@@ -157,27 +159,20 @@ public class HttpEndpointUMOImpl extends LogComponent implements Initialisable,
 			// collect synchronously all answers
 			MuleMessage m = null;
 			String answer = "";
-			int i = 0;
 			MuleClient client = new DefaultLocalMuleClient(fc.getMuleContext());
-			int timeout = 1000000; // default timeout of receiving workflow results
-//			do {
-				m = client.request("jms://topic:" + tmpAgent, timeout);
-				if (m != null) {
-//					if (m.getPayloadAsString().indexOf("no_further_answers") != -1) {
-//						timeout = 10;
-//						continue;
-//					}
-					String payload = (String) new ProvaList2HTML(req_content).transform(m.getPayload());
-					answer = answer + payload;
-					if (i > 0)
-						i--;
-				} else {}
-//					i++;
-//			} while (i < 2); // terminate if no further answers are received
+			int timeout = 1000000; // default timeout of receiving workflow
+									// results
+			m = client.request("jms://topic:" + tmpAgent, timeout);
+			if (m != null) {
+				String payload = (String) new ProvaList2HTML(req_content)
+						.transform(m.getPayload());
+				answer = answer + payload;
+			}
 
 			// unregister temp UMO
 			try {
-				//fc.getMuleContext().getRegistry().unregisterEndpoint(tmpAgent);
+				fc.getMuleContext().getRegistry().unregisterEndpoint(tmpAgent);
+				logger.info("The temporary UMO '" + tmpAgent + "' was unregistered.");
 			} catch (Exception exx) {
 				logger.error("Can not unregister synchronous UMO for "
 						+ tmpAgent);
@@ -188,35 +183,38 @@ public class HttpEndpointUMOImpl extends LogComponent implements Initialisable,
 		}
 	}
 
-	
-	
-
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see ws.prova.esb2.ProvaAgent#getAgentName()
 	 */
 	public String getAgentName() {
 		return agentName;
 	}
 
-
-	/* this method is invoked when the 'sendMsg' primitive is executed
-	 * @see ws.prova.esb2.ProvaAgent#send(java.lang.String, ws.prova.kernel2.ProvaList)
+	/*
+	 * this method is invoked when the 'sendMsg' primitive is executed
+	 * 
+	 * @see ws.prova.esb2.ProvaAgent#send(java.lang.String,
+	 * ws.prova.kernel2.ProvaList)
 	 */
 	public void send(String receiver, ProvaList provaList) throws Exception {
 		try {
 			MuleClient client = new DefaultLocalMuleClient(fc.getMuleContext());
 			client.dispatch(receiver, provaList, null);
-			
+
 			logger.info("AGENT:" + getAgentName() + " forwards " + provaList
 					+ " To:" + receiver);
 
 		} catch (MalformedEndpointException e) {
-				e.printStackTrace();
-		} 
+			e.printStackTrace();
+		}
 
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see ws.prova.esb2.ProvaAgent#receive(ws.prova.kernel2.ProvaList)
 	 */
 	@Override

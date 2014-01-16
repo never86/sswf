@@ -135,12 +135,12 @@ public class ProvaUMOImpl extends LogComponent implements Initialisable,
 	public void send(String receiver, ProvaList provaList) throws Exception {
 
 		try {
-			// overwrites messages
-			if (receiver.equals("httpEndpoint")) {
-				synchronized (this) {
-					wait(300);
-				}
-			}
+//			// overwrites messages
+//			if (receiver.equals("httpEndpoint")) {
+//				synchronized (this) {
+//					wait(300);
+//				}
+//			}
 			// send the message to httpEndPoint as string
 			MuleClient client = new DefaultLocalMuleClient(fc.getMuleContext());
 			if (receiver.equalsIgnoreCase("httpEndpoint"))
