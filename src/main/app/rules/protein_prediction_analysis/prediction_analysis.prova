@@ -64,9 +64,8 @@ processMessage(XID,From,Primitive, analysis(Protein, TargetGOTerm, Result)):-
 analysis(Protein, TargetGOTerm, Result):-
    GOTerms = de.fub.csw.protein.prediction.QuickGOClient.getGOTermsByProteinID(Protein),
    element(GOTerm, GOTerms),
-   %concat(["http://amigo.geneontology.org/cgi-bin/amigo/browse.cgi?&format=rdfxml&term=", TargetGOTerm], OntologyURL),
-   OntologyURL = "http://grid.lzu.edu.cn:6060/0006564.xml",
-   reasonEngine(OntologyURL, Engine),
+   Onto = de.fub.csw.protein.prediction.GOClient.getOnto(TargetGOTerm),
+   reasonEngine(Onto, Engine),
    QueryString = de.fub.csw.constant.StringConstants.goTermAnalysisQuery(GOTerm, TargetGOTerm),
    askQuery(Engine, QueryString, Result),
    Result = "yes", 

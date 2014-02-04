@@ -33,10 +33,6 @@ public class StringConstants {
 			+ "<!ENTITY rdfs    \"http://www.w3.org/2000/01/rdf-schema\">\n"
 			+ "<!ENTITY xsd     \"http://www.w3.org/2001/XMLSchema\">\n"
 			+ "<!ENTITY owl     \"http://www.w3.org/2002/07/owl\">\n"
-			+ "<!ENTITY expr    \"http://www.daml.org/services/owl-s/1.2/generic/Expression.owl\">\n"
-			+ "<!ENTITY swrl    \"http://www.w3.org/2003/11/swrl\">\n"
-			+ "<!ENTITY swrl-onto \"http://www.daml.org/rules/proposal/swrl.owl\">\n"
-			+ "<!ENTITY service \"http://de.dbpedia.org/redirects/ruleml/service.owl\">\n"
 			+ "]>\n";
 
 	public static String SEMANTIC_DATA_REPOSITORY_URL = "http://grid.lzu.edu.cn:6060/openrdf-sesame/repositories/sswf";
@@ -63,8 +59,14 @@ public class StringConstants {
 	}
 
 	public static String goTermAnalysisQuery(String goTerm, Object targetGOTerm) {
-		String query = "PREFIX : <http://www.geneontology.org/go#>\n"+
-			"ASK {Individual(:" +  goTerm + ")}";
+		String query = "";
+		if(goTerm.equalsIgnoreCase(targetGOTerm.toString()))
+			 query = "PREFIX : <http://www.geneontology.org/go#>\n"+
+						"ASK {Class(:" +  targetGOTerm +")}";
+		else
+		 query = "PREFIX : <http://www.geneontology.org/go#>\n"+
+			"ASK {SubClassOf(:" +  targetGOTerm + ", :"+ goTerm +")}";
+		System.out.println("AAAAAAAAAAAAAA:" + query);
     	return query;
 		
 	}
