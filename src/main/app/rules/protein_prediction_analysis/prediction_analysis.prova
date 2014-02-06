@@ -18,6 +18,7 @@
 :-eval(consult('../ContractLog/owl.prova')).
 :-eval(consult('../swf_engine/utils.prova')).
 
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Performative vocabulary of organizational agent
 % More complex vocabularies (e.g. FIPA ACL) might be defined as Semantic Web ontologies	
@@ -55,23 +56,21 @@ understandPerformative(XID, From, Performative, PayLoad) :-
 	sendMsg(XID,esb,From,"answer", notUnderstood("performative",Performative)),
 	sendMsg(XID,esb,From,"no_further_answers", PayLoad),
 	fail().
-	
-processMessage(XID,From,Primitive, analysis(Protein, TargetGOTerm, Result)):-
-     analysis(Protein, TargetGOTerm, Result),
-     sendMsg(XID,esb,From, "answer", analysis(Protein, TargetGOTerm, Result)).
 
+processMessage(XID,From,Primitive, proteinPredicitonAnalysis(TID, inArgs(PredictedGOTerm, ReliableGOTerms), outArgs(Result))):-
+     analysis(ReliableGOTerms, PredictedGOTerm, Result),
+     sendMsg(XID,esb,From, "answer", [TID, inArgs(PredictedGOTerm, ReliableGOTerms), outArgs(Result)]).
 
-analysis(Protein, TargetGOTerm, Result):-
-   GOTerms = de.fub.csw.protein.prediction.QuickGOClient.getGOTermsByProteinID(Protein),
-   element(GOTerm, GOTerms),
-   Onto = de.fub.csw.protein.prediction.GOClient.getOnto(TargetGOTerm),
+analysis(ReliableGOTerms, PredictedGOTerm, Result):-
+   element(GOTerm, ReliableGOTerms),
+   Onto = de.fub.csw.protein.prediction.GOClient.getOnto(PredictedGOTerm),
    reasonEngine(Onto, Engine),
-   QueryString = de.fub.csw.constant.StringConstants.goTermAnalysisQuery(GOTerm, TargetGOTerm),
+   QueryString = de.fub.csw.constant.StringConstants.goTermAnalysisQuery(GOTerm, PredictedGOTerm),
    askQuery(Engine, QueryString, Result),
    Result = "yes", 
    !.
    
-analysis(Protein, TargetGOTerm, Result):-
+analysis(ReliableGOTerms, PredictedGOTerm, Result):-
    Result = "no".
    
 askQuery(Engine, QueryString, Result):-

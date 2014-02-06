@@ -18,7 +18,6 @@
 :-eval(consult('../ContractLog/owl.prova')).
 :-eval(consult('../swf_engine/utils.prova')).
 
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Performative vocabulary of organizational agent
 % More complex vocabularies (e.g. FIPA ACL) might be defined as Semantic Web ontologies	
@@ -56,12 +55,11 @@ understandPerformative(XID, From, Performative, PayLoad) :-
 	sendMsg(XID,esb,From,"answer", notUnderstood("performative",Performative)),
 	sendMsg(XID,esb,From,"no_further_answers", PayLoad),
 	fail().
+	
+processMessage(XID,From,Primitive, proteinAnalysis(TID, inArgs(Protein), outArgs(ReliableGOTerms))):-
+     retrieveReliableGOTerms(Protein, ReliableGOTerms),
+     sendMsg(XID,esb,From, "answer", [TID, inArgs(Protein), outArgs(ReliableGOTerms)]).
 
-processMessage(XID,From,Primitive, proteinPredicitonAnalysis(TID, inArgs(Protein, GOTerm), outArgs(Result))):-
-     proteinPredicitonAnalysis(XID, From, Protein, GOTerm, Result),
-     sendMsg(XID,esb,From, "answer", [TID, inArgs(Protein, GOTerm), outArgs(Result)]).
-     
 
-proteinPredicitonAnalysis(XID, From, Protein, TargetGOTerm, Result):-
-   sendMsg(XID,esb, predictionAnalyzer, "request", analysis(Protein, TargetGOTerm, Result)),
-   rcvMsg(XID, esb, predictionAnalyzer, "answer", analysis(Protein, TargetGOTerm, Result)).
+retrieveReliableGOTerms(Protein, GOTerms):-
+   GOTerms = de.fub.csw.protein.prediction.QuickGOClient.getGOTermsByProteinID(Protein).

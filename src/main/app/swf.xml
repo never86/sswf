@@ -71,23 +71,23 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
 	
 	<jms:endpoint name="proteinPredictionAnalysisAgent" topic="proteinPredictionAnalysis_agent"
 		connector-ref="jmsConnector" />
-	<flow name="ProteinPredictionAnalysisManager">
+	<flow name="ProteinPredictionAnalysis">
 		<jms:inbound-endpoint ref="proteinPredictionAnalysisAgent">
 			<properties>
 				<spring:entry key="rulebase"
-					value="${app.home}/rules/protein_prediction_analysis/analysis_manager.prova" />
+					value="${app.home}/rules/protein_prediction_analysis/prediction_analysis.prova" />
 			</properties>
 		</jms:inbound-endpoint>
 		<component class="ws.prova.mule.impl.ProvaUMOImpl" />
 	</flow>
 	
-	<jms:endpoint name="predictionAnalyzer" topic="predictionAnalyzer_agent"
+	<jms:endpoint name="proteinAnalysisAgent" topic="proteinAnalysis_agent"
 		connector-ref="jmsConnector" />
-	<flow name="PredictionAnalyzer">
-		<jms:inbound-endpoint ref="predictionAnalyzer">
+	<flow name="ProteinAnalysis">
+		<jms:inbound-endpoint ref="proteinAnalysisAgent">
 			<properties>
 				<spring:entry key="rulebase"
-					value="${app.home}/rules/protein_prediction_analysis/prediction_analysis.prova" />
+					value="${app.home}/rules/protein_prediction_analysis/protein_analysis.prova" />
 			</properties>
 		</jms:inbound-endpoint>
 		<component class="ws.prova.mule.impl.ProvaUMOImpl" />

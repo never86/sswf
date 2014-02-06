@@ -28,8 +28,8 @@ public class GOClient {
 			+ "rules" + File.separator + "protein_prediction_analysis"
 			+ File.separator;
 
-	public static String getOnto(String targetGOTerm) {
-		String goFile = targetGOTerm.substring(3);
+	public static String getOnto(Object targetGOTerm) {
+		String goFile = targetGOTerm.toString().substring(3);
 		if (new File(dir + goFile).exists())
 			return dir + goFile + ".xml";
 		else {
