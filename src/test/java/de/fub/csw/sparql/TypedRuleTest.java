@@ -7,7 +7,7 @@ import org.junit.Test;
 import ws.prova.api2.ProvaCommunicator;
 import ws.prova.api2.ProvaCommunicatorImpl;
 
-public class ProvaSPARQLDLTest {
+public class TypedRuleTest {
 
 	static final String kAgent = "prova";
 
@@ -26,32 +26,32 @@ public class ProvaSPARQLDLTest {
 		}
 	}
 	
-//	@Test
-//	public void sparql() {
-//		final String rulebase = "src/main/app/rules/ContractLog/shashi.prova";
-//		prova = new ProvaCommunicatorImpl(kAgent,kPort,rulebase,ProvaCommunicatorImpl.SYNC);
-//
-//		try {
-//			synchronized(this) {
-//				wait(20000);
-//			}
-//		} catch (Exception e) {
-//		}
-//	}
-	
 	@Test
-	public void sparqldl() {
-		final String rulebase = "src/main/app/rules/ContractLog/sparqldl.prova";
-
+	public void sparql() {
+		final String rulebase = "src/main/app/rules/ContractLog/typed_rules.prova";
 		prova = new ProvaCommunicatorImpl(kAgent,kPort,rulebase,ProvaCommunicatorImpl.SYNC);
 
 		try {
 			synchronized(this) {
-				wait(500000);
+				wait(20000);
 			}
 		} catch (Exception e) {
 		}
 	}
+	
+//	@Test
+//	public void sparqldl() {
+//		final String rulebase = "rules/reloaded/sparqldl.prova";
+//
+//		prova = new ProvaCommunicatorImpl(kAgent,kPort,rulebase,ProvaCommunicatorImpl.SYNC);
+//
+//		try {
+//			synchronized(this) {
+//				wait(5000);
+//			}
+//		} catch (Exception e) {
+//		}
+//	}
 
 
 }

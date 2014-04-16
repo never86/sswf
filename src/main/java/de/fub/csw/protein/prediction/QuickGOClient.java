@@ -48,7 +48,6 @@ public class QuickGOClient {
 		// TODO Auto-generated catch block
 		e.printStackTrace();
 	}
-	terms.add("GO:0008652");
        return terms;
    }
 

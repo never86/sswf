@@ -28,7 +28,15 @@ public class String2ProvaList extends AbstractTransformer {
 		String a = "RuleML-2010,esb,User,query-sync,[getContact,ruleml2010_GeneralChair,update,Contact]";
 		String temp = "semantic_SWF_Engine,esb,User,query-sync,[wcp01_Sequence,[inArgs,2.3,7.7,3.4],[outArgs,Output]]";
 		String temp1 = "semantic_SWF_Engine,esb,User,query-sync,[wcp04_ExclusiveChoice,[inArgs,2.3,7.7],[outArgs,Output]]";
-		String temp2 = "semantic_SWF_Engine,esb,User,query-sync,[nestedWorkflow,[inArgs,2.3,7.7],[outArgs,Output]]";
+		String temp2 = "httpEndpoint:1,esb,httpEndpoint,query,[proteinPredicitonAnalysisProcess,[inArgs,Q9VAN0,GO:0006564],[outArgs,Result]]";
+		
+		ProvaList list = new String2ProvaList().parseContent(temp2);
+		try {
+			System.out.println(new Prova2RuleMLTranslator().transform(list));
+		} catch (TransformerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	private String removeQutationMark(String string) {

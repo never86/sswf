@@ -2,34 +2,28 @@
 
 test() :-
 	println(["========== sparql_query test =========="]),
-	sparql_connect(Connection, "http://grid.lzu.edu.cn:6060/openrdf-sesame/repositories/sswf"),
+	sparql_connect(Connection, "http://beta.sparql.uniprot.org/"),
 	println(["==> Connected."]),
 	testSelectQuery(Connection),
 	println(["==> SELECT query done."]),
-	testAskQuery(Connection),
-	println(["==> ASK query done."]),
-	testUpdateQuery(Connection),
-	println(["==> Update done."]),
+	
 	sparql_disconnect(Connection),
 	println(["==> Disconnected."]).
    
 testSelectQuery(Connection) :-
-	QueryString = '
-        PREFIX : <http://www.corporate-semantic-web.de/sswf2013#>
-		PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-		SELECT ?agent WHERE{
-		    ?role :responsible ?task . 
-		    ?agent :hasRole ?role .
-		    ?agent :available "false"^^xsd:boolean .
-		    ?agent :priority ?priority .
-		    FILTER regex(str(?task), "add")
-		    }
-			ORDER BY DESC (?priority)
-			LIMIT 1
-		',
-	sparql_select(Connection, QueryString, QueryId),
-	sparql_results(QueryId, Agent),
+	Protein = "uniprot:Q9VAN0",
+	Q1 = '
+		PREFIX up:<http://purl.uniprot.org/core/>
+		PREFIX uniprot:<http://purl.uniprot.org/uniprot/>
+		ASK
+		{',
+    Q2 = ' a up:Protein .}',
+	concat([Q1, Protein, Q2], QueryString),
+	println(["WWWWWWWWWWWWWWWWWWWWWW:", QueryString]),
+	sparql_ask(Connection, QueryString, queryId1),
+	sparql_results(queryId1),
 	println([QueryId,": ", Agent], "  "),
+	!,
 	fail().
 testSelectQuery(_):-
     println(["No result"]).

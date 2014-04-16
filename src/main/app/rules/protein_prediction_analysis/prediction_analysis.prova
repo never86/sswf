@@ -58,16 +58,57 @@ understandPerformative(XID, From, Performative, PayLoad) :-
 	fail().
 
 processMessage(XID,From,Primitive, proteinPredicitonAnalysis(TID, inArgs(PredictedGOTerm, ReliableGOTerms), outArgs(Result))):-
+     L1 = java.lang.System.currentTimeMillis(),
+     validatePredictedGOTerm(XID, From, PredictedGOTerm),
+    
+     
+     L4 = java.lang.System.currentTimeMillis(),
      analysis(ReliableGOTerms, PredictedGOTerm, Result),
+     L5 = java.lang.System.currentTimeMillis(),
+     L6 = L5 - L4,
+     println(["------------------------->  Validating ", PredictedGOTerm, " takes ", L6, "ms"]),
+     
+     L2 = java.lang.System.currentTimeMillis(),
+     L3 = L2 - L1,
+     println(["------------------------->  Overall prediction result analysis takes ", L3, "ms  ", $Count]),
+     
      sendMsg(XID,esb,From, "answer", [TID, inArgs(PredictedGOTerm, ReliableGOTerms), outArgs(Result)]).
 
+
+
+validatePredictedGOTerm(XID, From, PredictedGOTerm):-
+     semanticDataConnection("http://beta.sparql.uniprot.org/", Connection),
+	 println(["==> Connected."]),
+	 queryPredictedGOTerm(Connection, PredictedGOTerm),
+	 sparql_results(QueryId1),
+	 !.
+
+validatePredictedGOTerm(XID, From, PredictedGOTerm):-
+     Result = "PredictedGOTerm is not correct.",
+     sendMsg(XID,esb,From, "answer", [TID, inArgs(Protein), outArgs(Result)]),
+     fail().
+     	
+queryPredictedGOTerm(Connection, PredictedGOTerm) :-
+	PredictedGOTerm1 = PredictedGOTerm.substring(3),
+	Q1 = '
+		PREFIX up:<http://purl.uniprot.org/core/>
+		PREFIX uniprot:<http://purl.uniprot.org/uniprot/>
+		ASK
+		{<http://purl.uniprot.org/go/',
+    Q2 = '> a up:Concept .}',
+	concat([Q1, PredictedGOTerm1, Q2], QueryString),
+	sparql_ask(Connection, QueryString, QueryId1).
+
+
 analysis(ReliableGOTerms, PredictedGOTerm, Result):-
-   element(GOTerm, ReliableGOTerms),
-   Onto = de.fub.csw.protein.prediction.GOClient.getOnto(PredictedGOTerm),
+   $Count = 0,
+   Onto = "http://localhost:8080/output.xml",
    reasonEngine(Onto, Engine),
+   element(GOTerm, ReliableGOTerms),
+   $Count = $Count + 1,
    QueryString = de.fub.csw.constant.StringConstants.goTermAnalysisQuery(GOTerm, PredictedGOTerm),
    askQuery(Engine, QueryString, Result),
-   Result = "yes", 
+   Result = "yes",
    !.
    
 analysis(ReliableGOTerms, PredictedGOTerm, Result):-
@@ -75,6 +116,7 @@ analysis(ReliableGOTerms, PredictedGOTerm, Result):-
    
 askQuery(Engine, QueryString, Result):-
    sparqldl_ask(Engine, QueryString, QueryId),
+   sparqldl_results(QueryId),
    Result = "yes",
    !.
    

@@ -11,7 +11,6 @@
  */
 package de.fub.csw.constant;
 
-import java.util.List;
 
 /**
  * class description
@@ -59,16 +58,8 @@ public class StringConstants {
 	}
 
 	public static String goTermAnalysisQuery(String goTerm, Object targetGOTerm) {
-		String query = "";
-		if(goTerm.equalsIgnoreCase(targetGOTerm.toString()))
-			 query = "PREFIX : <http://www.geneontology.org/go#>\n"+
-						"ASK {Class(:" +  targetGOTerm +")}";
-		else
-		 query = "PREFIX : <http://www.geneontology.org/go#>\n"+
-			"ASK {SubClassOf(:" +  targetGOTerm + ", :"+ goTerm +")}";
-		System.out.println("AAAAAAAAAAAAAA:" + query);
-    	return query;
-		
+		return "PREFIX : <http://www.geneontology.org/go#>\n"+
+			"ASK {SubClassOf(:" +  targetGOTerm + ", :"+ goTerm +")}";		
 	}
 
 }

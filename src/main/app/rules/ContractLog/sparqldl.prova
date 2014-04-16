@@ -2,10 +2,8 @@
 
 test() :-
 	println(["========== sparqldl_query test =========="]),
-	sparqldl_create(Engine, "http://grid.lzu.edu.cn:6060/sswf-3.0.owl"),
+	sparqldl_create(Engine, "http://localhost:8080/output.xml"),
 	println(["==> An instance of SPARQL-DL engine has been created."]),
-	testSelectQuery(Engine),
-	println(["==> SPARQL-DL SELECT query done."]),
 	testAskQuery(Engine),
 	println(["==> SPARQL-DL ASK query done."]).
    
@@ -25,13 +23,15 @@ testSelectQuery(_).
 	
 testAskQuery(Engine) :-
 	QueryString = '
-		PREFIX : <http://www.corporate-semantic-web.de/sswf2013#>
+		PREFIX : <http://www.geneontology.org/go#>
 		ASK {
-		Type(:add, :Task)
+		SubClassOf(:GO:0007444, :GO:0007444)
 		} 
 	',
 	sparqldl_ask(Engine, QueryString, QueryId),
 	sparqldl_results(QueryId),
-	println(['yes']),
+	println(["yes"]),
+	!,
 	fail().
-testAskQuery(_).
+testAskQuery(_):-
+    println(['no']).

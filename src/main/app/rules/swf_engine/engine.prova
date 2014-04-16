@@ -12,7 +12,12 @@ executeTask(XID, TaskName, TaskID, Inputs, Outputs) :-
 
 
 allocateTask(XID, TaskName, TaskID, Agent) :-
+    L1 = java.lang.System.currentTimeMillis(),
     getResponsibleAgents(XID, TaskID, TaskName, Agent),
+    L2 = java.lang.System.currentTimeMillis(),
+    L3 = L2 - L1,
+    println(["------------------------->  Finding a responsible agent for task ", TaskName, " takes ", L3, "ms"]),
+    
     println(["The TASK: ", TaskName, "(", TaskID,") is allocated to AGENT:",Agent]).
 
 
@@ -65,7 +70,7 @@ assignTaskID(XID, TID) :-
 
 getLocalName(FullName, LocalName) :-
     P = FullName.lastIndexOf("#"),
-    math_add1(P,1,P1),
+    P1 = P + 1,
     LocalName = FullName.substring(P1).
     
     

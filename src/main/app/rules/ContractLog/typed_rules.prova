@@ -1,0 +1,20 @@
+:- eval(test()).
+
+test() :-
+	println(["========== sparqldl_query test =========="]),
+	sparqldl_create(Engine, "http://grid.lzu.edu.cn:6060/sswf-5.0.owl"),
+	println(["==> An instance of SPARQL-DL engine has been created."]),
+	agent(Engine, "http://www.corporate-semantic-web.de/sswf2013#calculateAgent"),
+	println(["==> SPARQL-DL SELECT query done."]).
+   
+agent(Engine, Agent) :-
+	QueryString = '
+		PREFIX : <http://www.corporate-semantic-web.de/sswf2013#>
+		SELECT ?agent
+		WHERE {
+		Type(?agent, :Agent)}
+	',
+	sparqldl_select(Engine, QueryString, a),
+	sparqldl_results(a, Agent),
+	println(["Yes", Agent]).
+
