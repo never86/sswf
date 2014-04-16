@@ -16,17 +16,34 @@ public class SampleProcessing {
 				String[] dateItems = items[i].split("/");
 				for (int j = 0; j < dateItems.length; j++)
 					list.add(dateItems[j].trim());
-			} else
-				list.add(items[i].trim());
+			} else {
+				String str = items[i].trim();
+				if (!isNumeric(str))
+					list.add(str);
+				else
+					list.add(Double.parseDouble(str));
+			}
+
 		}
 		return list;
 	}
-	
-	public static String processResults(List list){
+
+	public static String processResults(List list) {
 		String results = "";
-		for (int i = 0; i < list.size(); i++) 
-			results += list.get(i)+";";
+		for (int i = 0; i < list.size(); i++)
+			results += list.get(i) + ";";
 		return results;
+	}
+
+	public static boolean isNumeric(String str) {
+		for (int i = str.length(); --i >= 0;) {
+			int chr = str.charAt(i);
+			if (chr == 46)
+				continue;
+			if (chr < 48 || chr > 57)
+				return false;
+		}
+		return true;
 	}
 
 }

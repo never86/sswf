@@ -57,19 +57,19 @@ understandPerformative(XID, From, Performative, PayLoad) :-
 	 fail().
 	 
 processMessage(XID,From,Primitive, snowSampleIdentification(TID, inArgs(File), outArgs(Result))):-
-     ident(File, Result),
+     screenSamples(File, Result),
 
      sendMsg(XID,esb,From, "answer", [TID, inArgs(File), outArgs(Result)]).
 
 
 %:-eval(ident("src/main/app/rules/snow_depth_monitoring/samples.txt", Result)).
 
-ident(File, Result):-
-     findall(R,identSamples(File, R), RS),
+screenSamples(File, Result):-
+     findall(R,screening(File, R), RS),
      Result = de.fub.csw.snow.identification.SampleProcessing.processResults(RS).
 
-identSamples(File, Result):-
-     % File = "./src/main/app/rules/snow_depth_monitoring/samples.txt",
+screening(File, Result):-
+      % File = "./src/main/app/rules/snow_depth_monitoring/samples.txt",
       fopen(File,Reader),
       read_enum(Reader,Line),
       List = de.fub.csw.snow.identification.SampleProcessing.getSampleItems(Line),
@@ -81,53 +81,52 @@ identSamples(File, Result):-
       Tb36V = List.get(5),
       Tb18V = List.get(6),
       Depth = List.get(7),
-      identSample(sample(Station, Year, Month, Day, DayMaxTemp, Tb36V, Tb18V, Depth), R),
+      sampleValidation(sample(Station, Year, Month, Day, DayMaxTemp, Tb36V, Tb18V, Depth), R),
       R = 'true',
-      concat([Line, " "], Temp),
-      concat([Temp, R], Result).
+      concat([Line, " ", R], Result).
 
-identSample(sample(Station, Year, Month, Day, DayMaxTemp, Tb36V, Tb18V, Depth), Result):-
+sampleValidation(sample(Station, Year, Month, Day, DayMaxTemp, Tb36V, Tb18V, Depth), Result):-
      checkDepth(Depth), 
-     notThaw(Month, DayMaxTemp),
+     not(thaw(Month, DayMaxTemp)),
      drySnow(Tb36V, Tb18V),
      not(frostLayer(Station, Year, Month, Depth)),
      checkElevation(Station),
      Result = 'true', 
      !.
 
-identSample(sample(Station, Year, Month, Day, DayMaxTemp, Tb36V, Tb18V, Depth), Result):-
+sampleValidation(sample(Station, Year, Month, Day, DayMaxTemp, Tb36V, Tb18V, Depth), Result):-
      Result = 'false', !.
 
 frostLayer(Station, Year, Month, Depth):-
      monthAvgTemp(Station, Year, Month, MonthAvgTemp),
-     less(MonthAvgTemp, 10),
-     more(Depth, 0.5),
-     less(Depth, 10).  
+     MonthAvgTemp < 10,
+     Depth > 0.5,
+     Depth < 10.  
 
 drySnow(Tb36V, Tb18V):-
-     more(Tb36V, 195.0),
-     less(Tb36V, 225.0),
-     less(Tb18V, 255.5).
+     Tb36V > 195.0,
+     Tb36V < 225.0,
+     Tb18V < 255.5.
 
-notThaw(Month, DayMaxT):-
-     notequ(Month, 3),
-     less(DayMaxT, 6).  
+thaw(Month, DayMaxT):-
+     Month = 3,
+     DayMaxT > 6.  
     
 checkTemperature(Temp) :-
    tempMetric(TempMetric),
-   less(Temp,TempMetric).
+   Temp < TempMetric.
    
 
    
 checkDepth(Depth) :-
    depthMetric(DepthMetric),
-   moreequ(Depth, DepthMetric).
+   Depth >= DepthMetric.
    
    
 checkElevation(Station) :-
    stationElevation('Fuhai', Ele),
    elevationMetric(EleMetric),
-   less(Ele, EleMetric).
+   Ele < EleMetric.
    
 depthMetric(3.0).
 
