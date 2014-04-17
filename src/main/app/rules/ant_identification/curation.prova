@@ -29,13 +29,13 @@ performative(query).
 performative(XID,Performative):-
    performative(Performative).
 
-rcvMsg(XID,esb, From, Performative, antIdentification(Parameters, X)) :-
-	understandPerformative(XID, From, Performative, antIdentification(Parameters, X)),
-	processMessage(XID, From, Performative, antIdentification(Parameters, X)).
-rcvMsg(XID,esb, From, Performative, antIdentification(Parameters, X)) :-
-	understandPerformative(XID, From, Performative, antIdentification(Parameters, X)),
+rcvMsg(XID,esb, From, Performative, [TaskName|ParaList]) :-
+	understandPerformative(XID, From, Performative, [TaskName|ParaList]),
+	processMessage(XID, From, Performative, [TaskName|ParaList]).
+rcvMsg(XID,esb, From, Performative, [TaskName|ParaList]) :-
+	understandPerformative(XID, From, Performative, [TaskName|ParaList]),
 	rcvMsg(XID,esb,Agent,no_further_answers, Payload),
-	sendMsg(XID,esb,From,no_further_answers,antIdentification(Parameters, X)),
+	sendMsg(XID,esb,From,no_further_answers,[TaskName|ParaList]),
 	println(["--------------------------------------------"]), 
 	println(["                 COMPLETE                   "]), 
 	println(["--------------------------------------------"]).
@@ -56,68 +56,6 @@ understandPerformative(XID, From, Performative, PayLoad) :-
 	sendMsg(XID,esb,From,"no_further_answers", PayLoad),
 	fail().
 	
-processMessage(XID,From,Primitive, antIdentification(Parameters, X)):-
-     antIdentification(X, Parameters),
-     treatment(X, Treatment),
-     sendMsg(XID,esb,From, "answer", antIdentification(Treatment)).
-
-treatment(argentineAnt, "http://en.wikipedia.org/wiki/Argentine_ant").
-treatment(failed, failed).
-
-antIdentification(X, [Nest, Node, Color, Thorax, Seg, Club, Des, HColor, S, Worker, Long, Food, Location]) :-
-   bodyFeature(X, Node, Color, Thorax, Seg, Club, Des, HColor, S, Worker, Long),
-   nest(X,Nest),
-   food(X, Food), !.
-   
-antIdentification(X, [Nest, Node, Color, Thorax, Seg, Club, Des, HColor, S, Worker, Long, Food, Location]) :-
-   X = "failed".
-
-% facts
-node(argentineAnt, one).
-node(littleBlackAnt, two).
-
-color(argentineAnt, lightbrown).
-color(littleBlackAnt, black).
-
-thorax(argentineAnt, uneven).
-thorax(littleBlackAnt, uneven).
-
-antennae(argentineAnt,twelve,zero).
-antennae(littleBlackAnt,twelve,three).
-
-hair(argentineAnt, sparse, _).
-hair(littleBlackAnt, _, _).
-
-stinger(argentineAnt, no).
-stinger(littleBlackAnt, indeterminate).
-
-worker(argentineAnt, monomorphic).
-worker(littleBlackAnt, monomorphic).
-
-long(argentineAnt, 0.125,0.125).
-long(littleBlackAnt, 0.0625,0.0625).
-
-nest(argentineAnt, moist).
-nest(littleBlackAnt, fineSoil).
-
-food(argentineAnt, sweets).
-food(argentineAnt, proteins).
-food(littleBlackAnt, grease).
-food(littleBlackAnt, vegetable).
-food(littleBlackAnt, insects).
-
-% rules
-
-
-
-bodyFeature(X, Node, Color, Thorax, Seg, Club, Des, HColor, S, Worker, Long) :-
-   node(X, Node),
-   color(X, Color),
-   thorax(X, Thorax),
-   antennae(X, Seg, Club),
-   hair(X, Des, HColor),
-   stinger(X, S),
-   worker(X, Worker),
-   long(X, Min1, Max1),
-   moreequ(Long, Min1),
-   lessequ(Max1, Long).
+processMessage(XID,From,Primitive, curation(TID, [inArgs|Parameters], outArgs(Result))):-
+     de.fub.csw.ant.identification.Curation.log(Parameters, Result, XID),
+     sendMsg(XID,esb,From,"answer", [TID, done]).

@@ -195,7 +195,7 @@ workflow(XID, From, "proteinPredicitonAnalysisProcess", inArgs(Protein, Predicte
 
 
 workflow(XID, From, "proteinPredicitonAnalysisProcess", inArgs(Protein, PredictedGOTerm), outArgs(Result)) :-
-     rcvMsg(XID, esb, _, "answer", [proteinAnalysis, outArgs(Result)]),
+     rcvMsg(XID, esb, _, "answer", [obtainReliableGOTerms, outArgs(Result)]),
      sendMsg(XID, esb, From, "answer", ["proteinPredicitonAnalysisProcess", inArgs(Protein, PredictedGOTerm), outArgs(Result)]),
      !.
      
@@ -211,12 +211,23 @@ workflow(XID, From, "snowSampleIdentificationProcess", inArgs(File), outArgs(Res
      
      sendMsg(XID, esb, From, "answer", ["snowSampleIdentificationProcess", inArgs(File), outArgs(Result)]).
      
-workflow(XID, From, "antIdentificationProcess", inArgs(Nest, Node, Color, Thorax, Seg, Club, Des, HColor, S, Worker, Long, Food, Location), outArgs(Result)) :-
+workflow(XID, From, "antIdentificationProcess", [inArgs|Parameters], outArgs(Result)) :-
      assignTaskID(XID, TID1),
-     executeTask(XID, 'antIdentification', TID1, inArgs(Nest, Node, Color, Thorax, Seg, Club, Des, HColor, S, Worker, Long, Food, Location), outArgs(Result)),
-     rcvMsg(XID, esb, _, "answer", [TID1, inArgs(Nest, Node, Color, Thorax, Seg, Club, Des, HColor, S, Worker, Long, Food, Location), outArgs(Result)]),
-     sendMsg(XID, esb, From, "answer", ["antIdentificationProcess", inArgs(Nest, Node, Color, Thorax, Seg, Club, Des, HColor, S, Worker, Long, Food, Location), outArgs(Result)]).
+     executeTask(XID, 'antIdentification', TID1, [inArgs|Parameters], outArgs(Result)),
+     rcvMsg(XID, esb, _, "answer", [TID1, [inArgs|Parameters], outArgs(Result)])[Result!="failed"],
+     !,
+     assignTaskID(XID, TID2),
+     executeTask(XID, 'curation', TID2, [inArgs|Parameters], outArgs(Result)),
+     rcvMsg(XID, esb, _, "answer", [TID2, done]),
      
+     sendMsg(XID, esb, From, "answer", ["antIdentificationProcess", [inArgs|Parameters], outArgs(Result)]).
+
+
+workflow(XID, From, "antIdentificationProcess", [inArgs|Parameters], outArgs(Result)) :-
+     sendMsg(XID, esb, humanAgentProxy, "request", [antIdentification, antIdentificationProcess, [inArgs|Parameters], outArgs(Result)]),
+     rcvMsg(XID, esb, humanAgentProxy, "answer", [antIdentification, HumanReply]),
+     
+     sendMsg(XID, esb, From, "answer", ["antIdentificationProcess", [inArgs|Parameters], outArgs(HumanReply)]).     
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 workflow(XID, From, "human_interaction", inArgs(I11,I12), outArgs(WorkflowOutput)) :-

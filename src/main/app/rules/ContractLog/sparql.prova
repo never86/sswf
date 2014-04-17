@@ -2,9 +2,9 @@
 
 test() :-
 	println(["========== sparql_query test =========="]),
-	sparql_connect(Connection, "http://beta.sparql.uniprot.org/"),
+	sparql_connect(Connection, "http://grid.lzu.edu.cn:6060/openrdf-sesame/repositories/sswf"),
 	println(["==> Connected."]),
-	testSelectQuery(Connection),
+	testUpdateQuery(Connection),
 	println(["==> SELECT query done."]),
 	
 	sparql_disconnect(Connection),
@@ -45,8 +45,8 @@ testUpdateQuery(Connection) :-
 	QueryString = '
 	    PREFIX : <http://www.corporate-semantic-web.de/sswf2013#>
 		PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-		DELETE DATA {:calculateAgent :available  "false"^^xsd:boolean};
-        INSERT DATA {:calculateAgent :available  "true"^^xsd:boolean}
+		DELETE DATA {:curatorAgent :available  "false"^^xsd:boolean};
+        INSERT DATA {:curatorAgent :available  "true"^^xsd:boolean}
 	',
 	sparql_update(Connection, QueryString, "http://www.corporate-semantic-web.de/sswf2013#", UpdateId),
 	sparql_results(UpdateId),

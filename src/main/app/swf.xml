@@ -129,6 +129,18 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
 		<component class="ws.prova.mule.impl.ProvaUMOImpl" />
 	</flow>
 
+
+<jms:endpoint name="curatorAgent" topic="curation_agent"
+		connector-ref="jmsConnector" />
+	<flow name="IdentificationResultCuration">
+		<jms:inbound-endpoint ref="curatorAgent">
+			<properties>
+				<spring:entry key="rulebase"
+					value="${app.home}/rules/ant_identification/curation.prova" />
+			</properties>
+		</jms:inbound-endpoint>
+		<component class="ws.prova.mule.impl.ProvaUMOImpl" />
+	</flow>
 <!--  
 	<jms:endpoint name="wsJmsEndpoint" topic="master_agent_b"
 		connector-ref="jmsConnector" />

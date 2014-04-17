@@ -57,14 +57,14 @@ understandPerformative(XID, From, Performative, PayLoad) :-
 	sendMsg(XID,esb,From,"no_further_answers", PayLoad),
 	fail().
 
-processMessage(XID,From,Primitive, antIdentification(TID, inArgs(Nest, Node, Color, Thorax, Seg, Club, Des, HColor, S, Worker, Long, Food, Location), outArgs(Result))):-
-     antIdentification(XID, From, Nest, Node, Color, Thorax, Seg, Club, Des, HColor, S, Worker, Long, Food, Location, Result),
-     sendMsg(XID,esb,From, "answer", [TID, inArgs(Nest, Node, Color, Thorax, Seg, Club, Des, HColor, S, Worker, Long, Food, Location), outArgs(Result)]).
+processMessage(XID,From,Primitive, antIdentification(TID, [inArgs|Parameters], outArgs(Result))):-
+     antIdentification(XID, From, Parameters, Result),
+     sendMsg(XID,esb,From, "answer", [TID, [inArgs|Parameters], outArgs(Result)]).
 
 allocate("Berlin", antIdentificationAgent).     
 
-antIdentification(XID, From, Nest, Node, Color, Thorax, Seg, Club, Des, HColor, S, Worker, Long, Food, Location, Result):-
+antIdentification(XID, From, Parameters, Result):-
+   last(Location,Parameters),
    allocate(Location, Agent),
-   TID1 = java.util.UUID.randomUUID(),
-   sendMsg(XID,esb, Agent, "request", antIdentification(TID1, Nest, Node, Color, Thorax, Seg, Club, Des, HColor, S, Worker, Long, Food, Result)),
-   rcvMsg(XID, esb, Agent, "answer", antIdentification(TID1, Result)).
+   sendMsg(XID,esb, Agent, "request", antIdentification(Parameters, Result)),
+   rcvMsg(XID, esb, Agent, "answer", antIdentification(Result)).

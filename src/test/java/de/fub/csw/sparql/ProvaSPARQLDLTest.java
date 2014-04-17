@@ -41,7 +41,7 @@ public class ProvaSPARQLDLTest {
 	
 	@Test
 	public void sparqldl() {
-		final String rulebase = "src/main/app/rules/ContractLog/sparqldl.prova";
+		final String rulebase = "src/main/app/rules/ContractLog/sparql.prova";
 
 		prova = new ProvaCommunicatorImpl(kAgent,kPort,rulebase,ProvaCommunicatorImpl.SYNC);
 

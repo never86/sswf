@@ -86,7 +86,7 @@ queryProtein(XID, From, Connection, Protein) :-
 
 queryProtein(XID, From, Connection, Protein) :-
 	 Result = "Protein is not correct.",
-     sendMsg(XID,esb,From, "answer", [proteinAnalysis, outArgs(Result)]),
+     sendMsg(XID,esb,From, "answer", [obtainReliableGOTerms, outArgs(Result)]),
      fail().
 
 
