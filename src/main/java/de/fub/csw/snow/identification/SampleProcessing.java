@@ -1,7 +1,12 @@
 package de.fub.csw.snow.identification;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import de.fub.csw.constant.StringConstants;
 
 public class SampleProcessing {
 
@@ -28,11 +33,46 @@ public class SampleProcessing {
 		return list;
 	}
 
-	public static String processResults(List list) {
-		String results = "";
+	public static String processResults(List list, String cid) {
+		cid = cid.replace(":", "-");
+		String path = StringConstants.appDir + File.separator + "rules"
+				+ File.separator + "snow_depth_monitoring"
+				+ File.separator + cid + ".txt";
+		String content = "";
 		for (int i = 0; i < list.size(); i++)
-			results += list.get(i) + ";";
-		return results;
+			content += list.get(i) + ";\n";
+		FileOutputStream fop = null;
+		File file;
+
+		try {
+
+			file = new File(path);
+			fop = new FileOutputStream(file);
+
+			// if file doesnt exists, then create it
+			if (!file.exists()) {
+				file.createNewFile();
+			}
+
+			// get the content in bytes
+			byte[] contentInBytes = content.getBytes();
+
+			fop.write(contentInBytes);
+			fop.flush();
+			fop.close();
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (fop != null) {
+					fop.close();
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		return path;
 	}
 
 	public static boolean isNumeric(String str) {

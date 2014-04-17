@@ -56,29 +56,23 @@ understandPerformative(XID, From, Performative, PayLoad) :-
 	sendMsg(XID,esb,From,"no_further_answers", PayLoad),
 	fail().
 	
-processMessage(XID,From,Primitive, proteinAnalysis(TID, inArgs(Protein), outArgs(ReliableGOTerms))):-
+processMessage(XID,From,Primitive, obtainReliableGOTerms(TID, inArgs(Protein), outArgs(ReliableGOTerms))):-
      L1 = java.lang.System.currentTimeMillis(),
      checkProtein(XID, From, Protein),
      L2 = java.lang.System.currentTimeMillis(),
      L3 = L2 - L1,
      println(["------------------------->  Validating ", Protein, " takes ", L3, "ms"]),
      
-     retrieveReliableGOTerms(Protein, ReliableGOTerms),
+     obtainReliableGOTerms(Protein, ReliableGOTerms),
      sendMsg(XID,esb,From, "answer", [TID, inArgs(Protein), outArgs(ReliableGOTerms)]).
 
 checkProtein(XID, From, Protein):-
      semanticDataConnection("http://beta.sparql.uniprot.org/", Connection),
 	 println(["==> Connected."]),
-	 queryProtein(Connection, Protein),
-	 sparql_results(QueryId1),
-	 !.
-
-checkProtein(XID, From, Protein):-
-     Result = "Protein is not correct.",
-     sendMsg(XID,esb,From, "answer", [TID, inArgs(Protein), outArgs(Result)]),
-     fail().
+	 queryProtein(XID, From, Connection, Protein).
+    
      	
-queryProtein(Connection, Protein) :-
+queryProtein(XID, From, Connection, Protein) :-
 	Q1 = '
 		PREFIX up:<http://purl.uniprot.org/core/>
 		PREFIX uniprot:<http://purl.uniprot.org/uniprot/>
@@ -86,9 +80,15 @@ queryProtein(Connection, Protein) :-
 		{uniprot:',
     Q2 = ' a up:Protein .}',
 	concat([Q1, Protein, Q2], QueryString),
-	sparql_ask(Connection, QueryString, QueryId1).
-	
+	sparql_ask(Connection, QueryString, QueryId1),
+	sparql_results(QueryId1),
+	!.
+
+queryProtein(XID, From, Connection, Protein) :-
+	 Result = "Protein is not correct.",
+     sendMsg(XID,esb,From, "answer", [proteinAnalysis, outArgs(Result)]),
+     fail().
 
 
-retrieveReliableGOTerms(Protein, GOTerms):-
+obtainReliableGOTerms(Protein, GOTerms):-
    GOTerms = de.fub.csw.protein.prediction.QuickGOClient.getGOTermsByProteinID(Protein).

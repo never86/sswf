@@ -1,0 +1,17 @@
+:- eval(test1()).
+
+
+	
+test1():-
+    love(father(zhili, Y), Z),
+    println(["Yes  ",Z]).
+	
+love(father(zhili, Y), Z) :-
+	wife(Y, Z).
+
+father(zhili, wei1).
+father(zhili, wei).
+	
+wife(wei, xiu).
+wife(wei1, xiu1).
+ 

@@ -183,7 +183,7 @@ workflow(XID, From, "wcp01_Sequence_test", inArgs(I11,I12, I22), outArgs(Workflo
 
 workflow(XID, From, "proteinPredicitonAnalysisProcess", inArgs(Protein, PredictedGOTerm), outArgs(Result)) :-
      assignTaskID(XID, TID1),
-     executeTask(XID, 'proteinAnalysis', TID1, inArgs(Protein), outArgs(ReliableGOTerms)),
+     executeTask(XID, 'obtainReliableGOTerms', TID1, inArgs(Protein), outArgs(ReliableGOTerms)),
      rcvMsg(XID, esb, _, "answer", [TID1, inArgs(Protein),outArgs(ReliableGOTerms)]),
      !,
      
@@ -195,9 +195,14 @@ workflow(XID, From, "proteinPredicitonAnalysisProcess", inArgs(Protein, Predicte
 
 
 workflow(XID, From, "proteinPredicitonAnalysisProcess", inArgs(Protein, PredictedGOTerm), outArgs(Result)) :-
-     rcvMsg(XID, esb, _, "answer", [TID1, inArgs(Protein),outArgs(Result)]),
+     rcvMsg(XID, esb, _, "answer", [proteinAnalysis, outArgs(Result)]),
+     sendMsg(XID, esb, From, "answer", ["proteinPredicitonAnalysisProcess", inArgs(Protein, PredictedGOTerm), outArgs(Result)]),
+     !.
      
-     sendMsg(XID, esb, From, "answer", ["proteinPredicitonAnalysisProcess", inArgs(Protein, PredictedGOTerm), outArgs(Result)]).
+workflow(XID, From, "proteinPredicitonAnalysisProcess", inArgs(Protein, PredictedGOTerm), outArgs(Result)) :-
+     rcvMsg(XID, esb, _, "answer", [proteinPredicitonAnalysis, outArgs(Result)]),
+     sendMsg(XID, esb, From, "answer", ["proteinPredicitonAnalysisProcess", inArgs(Protein, PredictedGOTerm), outArgs(Result)]),
+     !.
      
 workflow(XID, From, "snowSampleIdentificationProcess", inArgs(File), outArgs(Result)) :-
      assignTaskID(XID, TID1),

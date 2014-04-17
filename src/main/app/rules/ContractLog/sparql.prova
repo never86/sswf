@@ -19,7 +19,6 @@ testSelectQuery(Connection) :-
 		{',
     Q2 = ' a up:Protein .}',
 	concat([Q1, Protein, Q2], QueryString),
-	println(["WWWWWWWWWWWWWWWWWWWWWW:", QueryString]),
 	sparql_ask(Connection, QueryString, queryId1),
 	sparql_results(queryId1),
 	println([QueryId,": ", Agent], "  "),

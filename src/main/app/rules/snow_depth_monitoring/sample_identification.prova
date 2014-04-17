@@ -57,21 +57,22 @@ understandPerformative(XID, From, Performative, PayLoad) :-
 	 fail().
 	 
 processMessage(XID,From,Primitive, snowSampleIdentification(TID, inArgs(File), outArgs(Result))):-
-     screenSamples(File, Result),
+     screenSamples(File, Result, XID),
 
      sendMsg(XID,esb,From, "answer", [TID, inArgs(File), outArgs(Result)]).
 
 
 %:-eval(ident("src/main/app/rules/snow_depth_monitoring/samples.txt", Result)).
 
-screenSamples(File, Result):-
+screenSamples(File, Result, XID):-
      findall(R,screening(File, R), RS),
-     Result = de.fub.csw.snow.identification.SampleProcessing.processResults(RS).
+     Result = de.fub.csw.snow.identification.SampleProcessing.processResults(RS, XID).
 
 screening(File, Result):-
       % File = "./src/main/app/rules/snow_depth_monitoring/samples.txt",
       fopen(File,Reader),
       read_enum(Reader,Line),
+      L1 = java.lang.System.currentTimeMillis(),
       List = de.fub.csw.snow.identification.SampleProcessing.getSampleItems(Line),
       Station = List.get(0),
       Year = List.get(1),
@@ -81,24 +82,25 @@ screening(File, Result):-
       Tb36V = List.get(5),
       Tb18V = List.get(6),
       Depth = List.get(7),
-      sampleValidation(sample(Station, Year, Month, Day, DayMaxTemp, Tb36V, Tb18V, Depth), R),
-      R = 'true',
-      concat([Line, " ", R], Result).
+      MonthAvgTemp = List.get(8),
+      sampleValidation(sample(Station, Year, Month, Day, DayMaxTemp, Tb36V, Tb18V, Depth, MonthAvgTemp), R),
+      L2 = java.lang.System.currentTimeMillis(),
+      L3 = L2 - L1,
+      concat([Line, " ", R, " ", L3, "ms"], Result).
 
-sampleValidation(sample(Station, Year, Month, Day, DayMaxTemp, Tb36V, Tb18V, Depth), Result):-
+sampleValidation(sample(Station, Year, Month, Day, DayMaxTemp, Tb36V, Tb18V, Depth, MonthAvgTemp), Result):-
      checkDepth(Depth), 
      not(thaw(Month, DayMaxTemp)),
      drySnow(Tb36V, Tb18V),
-     not(frostLayer(Station, Year, Month, Depth)),
+     not(frostLayer(Station, Year, Month, Depth, MonthAvgTemp)),
      checkElevation(Station),
      Result = 'true', 
      !.
 
-sampleValidation(sample(Station, Year, Month, Day, DayMaxTemp, Tb36V, Tb18V, Depth), Result):-
+sampleValidation(sample(Station, Year, Month, Day, DayMaxTemp, Tb36V, Tb18V, Depth, MonthAvgTemp), Result):-
      Result = 'false', !.
 
-frostLayer(Station, Year, Month, Depth):-
-     monthAvgTemp(Station, Year, Month, MonthAvgTemp),
+frostLayer(Station, Year, Month, Depth, MonthAvgTemp):-
      MonthAvgTemp < 10,
      Depth > 0.5,
      Depth < 10.  
@@ -135,7 +137,6 @@ tempMetric(6).
 elevationMetric(2000).
    
 stationElevation('Fuhai', 500.9).
-
-monthAvgTemp('Fuhai', 2004, 01, -20.9).
-monthAvgTemp('Fuhai', 2005, 02, -23.4).
-monthAvgTemp('Fuhai', 2005, 01, -21.2).
+stationElevation('Aletai', 735.3).
+stationElevation('Fuyun', 823.6).
+stationElevation('Qinghe', 1218.2).

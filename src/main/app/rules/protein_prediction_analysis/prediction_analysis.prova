@@ -74,35 +74,32 @@ processMessage(XID,From,Primitive, proteinPredicitonAnalysis(TID, inArgs(Predict
      
      sendMsg(XID,esb,From, "answer", [TID, inArgs(PredictedGOTerm, ReliableGOTerms), outArgs(Result)]).
 
-
-
 validatePredictedGOTerm(XID, From, PredictedGOTerm):-
      semanticDataConnection("http://beta.sparql.uniprot.org/", Connection),
-	 println(["==> Connected."]),
-	 queryPredictedGOTerm(Connection, PredictedGOTerm),
-	 sparql_results(QueryId1),
-	 !.
-
-validatePredictedGOTerm(XID, From, PredictedGOTerm):-
-     Result = "PredictedGOTerm is not correct.",
-     sendMsg(XID,esb,From, "answer", [TID, inArgs(Protein), outArgs(Result)]),
-     fail().
+     println(["==> Connected."]),
+     queryPredictedGOTerm(XID, From,Connection, PredictedGOTerm).
      	
-queryPredictedGOTerm(Connection, PredictedGOTerm) :-
+queryPredictedGOTerm(XID, From, Connection, PredictedGOTerm) :-
 	PredictedGOTerm1 = PredictedGOTerm.substring(3),
-	Q1 = '
-		PREFIX up:<http://purl.uniprot.org/core/>
+	Q1 = 'PREFIX up:<http://purl.uniprot.org/core/>
 		PREFIX uniprot:<http://purl.uniprot.org/uniprot/>
 		ASK
 		{<http://purl.uniprot.org/go/',
-    Q2 = '> a up:Concept .}',
+	Q2='> a up:Concept.}',
 	concat([Q1, PredictedGOTerm1, Q2], QueryString),
-	sparql_ask(Connection, QueryString, QueryId1).
+	sparql_ask(Connection, QueryString, QueryId1),
+	sparql_results(QueryId1),
+	!.
+	
+queryPredictedGOTerm(XID, From, Connection, PredictedGOTerm) :-
+    Result = "PredictedGOTerm is not correct.",
+    sendMsg(XID,esb,From, "answer", [proteinPredicitonAnalysis, outArgs(Result)]),
+    fail().
 
 
 analysis(ReliableGOTerms, PredictedGOTerm, Result):-
    $Count = 0,
-   Onto = "http://localhost:8080/output.xml",
+   Onto = "http://grid.lzu.edu.cn:6060/go.xml",
    reasonEngine(Onto, Engine),
    element(GOTerm, ReliableGOTerms),
    $Count = $Count + 1,
