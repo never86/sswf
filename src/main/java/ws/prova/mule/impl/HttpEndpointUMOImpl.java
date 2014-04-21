@@ -134,7 +134,8 @@ public class HttpEndpointUMOImpl extends LogComponent implements Initialisable,
 			comm.addMsg(incomingProvaMsg);
 			context.setStopFurtherProcessing(true);
 			return null;
-		} else {// the message is from user, and a temporary UMO is registered
+		} else {
+			// the message is from user, and a temporary UMO is registered
 				// to act as the user
 			tmpAgent = System.currentTimeMillis() + "";
 			incomingProvaMsg.getFixed()[2] = ProvaConstantImpl.create(tmpAgent);
@@ -179,6 +180,8 @@ public class HttpEndpointUMOImpl extends LogComponent implements Initialisable,
 				logger.error(exx);
 				return exx.toString();
 			}
+			
+			InfiniteLoopDetector.unregisterWf(incomingProvaMsg.getFixed()[0].toString());
 			return answer;
 		}
 	}

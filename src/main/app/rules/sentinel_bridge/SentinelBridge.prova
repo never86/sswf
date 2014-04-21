@@ -22,6 +22,7 @@ performative("no_further_answers").
 % incoming HTTP queries are synchronous
 rcvMsg(To, esb, From, "query-sync", Payload) :-
     sendMsg(XID,esb, To, "query", Payload),
+    ws.prova.mule.impl.InfiniteLoopDetector.registerWf(XID),
 	rcvMult(XID,esb, To, "answer", Answer),
 	sendMsg(XID,esb, From, "answer", Answer).
 rcvMsg(To, esb, From, "query-sync", Payload) :-

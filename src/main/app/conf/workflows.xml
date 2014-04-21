@@ -1,0 +1,244 @@
+<?xml version="1.0"  encoding="UTF-8"?>
+<interfaces>
+	<interface>
+		<label>
+            <!-- Human-oriented description of the interface -->
+            <Expr>
+               <Fun uri="dc:description"/>
+               <Ind>Wcp-01 Sequence (An 'add' operation is followed by a 'minus' operation.)</Ind>
+            </Expr>
+          </label>
+        <Fun per="value">wcp01_Sequence</Fun>
+		<Expr>
+			<Fun meta="Workflow input(s)">inArgs</Fun>
+			<Var mode="+" type = "java.lang.Double" meta="1st Input" default="2.3" name="WI1"></Var>
+			<Var mode="+"  type = "java.lang.Double" meta="2nd Input" default="3.5" name="WI2"></Var>
+			<Var mode="+"  type = "java.lang.Double" meta="3rd Input" default="6.4" name="WI3"></Var>
+		</Expr>
+		<Expr>
+			<Fun meta="Workflow ouput(s)">outArgs</Fun>
+			<Var mode="-" meta="1st Ouput" default="WO1" name="WO1"></Var>
+		</Expr>
+	</interface>
+	
+	<interface>
+		<label>
+            <!-- Human-oriented description of the interface -->
+            <Expr>
+               <Fun uri="dc:description"/>
+               <Ind>Identify newly discoved ants.</Ind>
+            </Expr>
+          </label>
+        <Fun per="value">antIdentificationProcess</Fun>
+		<Expr>
+			<Fun meta="Workflow input(s)">inArgs</Fun>
+			<Var mode="+" type = "java.lang.String" meta="Nest feature" default="moist" name="Nest"></Var>
+		
+		<Var mode="+" type = "java.lang.String" meta="Ant node" default="one" name="Node"></Var>
+		<Var mode="+" type = "java.lang.String" meta="Ant color" default="lightbrown" name="Color"></Var>
+		<Var mode="+" type = "java.lang.String" meta="Ant thorax" default="uneven" name="Thorax"></Var>
+		
+			<Var mode="+" type = "java.lang.String" meta="Antennae seg" default="twelve" name="Seg"></Var>
+			<Var mode="+" type = "java.lang.String" meta="Antennae club" default="zero" name="Club"></Var>
+		
+			<Var mode="+" type = "java.lang.String" meta="Hair sparse or not" default="sparse" name="Des"></Var>
+			<Var mode="+" type = "java.lang.String" meta="Hair color" default="black" name="HColor"></Var>
+
+		<Var mode="+" type = "java.lang.String" meta="Ant stinger" default="no" name="Stinger"></Var>
+		<Var mode="+" type = "java.lang.String" meta="Ant worker" default="monomorphic" name="Worker"></Var>
+		<Var mode="+" type = "java.lang.String" meta="Ant length (meter)" default="0.125" name="Long"></Var>
+		
+			<Var mode="+" type = "java.lang.String" meta="Ant food" default="sweets" name="Food"></Var>
+	
+		
+		<Var mode="+" type = "java.lang.String" meta="Discovery location" default="Berlin" candiates="Berlin:Berlin;Lanzhou:Lanzhou" name="Location">Location</Var>
+		</Expr>
+		<Expr>
+			<Fun meta="Workflow ouput(s)">outArgs</Fun>
+			<Var mode="-" type = "java.lang.String" meta="Identification Result" default="Result" name="Result"></Var>
+		</Expr>
+		
+</interface>	
+	
+	<interface>
+		<label>
+            <!-- Human-oriented description of the interface -->
+            <Expr>
+               <Fun uri="dc:description"/>
+               <Ind>Wcp-04 Exclusive Choice (An 'add' operation is followed by one of the two different operations based on the result of the 'add' operation.)</Ind>
+            </Expr>
+          </label>
+        <Fun per="value">wcp04_ExclusiveChoice</Fun>
+		<Expr>
+			<Fun meta="Workflow input(s)">inArgs</Fun>
+			<Var mode="+" type = "java.lang.Double" meta="1st Input" default="2.3" name="WI1"></Var>
+			<Var mode="+"  type = "java.lang.Double" meta="3rd Input" default="6.4" name="WI3"></Var>
+		</Expr>
+		<Expr>
+			<Fun meta="Workflow ouput(s)">outArgs</Fun>
+			<Var mode="-" meta="1st Ouput" default="WO1" name="WO1"></Var>
+		</Expr>
+	</interface>
+	
+	<interface>
+		<label>
+            <!-- Human-oriented description of the interface -->
+            <Expr>
+               <Fun uri="dc:description"/>
+               <Ind>Wcp-02 Parallel Split, Wcp-03 Synchronization (The workflow begins with two different operations in parallel and finishes if both of them are completed.)</Ind>
+            </Expr>
+          </label>
+        <Fun per="value">wcp02_Parallel_Split_wcp03_Synchronization</Fun>
+		<Expr>
+			<Fun meta="Workflow input(s)">inArgs</Fun>
+			<Var mode="+" type = "java.lang.Double" meta="1st Input" default="2.3" name="WI1"></Var>
+			<Var mode="+"  type = "java.lang.Double" meta="3rd Input" default="6.4" name="WI3"></Var>
+		</Expr>
+		<Expr>
+			<Fun meta="Workflow ouput(s)">outArgs</Fun>
+			<Var mode="-" meta="1st Ouput" default="WO1" name="WO1"></Var>
+			<Var mode="-" meta="2nd Ouput" default="WO2" name="WO2"></Var>
+		</Expr>
+	</interface>
+	
+<interface>
+		<label>
+            <!-- Human-oriented description of the interface -->
+            <Expr>
+               <Fun uri="dc:description"/>
+               <Ind>Protein prediciton results analysis.</Ind>
+            </Expr>
+          </label>
+        <Fun per="value">proteinPredicitonAnalysisProcess</Fun>
+		<Expr>
+			<Fun meta="Workflow input(s)">inArgs</Fun>
+			<Var mode="+" type = "java.lang.String" meta="Protein name" default="Q9VAN0" name="protein"></Var>
+			<Var mode="+"  type = "java.lang.String" meta="Gene term" default="GO:0006564" name="goTerm"></Var>
+		</Expr>
+		<Expr>
+			<Fun meta="Workflow ouput(s)">outArgs</Fun>
+			<Var mode="-" meta="Analysis result" default="Result" name="Result"></Var>
+		</Expr>
+	</interface>
+	
+	
+<interface>
+		<label>
+            <!-- Human-oriented description of the interface -->
+            <Expr>
+               <Fun uri="dc:description"/>
+               <Ind>Select valid samples of snow depth.</Ind>
+            </Expr>
+          </label>
+        <Fun per="value">snowSampleIdentificationProcess</Fun>
+		<Expr>
+			<Fun meta="Workflow input(s)">inArgs</Fun>
+			<Var mode="+" type = "java.lang.String" meta="File of the samples" default="src/main/app/rules/snow_depth_monitoring/samples.txt" name="File"></Var>
+		</Expr>
+		<Expr>
+			<Fun meta="Workflow ouput(s)">outArgs</Fun>
+			<Var mode="-" meta="Analysis result" default="Result" name="Result"></Var>
+		</Expr>
+	</interface>
+	
+	<interface>
+		<label>
+            <!-- Human-oriented description of the interface -->
+            <Expr>
+               <Fun uri="dc:description"/>
+               <Ind>Wcp-09 Structured Discriminator (The workflow begins with two different operations in parallel and finishes if either operation is completed.)</Ind>
+            </Expr>
+          </label>
+        <Fun per="value">wcp09_Structured_Discriminator</Fun>
+		<Expr>
+			<Fun meta="Workflow input(s)">inArgs</Fun>
+			<Var mode="+" type = "java.lang.Double" meta="1st Input" default="2.3" name="WI1"></Var>
+			<Var mode="+"  type = "java.lang.Double" meta="3rd Input" default="6.4" name="WI3"></Var>
+		</Expr>
+		<Expr>
+			<Fun meta="Workflow ouput(s)">outArgs</Fun>
+			<Var mode="-" meta="1st Ouput" default="WO1" name="WO1"></Var>
+		</Expr>
+	</interface>
+	
+	<interface>
+		<label>
+            <!-- Human-oriented description of the interface -->
+            <Expr>
+               <Fun uri="dc:description"/>
+               <Ind>Nested Workflow (A 'minus' operation is followed by the workflow 'wcp04_ExclusiveChoice'.)</Ind>
+            </Expr>
+          </label>
+        <Fun per="value">nestedWorkflow</Fun>
+		<Expr>
+			<Fun meta="Workflow input(s)">inArgs</Fun>
+			<Var mode="+" type = "java.lang.Double" meta="1st Input" default="2.3" name="WI1"></Var>
+			<Var mode="+"  type = "java.lang.Double" meta="3rd Input" default="6.4" name="WI3"></Var>
+		</Expr>
+		<Expr>
+			<Fun meta="Workflow ouput(s)">outArgs</Fun>
+			<Var mode="-" meta="1st Ouput" default="WO1" name="WO1"></Var>
+		</Expr>
+	</interface>
+	
+	<interface>
+		<label>
+            <!-- Human-oriented description of the interface -->
+            <Expr>
+               <Fun uri="dc:description"/>
+               <Ind>Wcp-01 Sequence (A 'minus' operation is followed by another 'minus' operation.</Ind>
+            </Expr>
+          </label>
+        <Fun per="value">wcp01_Sequence_test</Fun>
+		<Expr>
+			<Fun meta="Workflow input(s)">inArgs</Fun>
+			<Var mode="+" type = "java.lang.Double" meta="1st Input" default="2.3" name="WI1"></Var>
+			<Var mode="+"  type = "java.lang.Double" meta="2nd Input" default="3.5" name="WI2"></Var>
+			<Var mode="+"  type = "java.lang.Double" meta="3rd Input" default="6.4" name="WI3"></Var>
+		</Expr>
+		<Expr>
+			<Fun meta="Workflow ouput(s)">outArgs</Fun>
+			<Var mode="-" meta="1st Ouput" default="WO1" name="WO1"></Var>
+		</Expr>
+	</interface>
+	
+	
+	<interface>
+		<label>
+            <!-- Human-oriented description of the interface -->
+            <Expr>
+               <Fun uri="dc:description"/>
+               <Ind>Human Interaction (The input of the second parameter is given by users.)</Ind>
+            </Expr>
+          </label>
+        <Fun per="value">human_interaction</Fun>
+		<Expr>
+			<Fun meta="Workflow input(s)">inArgs</Fun>
+			<Var mode="+" type = "java.lang.Double" meta="1st Input" default="2.3" name="WI1"></Var>
+			<Var mode="+"  type = "java.lang.Double" meta="2nd Input" default="3.5" name="WI2"></Var>
+		</Expr>
+		<Expr>
+			<Fun meta="Workflow ouput(s)">outArgs</Fun>
+			<Var mode="-" meta="1st Ouput" default="WO1" name="WO1"></Var>
+		</Expr>
+	</interface>
+	
+	<interface>
+		<label>
+            <!-- Human-oriented description of the interface -->
+            <Expr>
+               <Fun uri="dc:description"/>
+               <Ind>Testing infinie loop detection.</Ind>
+            </Expr>
+          </label>
+        <Fun per="value">infiniteLoopDetection</Fun>
+		<Expr>
+			<Fun meta="Workflow input(s)">inArgs</Fun>
+			<Var mode="+" type = "java.lang.Integer" meta="1st Input" default="5" name="WI1"></Var>
+		</Expr>
+		<Expr>
+			<Fun meta="Workflow ouput(s)">outArgs</Fun>
+			<Var mode="-" meta="1st Ouput" default="WO1" name="WO1"></Var>
+		</Expr>
+	</interface>
+</interfaces>

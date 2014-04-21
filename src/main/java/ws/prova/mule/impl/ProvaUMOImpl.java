@@ -30,6 +30,10 @@ import ws.prova.api2.ProvaCommunicator;
 import ws.prova.api2.ProvaCommunicatorImpl;
 import ws.prova.esb2.ProvaAgent;
 import ws.prova.kernel2.ProvaList;
+import ws.prova.kernel2.ProvaObject;
+import ws.prova.reference2.ProvaConstantImpl;
+import ws.prova.reference2.ProvaListImpl;
+import de.fub.csw.TaskManagementCenter;
 
 public class ProvaUMOImpl extends LogComponent implements Initialisable,
 		Callable, FlowConstructAware, ProvaAgent {
@@ -133,16 +137,30 @@ public class ProvaUMOImpl extends LogComponent implements Initialisable,
 	 * ws.prova.kernel2.ProvaList)
 	 */
 	public void send(String receiver, ProvaList provaList) throws Exception {
-
+		MuleClient client = new DefaultLocalMuleClient(fc.getMuleContext());
+		if (!InfiniteLoopDetector.registerMsg(
+				provaList.getFixed()[0].toString(), provaList)) {
+			provaList.getFixed()[3] = ProvaConstantImpl.create("inform");
+			ProvaObject[] fixed = new ProvaObject[2];
+			fixed[0] = ProvaConstantImpl.create(TaskManagementCenter
+					.getWfName(provaList.getFixed()[0].toString()));
+			ProvaObject[] fixed1 = new ProvaObject[2];
+			fixed1[0] = ProvaConstantImpl.create("infiniteLoop");
+			fixed1[1] = ProvaConstantImpl.create("msg");
+			ProvaList list1 = ProvaListImpl.create(fixed1);
+			fixed[1] = list1;
+			ProvaList list = ProvaListImpl.create(fixed);
+			provaList.getFixed()[4] = list;
+			Object translatedSend = new Prova2RuleMLTranslator()
+					.transform(provaList);
+			client.dispatch("humanAgent", translatedSend, null);
+			System.out
+					.println("---->An infinite loop is detected. The suspicous message is :"
+							+ provaList);
+			return;
+		}
 		try {
-//			// overwrites messages
-//			if (receiver.equals("httpEndpoint")) {
-//				synchronized (this) {
-//					wait(300);
-//				}
-//			}
 			// send the message to httpEndPoint as string
-			MuleClient client = new DefaultLocalMuleClient(fc.getMuleContext());
 			if (receiver.equalsIgnoreCase("httpEndpoint"))
 				client.dispatch(receiver, provaList.toString(), null);
 			else if (receiver.equalsIgnoreCase("humanAgent")) {

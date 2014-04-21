@@ -18,6 +18,7 @@
 :-eval(consult('../ContractLog/owl.prova')).
 :-eval(consult('../swf_engine/utils.prova')).
 
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Performative vocabulary of organizational agent
 % More complex vocabularies (e.g. FIPA ACL) might be defined as Semantic Web ontologies	
@@ -56,36 +57,11 @@ understandPerformative(XID, From, Performative, PayLoad) :-
 	sendMsg(XID,esb,From,"no_further_answers", PayLoad),
 	fail().
 	
-processMessage(XID,From,Primitive, obtainReliableGOTerms(TID, inArgs(Protein), outArgs(ReliableGOTerms))):-
-     L1 = java.lang.System.currentTimeMillis(),
-     validateProtein(XID, From, Protein),
-     L2 = java.lang.System.currentTimeMillis(),
-     L3 = L2 - L1,
-     println(["------------------------->  Validating ", Protein, " takes ", L3, "ms"]),
-     
-     obtainReliableGOTerms(Protein, ReliableGOTerms),
-     sendMsg(XID,esb,From, "answer", [TID, inArgs(Protein), outArgs(ReliableGOTerms)]).    
-     	
-validateProtein(XID, From, Protein) :-
-	semanticDataConnection("http://beta.sparql.uniprot.org/", Connection),
-	println(["==> Connected."]),
-	Q1 = '
-		PREFIX up:<http://purl.uniprot.org/core/>
-		PREFIX uniprot:<http://purl.uniprot.org/uniprot/>
-		ASK
-		{uniprot:',
-    Q2 = ' a up:Protein .}',
-	concat([Q1, Protein, Q2], QueryString),
-	println([QueryString]),
-	sparql_ask(Connection, QueryString, QueryId1),
-	sparql_results(QueryId1),
-	!.
+processMessage(XID,From,Primitive,[TaskName, A1, A2, Res]):-
+     invoke(TaskName, A1, A2, Res),
+     sendMsg(XID,esb,From, "answer", [TaskName, A1, A2, Res]).
+    
 
-validateProtein(XID, From, Connection, Protein) :-
-	 Result = "Protein is not correct.",
-     sendMsg(XID,esb,From, "answer", [obtainReliableGOTerms, outArgs(Result)]),
-     fail().
-
-
-obtainReliableGOTerms(Protein, GOTerms):-
-   GOTerms = de.fub.csw.protein.prediction.QuickGOClient.getGOTermsByProteinID(Protein).
+invoke(add, A1, A2, Res) :-
+	Res = A1 + A2. 
+	

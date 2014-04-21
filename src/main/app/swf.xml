@@ -69,6 +69,18 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
 		<component class="ws.prova.mule.impl.ProvaUMOImpl" />
 	</flow>
 	
+	<jms:endpoint name="mathAgent" topic="math_agent"
+		connector-ref="jmsConnector" />
+	<flow name="Math_Agent">
+		<jms:inbound-endpoint ref="mathAgent">
+			<properties>
+				<spring:entry key="rulebase"
+					value="${app.home}/rules/calculate_agent/math_agent.prova" />
+			</properties>
+		</jms:inbound-endpoint>
+		<component class="ws.prova.mule.impl.ProvaUMOImpl" />
+	</flow>
+	
 	<jms:endpoint name="proteinPredictionAnalysisAgent" topic="proteinPredictionAnalysis_agent"
 		connector-ref="jmsConnector" />
 	<flow name="ProteinPredictionAnalysis">

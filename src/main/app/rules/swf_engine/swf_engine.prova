@@ -182,14 +182,20 @@ workflow(XID, From, "wcp01_Sequence_test", inArgs(I11,I12, I22), outArgs(Workflo
      
 
 workflow(XID, From, "proteinPredicitonAnalysisProcess", inArgs(Protein, PredictedGOTerm), outArgs(Result)) :-
+     %File = "./src/main/app/rules/protein_prediction_analysis/function_prediction.txt",
+     %fopen(File,Reader),
+     %read_enum(Reader,Line),
+     %List = de.fub.csw.protein.prediction.MultipleDataProcessor.getData(Line),
+     %Protein = List.get(0),
+     %PredictedGOTerm = List.get(1),
      assignTaskID(XID, TID1),
      executeTask(XID, 'obtainReliableGOTerms', TID1, inArgs(Protein), outArgs(ReliableGOTerms)),
      rcvMsg(XID, esb, _, "answer", [TID1, inArgs(Protein),outArgs(ReliableGOTerms)]),
      !,
-     
      assignTaskID(XID, TID2),
      executeTask(XID, 'proteinPredicitonAnalysis', TID2, inArgs(PredictedGOTerm, ReliableGOTerms), outArgs(Result)),
      rcvMsg(XID, esb, _, "answer", [TID2, inArgs(PredictedGOTerm, ReliableGOTerms), outArgs(Result)]),
+     println(["==========================================================="]),
      
      sendMsg(XID, esb, From, "answer", ["proteinPredicitonAnalysisProcess", inArgs(Protein, PredictedGOTerm), outArgs(Result)]).
 
@@ -227,7 +233,25 @@ workflow(XID, From, "antIdentificationProcess", [inArgs|Parameters], outArgs(Res
      sendMsg(XID, esb, humanAgentProxy, "request", [antIdentification, antIdentificationProcess, [inArgs|Parameters], outArgs(Result)]),
      rcvMsg(XID, esb, humanAgentProxy, "answer", [antIdentification, HumanReply]),
      
-     sendMsg(XID, esb, From, "answer", ["antIdentificationProcess", [inArgs|Parameters], outArgs(HumanReply)]).     
+     sendMsg(XID, esb, From, "answer", ["antIdentificationProcess", [inArgs|Parameters], outArgs(HumanReply)]). 
+     
+
+workflow(XID, From, "infiniteLoopDetection", [inArgs|Parameters], outArgs(Result)) :-
+     head(N, Parameters),
+     $Counter = 0,
+     loop(XID, N),
+     sendMsg(XID, esb, From, "answer", ["infiniteLoopDetection", [inArgs|Parameters], outArgs(Result)]).  
+
+loop(XID, 0):- !.
+
+loop(XID, N):-
+   println(["============================================= Start an add operation"]),
+   sendMsg(XID, esb, mathAgent, "request", [add,  10, 3, Result]),
+   rcvMsg(XID, esb, mathAgent, "answer", [add,  10, 3, Result]),
+   $Counter =  $Counter + 1,
+   println(["==========================Counter:", $Counter]),
+   %N1 = N - 1,
+   loop(XID, N).    
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 workflow(XID, From, "human_interaction", inArgs(I11,I12), outArgs(WorkflowOutput)) :-

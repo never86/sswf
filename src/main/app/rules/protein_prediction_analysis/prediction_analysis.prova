@@ -72,14 +72,13 @@ processMessage(XID,From,Primitive, proteinPredicitonAnalysis(TID, inArgs(Predict
      L3 = L2 - L1,
      println(["------------------------->  Overall prediction result analysis takes ", L3, "ms  ", $Count]),
      
+     %de.fub.csw.protein.prediction.MultipleDataProcessor.recording(L3, L6, $Count, Result),
+     
      sendMsg(XID,esb,From, "answer", [TID, inArgs(PredictedGOTerm, ReliableGOTerms), outArgs(Result)]).
-
-validatePredictedGOTerm(XID, From, PredictedGOTerm):-
-     semanticDataConnection("http://beta.sparql.uniprot.org/", Connection),
-     println(["==> Connected."]),
-     queryPredictedGOTerm(XID, From,Connection, PredictedGOTerm).
      	
-queryPredictedGOTerm(XID, From, Connection, PredictedGOTerm) :-
+validatePredictedGOTerm(XID, From, PredictedGOTerm) :-
+	semanticDataConnection("http://beta.sparql.uniprot.org/", Connection),
+    println(["http://beta.sparql.uniprot.org/ ==> Connected."]),
 	PredictedGOTerm1 = PredictedGOTerm.substring(3),
 	Q1 = 'PREFIX up:<http://purl.uniprot.org/core/>
 		PREFIX uniprot:<http://purl.uniprot.org/uniprot/>
@@ -89,9 +88,10 @@ queryPredictedGOTerm(XID, From, Connection, PredictedGOTerm) :-
 	concat([Q1, PredictedGOTerm1, Q2], QueryString),
 	sparql_ask(Connection, QueryString, QueryId1),
 	sparql_results(QueryId1),
+	println(["The given predictedGOTerm is valid."]),
 	!.
 	
-queryPredictedGOTerm(XID, From, Connection, PredictedGOTerm) :-
+validatePredictedGOTerm(XID, From, PredictedGOTerm) :-
     Result = "PredictedGOTerm is not correct.",
     sendMsg(XID,esb,From, "answer", [proteinPredicitonAnalysis, outArgs(Result)]),
     fail().
@@ -100,6 +100,7 @@ queryPredictedGOTerm(XID, From, Connection, PredictedGOTerm) :-
 analysis(ReliableGOTerms, PredictedGOTerm, Result):-
    $Count = 0,
    Onto = "http://grid.lzu.edu.cn:6060/go.xml",
+   println(["Loading the gene ontology..."]),
    reasonEngine(Onto, Engine),
    element(GOTerm, ReliableGOTerms),
    $Count = $Count + 1,

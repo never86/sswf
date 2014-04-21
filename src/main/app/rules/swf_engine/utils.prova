@@ -26,5 +26,5 @@ semanticDataConnection(URL, Connection):-
     !.
     
 semanticDataConnection(URL, Connection):-
-    println(["Connect ", URL, " failed"]),
+    println(["Connecting ", URL, " failed"]),
     fail().
