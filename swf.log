@@ -1,3 +1,179 @@
-ERROR ws.prova.reference2.builtins.ProvaSparqlDLConnectImpl - Could not load the ontology "http://localhost:8080/output.xml". - 2014-04-16 09:31:04,371
-INFO ws.prova.reference2.builtins.ProvaSparqlDLConnectImpl - 6817 ms elapsed for loading ontology. - 2014-04-16 09:31:34,181
-INFO ws.prova.reference2.builtins.ProvaSparqlDLConnectImpl - 3492 ms elapsed for loading ontology. - 2014-04-16 09:32:01,629
+INFO org.mule.lifecycle.AbstractLifecycleManager - Initialising: 'null'. Object is: MultiConsumerJmsMessageReceiver - 2014-08-06 17:06:53,692
+INFO org.mule.transport.jms.MultiConsumerJmsMessageReceiver - Connecting clusterizable message receiver - 2014-08-06 17:06:53,692
+INFO org.mule.lifecycle.AbstractLifecycleManager - Starting: 'null'. Object is: MultiConsumerJmsMessageReceiver - 2014-08-06 17:06:53,696
+INFO org.mule.transport.jms.MultiConsumerJmsMessageReceiver - Starting clusterizable message receiver - 2014-08-06 17:06:53,696
+INFO org.mule.construct.FlowConstructLifecycleManager - Starting flow: reliableGOTermProcessing - 2014-08-06 17:06:53,697
+INFO org.mule.processor.SedaStageLifecycleManager - Starting service: reliableGOTermProcessing.stage1 - 2014-08-06 17:06:53,697
+INFO org.mule.component.ComponentLifecycleManager - Starting component: component.16074946 - 2014-08-06 17:06:53,702
+INFO org.mule.transport.jms.activemq.ActiveMQJmsConnector - Registering listener: reliableGOTermProcessing on endpointUri: jms://topic:reliableGOTerm_processor - 2014-08-06 17:06:53,702
+INFO org.mule.transport.jms.MultiConsumerJmsMessageReceiver - Destination jms://topic:reliableGOTerm_processor is a topic, but 1100 receivers have been requested. Will configure only 1. - 2014-08-06 17:06:53,703
+INFO org.mule.transport.service.DefaultTransportServiceDescriptor - Loading default inbound transformer: org.mule.transport.jms.transformers.JMSMessageToObject - 2014-08-06 17:06:53,703
+INFO org.mule.transport.service.DefaultTransportServiceDescriptor - Loading default response transformer: org.mule.transport.jms.transformers.ObjectToJMSMessage - 2014-08-06 17:06:53,703
+INFO org.mule.lifecycle.AbstractLifecycleManager - Initialising: 'null'. Object is: MultiConsumerJmsMessageReceiver - 2014-08-06 17:06:53,703
+INFO org.mule.transport.jms.MultiConsumerJmsMessageReceiver - Connecting clusterizable message receiver - 2014-08-06 17:06:53,703
+INFO org.mule.lifecycle.AbstractLifecycleManager - Starting: 'null'. Object is: MultiConsumerJmsMessageReceiver - 2014-08-06 17:06:53,706
+INFO org.mule.transport.jms.MultiConsumerJmsMessageReceiver - Starting clusterizable message receiver - 2014-08-06 17:06:53,706
+INFO org.mule.construct.FlowConstructLifecycleManager - Starting flow: SnowDataIdentification - 2014-08-06 17:06:53,707
+INFO org.mule.processor.SedaStageLifecycleManager - Starting service: SnowDataIdentification.stage1 - 2014-08-06 17:06:53,707
+INFO org.mule.component.ComponentLifecycleManager - Starting component: component.15356431 - 2014-08-06 17:06:53,711
+INFO org.mule.transport.jms.activemq.ActiveMQJmsConnector - Registering listener: SnowDataIdentification on endpointUri: jms://topic:snowDataIdentification_agent - 2014-08-06 17:06:53,715
+INFO org.mule.transport.jms.MultiConsumerJmsMessageReceiver - Destination jms://topic:snowDataIdentification_agent is a topic, but 1100 receivers have been requested. Will configure only 1. - 2014-08-06 17:06:53,716
+INFO org.mule.transport.service.DefaultTransportServiceDescriptor - Loading default inbound transformer: org.mule.transport.jms.transformers.JMSMessageToObject - 2014-08-06 17:06:53,716
+INFO org.mule.transport.service.DefaultTransportServiceDescriptor - Loading default response transformer: org.mule.transport.jms.transformers.ObjectToJMSMessage - 2014-08-06 17:06:53,716
+INFO org.mule.lifecycle.AbstractLifecycleManager - Initialising: 'null'. Object is: MultiConsumerJmsMessageReceiver - 2014-08-06 17:06:53,716
+INFO org.mule.transport.jms.MultiConsumerJmsMessageReceiver - Connecting clusterizable message receiver - 2014-08-06 17:06:53,716
+INFO org.mule.lifecycle.AbstractLifecycleManager - Starting: 'null'. Object is: MultiConsumerJmsMessageReceiver - 2014-08-06 17:06:53,719
+INFO org.mule.transport.jms.MultiConsumerJmsMessageReceiver - Starting clusterizable message receiver - 2014-08-06 17:06:53,719
+INFO org.mule.construct.FlowConstructLifecycleManager - Starting flow: AntIdentificationManager - 2014-08-06 17:06:53,720
+INFO org.mule.processor.SedaStageLifecycleManager - Starting service: AntIdentificationManager.stage1 - 2014-08-06 17:06:53,720
+INFO org.mule.component.ComponentLifecycleManager - Starting component: component.3900291 - 2014-08-06 17:06:53,724
+INFO org.mule.transport.jms.activemq.ActiveMQJmsConnector - Registering listener: AntIdentificationManager on endpointUri: jms://topic:antIdentification_agent - 2014-08-06 17:06:53,725
+INFO org.mule.transport.jms.MultiConsumerJmsMessageReceiver - Destination jms://topic:antIdentification_agent is a topic, but 1100 receivers have been requested. Will configure only 1. - 2014-08-06 17:06:53,725
+INFO org.mule.transport.service.DefaultTransportServiceDescriptor - Loading default inbound transformer: org.mule.transport.jms.transformers.JMSMessageToObject - 2014-08-06 17:06:53,725
+INFO org.mule.transport.service.DefaultTransportServiceDescriptor - Loading default response transformer: org.mule.transport.jms.transformers.ObjectToJMSMessage - 2014-08-06 17:06:53,725
+INFO org.mule.lifecycle.AbstractLifecycleManager - Initialising: 'null'. Object is: MultiConsumerJmsMessageReceiver - 2014-08-06 17:06:53,726
+INFO org.mule.transport.jms.MultiConsumerJmsMessageReceiver - Connecting clusterizable message receiver - 2014-08-06 17:06:53,726
+INFO org.mule.lifecycle.AbstractLifecycleManager - Starting: 'null'. Object is: MultiConsumerJmsMessageReceiver - 2014-08-06 17:06:53,729
+INFO org.mule.transport.jms.MultiConsumerJmsMessageReceiver - Starting clusterizable message receiver - 2014-08-06 17:06:53,729
+INFO org.mule.construct.FlowConstructLifecycleManager - Starting flow: AntIdentification - 2014-08-06 17:06:53,729
+INFO org.mule.processor.SedaStageLifecycleManager - Starting service: AntIdentification.stage1 - 2014-08-06 17:06:53,729
+INFO org.mule.component.ComponentLifecycleManager - Starting component: component.7696244 - 2014-08-06 17:06:53,733
+INFO org.mule.transport.jms.activemq.ActiveMQJmsConnector - Registering listener: AntIdentification on endpointUri: jms://topic:antIdentification_agent - 2014-08-06 17:06:53,734
+INFO org.mule.transport.jms.MultiConsumerJmsMessageReceiver - Destination jms://topic:antIdentification_agent is a topic, but 1100 receivers have been requested. Will configure only 1. - 2014-08-06 17:06:53,734
+INFO org.mule.transport.service.DefaultTransportServiceDescriptor - Loading default inbound transformer: org.mule.transport.jms.transformers.JMSMessageToObject - 2014-08-06 17:06:53,734
+INFO org.mule.transport.service.DefaultTransportServiceDescriptor - Loading default response transformer: org.mule.transport.jms.transformers.ObjectToJMSMessage - 2014-08-06 17:06:53,735
+INFO org.mule.lifecycle.AbstractLifecycleManager - Initialising: 'null'. Object is: MultiConsumerJmsMessageReceiver - 2014-08-06 17:06:53,736
+INFO org.mule.transport.jms.MultiConsumerJmsMessageReceiver - Connecting clusterizable message receiver - 2014-08-06 17:06:53,736
+INFO org.mule.lifecycle.AbstractLifecycleManager - Starting: 'null'. Object is: MultiConsumerJmsMessageReceiver - 2014-08-06 17:06:53,741
+INFO org.mule.transport.jms.MultiConsumerJmsMessageReceiver - Starting clusterizable message receiver - 2014-08-06 17:06:53,741
+INFO org.mule.construct.FlowConstructLifecycleManager - Starting flow: IdentificationResultCuration - 2014-08-06 17:06:53,741
+INFO org.mule.processor.SedaStageLifecycleManager - Starting service: IdentificationResultCuration.stage1 - 2014-08-06 17:06:53,741
+INFO org.mule.component.ComponentLifecycleManager - Starting component: component.31994673 - 2014-08-06 17:06:53,746
+INFO org.mule.transport.jms.activemq.ActiveMQJmsConnector - Registering listener: IdentificationResultCuration on endpointUri: jms://topic:curation_agent - 2014-08-06 17:06:53,746
+INFO org.mule.transport.jms.MultiConsumerJmsMessageReceiver - Destination jms://topic:curation_agent is a topic, but 1100 receivers have been requested. Will configure only 1. - 2014-08-06 17:06:53,746
+INFO org.mule.transport.service.DefaultTransportServiceDescriptor - Loading default inbound transformer: org.mule.transport.jms.transformers.JMSMessageToObject - 2014-08-06 17:06:53,747
+INFO org.mule.transport.service.DefaultTransportServiceDescriptor - Loading default response transformer: org.mule.transport.jms.transformers.ObjectToJMSMessage - 2014-08-06 17:06:53,747
+INFO org.mule.lifecycle.AbstractLifecycleManager - Initialising: 'null'. Object is: MultiConsumerJmsMessageReceiver - 2014-08-06 17:06:53,747
+INFO org.mule.transport.jms.MultiConsumerJmsMessageReceiver - Connecting clusterizable message receiver - 2014-08-06 17:06:53,748
+INFO org.mule.lifecycle.AbstractLifecycleManager - Starting: 'null'. Object is: MultiConsumerJmsMessageReceiver - 2014-08-06 17:06:53,756
+INFO org.mule.transport.jms.MultiConsumerJmsMessageReceiver - Starting clusterizable message receiver - 2014-08-06 17:06:53,756
+INFO org.mule.construct.FlowConstructLifecycleManager - Starting flow: Exception_Handling - 2014-08-06 17:06:53,756
+INFO org.mule.processor.SedaStageLifecycleManager - Starting service: Exception_Handling.stage1 - 2014-08-06 17:06:53,756
+INFO org.mule.component.ComponentLifecycleManager - Starting component: component.11832097 - 2014-08-06 17:06:53,760
+INFO org.mule.transport.jms.activemq.ActiveMQJmsConnector - Registering listener: Exception_Handling on endpointUri: jms://topic:exception_handling - 2014-08-06 17:06:53,761
+INFO org.mule.transport.jms.MultiConsumerJmsMessageReceiver - Destination jms://topic:exception_handling is a topic, but 1100 receivers have been requested. Will configure only 1. - 2014-08-06 17:06:53,761
+INFO org.mule.transport.service.DefaultTransportServiceDescriptor - Loading default inbound transformer: org.mule.transport.jms.transformers.JMSMessageToObject - 2014-08-06 17:06:53,761
+INFO org.mule.transport.service.DefaultTransportServiceDescriptor - Loading default response transformer: org.mule.transport.jms.transformers.ObjectToJMSMessage - 2014-08-06 17:06:53,762
+INFO org.mule.lifecycle.AbstractLifecycleManager - Initialising: 'null'. Object is: MultiConsumerJmsMessageReceiver - 2014-08-06 17:06:53,762
+INFO org.mule.transport.jms.MultiConsumerJmsMessageReceiver - Connecting clusterizable message receiver - 2014-08-06 17:06:53,762
+INFO org.mule.lifecycle.AbstractLifecycleManager - Starting: 'null'. Object is: MultiConsumerJmsMessageReceiver - 2014-08-06 17:06:53,765
+INFO org.mule.transport.jms.MultiConsumerJmsMessageReceiver - Starting clusterizable message receiver - 2014-08-06 17:06:53,765
+INFO org.mule.transport.http.HttpConnector - Registering listener: Exception_Handling on endpointUri: http://localhost:9993 - 2014-08-06 17:06:53,765
+INFO org.mule.transport.service.DefaultTransportServiceDescriptor - Loading default response transformer: org.mule.transport.http.transformers.MuleMessageToHttpResponse - 2014-08-06 17:06:53,765
+INFO org.mule.lifecycle.AbstractLifecycleManager - Initialising: 'null'. Object is: HttpMessageReceiver - 2014-08-06 17:06:53,765
+INFO org.mule.transport.http.HttpMessageReceiver - Connecting clusterizable message receiver - 2014-08-06 17:06:53,766
+INFO org.mule.lifecycle.AbstractLifecycleManager - Starting: 'null'. Object is: HttpMessageReceiver - 2014-08-06 17:06:53,772
+INFO org.mule.transport.http.HttpMessageReceiver - Starting clusterizable message receiver - 2014-08-06 17:06:53,772
+INFO org.mule.construct.FlowConstructLifecycleManager - Starting flow: HumanAgentProxyFlow - 2014-08-06 17:06:53,773
+INFO org.mule.processor.SedaStageLifecycleManager - Starting service: HumanAgentProxyFlow.stage1 - 2014-08-06 17:06:53,773
+INFO org.mule.component.ComponentLifecycleManager - Starting component: component.1221930 - 2014-08-06 17:06:53,778
+INFO org.mule.transport.jms.activemq.ActiveMQJmsConnector - Registering listener: HumanAgentProxyFlow on endpointUri: jms://topic:human_agent_proxy - 2014-08-06 17:06:53,778
+INFO org.mule.transport.jms.MultiConsumerJmsMessageReceiver - Destination jms://topic:human_agent_proxy is a topic, but 1100 receivers have been requested. Will configure only 1. - 2014-08-06 17:06:53,778
+INFO org.mule.transport.service.DefaultTransportServiceDescriptor - Loading default inbound transformer: org.mule.transport.jms.transformers.JMSMessageToObject - 2014-08-06 17:06:53,778
+INFO org.mule.transport.service.DefaultTransportServiceDescriptor - Loading default response transformer: org.mule.transport.jms.transformers.ObjectToJMSMessage - 2014-08-06 17:06:53,779
+INFO org.mule.lifecycle.AbstractLifecycleManager - Initialising: 'null'. Object is: MultiConsumerJmsMessageReceiver - 2014-08-06 17:06:53,780
+INFO org.mule.transport.jms.MultiConsumerJmsMessageReceiver - Connecting clusterizable message receiver - 2014-08-06 17:06:53,780
+INFO org.mule.lifecycle.AbstractLifecycleManager - Starting: 'null'. Object is: MultiConsumerJmsMessageReceiver - 2014-08-06 17:06:53,782
+INFO org.mule.transport.jms.MultiConsumerJmsMessageReceiver - Starting clusterizable message receiver - 2014-08-06 17:06:53,783
+INFO org.mule.transport.http.HttpConnector - Registering listener: HumanAgentProxyFlow on endpointUri: http://localhost:9992 - 2014-08-06 17:06:53,783
+INFO org.mule.transport.service.DefaultTransportServiceDescriptor - Loading default response transformer: org.mule.transport.http.transformers.MuleMessageToHttpResponse - 2014-08-06 17:06:53,783
+INFO org.mule.lifecycle.AbstractLifecycleManager - Initialising: 'null'. Object is: HttpMessageReceiver - 2014-08-06 17:06:53,783
+INFO org.mule.transport.http.HttpMessageReceiver - Connecting clusterizable message receiver - 2014-08-06 17:06:53,784
+INFO org.mule.lifecycle.AbstractLifecycleManager - Starting: 'null'. Object is: HttpMessageReceiver - 2014-08-06 17:06:53,794
+INFO org.mule.transport.http.HttpMessageReceiver - Starting clusterizable message receiver - 2014-08-06 17:06:53,795
+INFO org.mule.module.management.agent.WrapperManagerAgent - This JVM hasn't been launched by the wrapper, the agent will not run. - 2014-08-06 17:06:53,806
+INFO org.mule.module.management.agent.JmxAgent - Attempting to register service with name: Mule.sswf:type=Endpoint,service="Calculate_Agent",connector=jmsConnector,name="endpoint.jms.calculate.agent" - 2014-08-06 17:06:53,896
+INFO org.mule.module.management.agent.JmxAgent - Registered Endpoint Service with name: Mule.sswf:type=Endpoint,service="Calculate_Agent",connector=jmsConnector,name="endpoint.jms.calculate.agent" - 2014-08-06 17:06:53,897
+INFO org.mule.module.management.agent.JmxAgent - Attempting to register service with name: Mule.sswf:type=Endpoint,service="reliableGOTermProcessing",connector=jmsConnector,name="endpoint.jms.reliableGOTerm.processor" - 2014-08-06 17:06:53,897
+INFO org.mule.module.management.agent.JmxAgent - Registered Endpoint Service with name: Mule.sswf:type=Endpoint,service="reliableGOTermProcessing",connector=jmsConnector,name="endpoint.jms.reliableGOTerm.processor" - 2014-08-06 17:06:53,897
+INFO org.mule.module.management.agent.JmxAgent - Attempting to register service with name: Mule.sswf:type=Endpoint,service="AntIdentificationManager",connector=jmsConnector,name="endpoint.jms.antIdentification.agent" - 2014-08-06 17:06:53,897
+INFO org.mule.module.management.agent.JmxAgent - Registered Endpoint Service with name: Mule.sswf:type=Endpoint,service="AntIdentificationManager",connector=jmsConnector,name="endpoint.jms.antIdentification.agent" - 2014-08-06 17:06:53,898
+INFO org.mule.module.management.agent.JmxAgent - Attempting to register service with name: Mule.sswf:type=Endpoint,service="IdentificationResultCuration",connector=jmsConnector,name="endpoint.jms.curation.agent" - 2014-08-06 17:06:53,898
+INFO org.mule.module.management.agent.JmxAgent - Registered Endpoint Service with name: Mule.sswf:type=Endpoint,service="IdentificationResultCuration",connector=jmsConnector,name="endpoint.jms.curation.agent" - 2014-08-06 17:06:53,898
+INFO org.mule.module.management.agent.JmxAgent - Attempting to register service with name: Mule.sswf:type=Endpoint,service="WorklfowEngine",connector=jmsConnector,name="endpoint.jms.ee" - 2014-08-06 17:06:53,898
+INFO org.mule.module.management.agent.JmxAgent - Registered Endpoint Service with name: Mule.sswf:type=Endpoint,service="WorklfowEngine",connector=jmsConnector,name="endpoint.jms.ee" - 2014-08-06 17:06:53,898
+INFO org.mule.module.management.agent.JmxAgent - Attempting to register service with name: Mule.sswf:type=Endpoint,service="Math_Agent",connector=jmsConnector,name="endpoint.jms.math.agent" - 2014-08-06 17:06:53,899
+INFO org.mule.module.management.agent.JmxAgent - Registered Endpoint Service with name: Mule.sswf:type=Endpoint,service="Math_Agent",connector=jmsConnector,name="endpoint.jms.math.agent" - 2014-08-06 17:06:53,899
+INFO org.mule.module.management.agent.JmxAgent - Attempting to register service with name: Mule.sswf:type=Endpoint,service="SnowDataIdentification",connector=jmsConnector,name="endpoint.jms.snowDataIdentification.agent" - 2014-08-06 17:06:53,899
+INFO org.mule.module.management.agent.JmxAgent - Registered Endpoint Service with name: Mule.sswf:type=Endpoint,service="SnowDataIdentification",connector=jmsConnector,name="endpoint.jms.snowDataIdentification.agent" - 2014-08-06 17:06:53,899
+INFO org.mule.module.management.agent.JmxAgent - Attempting to register service with name: Mule.sswf:type=Endpoint,service="AntIdentification",connector=jmsConnector,name="endpoint.jms.antIdentification.agent" - 2014-08-06 17:06:53,899
+INFO org.mule.module.management.agent.JmxAgent - Registered Endpoint Service with name: Mule.sswf:type=Endpoint,service="AntIdentification",connector=jmsConnector,name="endpoint.jms.antIdentification.agent" - 2014-08-06 17:06:53,900
+INFO org.mule.module.management.agent.JmxAgent - Attempting to register service with name: Mule.sswf:type=Endpoint,service="Exception_Handling",connector=jmsConnector,name="endpoint.jms.exception.handling" - 2014-08-06 17:06:53,900
+INFO org.mule.module.management.agent.JmxAgent - Registered Endpoint Service with name: Mule.sswf:type=Endpoint,service="Exception_Handling",connector=jmsConnector,name="endpoint.jms.exception.handling" - 2014-08-06 17:06:53,900
+INFO org.mule.module.management.agent.JmxAgent - Attempting to register service with name: Mule.sswf:type=Endpoint,service="HumanAgentProxyFlow",connector=jmsConnector,name="endpoint.jms.human.agent.proxy" - 2014-08-06 17:06:53,900
+INFO org.mule.module.management.agent.JmxAgent - Registered Endpoint Service with name: Mule.sswf:type=Endpoint,service="HumanAgentProxyFlow",connector=jmsConnector,name="endpoint.jms.human.agent.proxy" - 2014-08-06 17:06:53,900
+INFO org.mule.module.management.agent.JmxAgent - Attempting to register service with name: Mule.sswf:type=Endpoint,service="ProteinPredictionAnalysis",connector=jmsConnector,name="endpoint.jms.proteinPredictionAnalysis.agent" - 2014-08-06 17:06:53,901
+INFO org.mule.module.management.agent.JmxAgent - Registered Endpoint Service with name: Mule.sswf:type=Endpoint,service="ProteinPredictionAnalysis",connector=jmsConnector,name="endpoint.jms.proteinPredictionAnalysis.agent" - 2014-08-06 17:06:53,901
+INFO org.mule.module.management.agent.JmxAgent - Attempting to register service with name: Mule.sswf:type=Endpoint,service="Sentinel",connector=httpConnector,name="endpoint.http.localhost.8888" - 2014-08-06 17:06:53,901
+INFO org.mule.module.management.agent.JmxAgent - Registered Endpoint Service with name: Mule.sswf:type=Endpoint,service="Sentinel",connector=httpConnector,name="endpoint.http.localhost.8888" - 2014-08-06 17:06:53,901
+INFO org.mule.module.management.agent.JmxAgent - Attempting to register service with name: Mule.sswf:type=Endpoint,service="Exception_Handling",connector=httpConnector,name="endpoint.http.localhost.9993" - 2014-08-06 17:06:53,901
+INFO org.mule.module.management.agent.JmxAgent - Registered Endpoint Service with name: Mule.sswf:type=Endpoint,service="Exception_Handling",connector=httpConnector,name="endpoint.http.localhost.9993" - 2014-08-06 17:06:53,902
+INFO org.mule.module.management.agent.JmxAgent - Attempting to register service with name: Mule.sswf:type=Endpoint,service="HumanAgentProxyFlow",connector=httpConnector,name="endpoint.http.localhost.9992" - 2014-08-06 17:06:53,902
+INFO org.mule.module.management.agent.JmxAgent - Registered Endpoint Service with name: Mule.sswf:type=Endpoint,service="HumanAgentProxyFlow",connector=httpConnector,name="endpoint.http.localhost.9992" - 2014-08-06 17:06:53,902
+INFO org.mule.module.management.agent.JmxAgent - Registered Connector Service with name Mule.sswf:type=Connector,name="jmsConnector.1" - 2014-08-06 17:06:53,903
+INFO org.mule.module.management.agent.JmxAgent - Registered Connector Service with name Mule.sswf:type=Connector,name="httpConnector.1" - 2014-08-06 17:06:53,904
+INFO org.mule.module.launcher.application.DefaultMuleApplication - Reload interval: 3000 - 2014-08-06 17:06:53,906
+INFO org.mule.DefaultMuleContext - 
+**********************************************************************
+* Application: sswf                                                  *
+* OS encoding: GBK, Mule encoding: UTF-8                             *
+*                                                                    *
+* Agents Running:                                                    *
+*   Clustering Agent                                                 *
+*   JMX Agent                                                        *
+********************************************************************** - 2014-08-06 17:06:53,930
+INFO org.mule.module.launcher.MuleDeploymentService - 
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
++ Started app 'sswf'                                       +
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ - 2014-08-06 17:06:53,931
+INFO ws.prova.mule.impl.HttpEndpointUMOImpl - AGENT: httpEndpoint received the message:[semantic_SWF_Engine,esb,User,query-sync,[wcp01_Sequence,[inArgs,2.3,3.5,6.4],[outArgs,WO1]]] - 2014-08-06 17:07:42,821
+INFO ws.prova.mule.impl.HttpEndpointUMOImpl - A temporary UMO '5aa7dc29-efb1-46cd-9003-3a33c1bdb6f6' was registered. - 2014-08-06 17:07:42,824
+INFO org.mule.transport.service.DefaultTransportServiceDescriptor - Loading default inbound transformer: org.mule.transport.jms.transformers.JMSMessageToObject - 2014-08-06 17:07:42,835
+INFO org.mule.lifecycle.AbstractLifecycleManager - Initialising: 'jmsConnector.requester.9449047'. Object is: JmsMessageRequester - 2014-08-06 17:07:42,836
+INFO org.mule.lifecycle.AbstractLifecycleManager - Starting: 'jmsConnector.requester.9449047'. Object is: JmsMessageRequester - 2014-08-06 17:07:42,836
+INFO ws.prova.mule.impl.HttpEndpointUMOImpl - AGENT:httpEndpoint forwards [httpEndpoint:1,esb,httpEndpoint,query,[wcp01_Sequence,[inArgs,2.3,3.5,6.4],[outArgs,<15>]]] To:semantic_SWF_Engine - 2014-08-06 17:07:43,055
+INFO org.mule.transport.service.DefaultTransportServiceDescriptor - Loading default outbound transformer: org.mule.transport.jms.transformers.ObjectToJMSMessage - 2014-08-06 17:07:43,104
+INFO org.mule.transport.service.DefaultTransportServiceDescriptor - Loading default response transformer: org.mule.transport.jms.transformers.ObjectToJMSMessage - 2014-08-06 17:07:43,105
+WARN com.mulesoft.mule.transport.jms.EeJmsMessageDispatcher - Starting patched JmsMessageReceiver - 2014-08-06 17:07:43,105
+INFO org.mule.lifecycle.AbstractLifecycleManager - Initialising: 'jmsConnector.dispatcher.11991541'. Object is: EeJmsMessageDispatcher - 2014-08-06 17:07:43,105
+INFO org.mule.lifecycle.AbstractLifecycleManager - Starting: 'jmsConnector.dispatcher.11991541'. Object is: EeJmsMessageDispatcher - 2014-08-06 17:07:43,106
+INFO ws.prova.mule.impl.ProvaUMOImpl - AGENT: semantic_SWF_Engine received the message:[httpEndpoint:1,esb,httpEndpoint,query,[wcp01_Sequence,[inArgs,2.3,3.5,6.4],[outArgs,<15>]]] - 2014-08-06 17:07:43,763
+WARN org.openrdf.rio.helpers.BasicParserSettings - Could not find DatatypeHandler : org.openrdf.rio.datatypes.xmlschema - 2014-08-06 17:07:44,094
+WARN org.openrdf.rio.helpers.BasicParserSettings - Could not find DatatypeHandler : org.openrdf.rio.datatypes.rdf - 2014-08-06 17:07:44,094
+WARN org.openrdf.rio.helpers.BasicParserSettings - Could not find DatatypeHandler : org.openrdf.rio.datatypes.dbpedia - 2014-08-06 17:07:44,094
+WARN org.openrdf.rio.helpers.BasicParserSettings - Could not find DatatypeHandler : org.openrdf.rio.datatypes.virtuosogeometry - 2014-08-06 17:07:44,094
+WARN org.openrdf.rio.helpers.BasicParserSettings - Could not find DatatypeHandler : org.openrdf.rio.datatypes.geosparql - 2014-08-06 17:07:44,094
+WARN org.openrdf.rio.helpers.BasicParserSettings - Could not find LanguageHandler : org.openrdf.rio.languages.RFC3066 - 2014-08-06 17:07:44,097
+INFO ws.prova.mule.impl.ProvaUMOImpl - AGENT:semantic_SWF_Engine forwards [httpEndpoint:1,esb,semantic_SWF_Engine,start,[add,httpEndpoint_1_da45e,[inArgs,2.3,3.5],[outArgs,<272>]]] To:calculateAgent - 2014-08-06 17:07:48,308
+INFO org.mule.transport.service.DefaultTransportServiceDescriptor - Loading default outbound transformer: org.mule.transport.jms.transformers.ObjectToJMSMessage - 2014-08-06 17:07:48,310
+INFO org.mule.transport.service.DefaultTransportServiceDescriptor - Loading default response transformer: org.mule.transport.jms.transformers.ObjectToJMSMessage - 2014-08-06 17:07:48,312
+WARN com.mulesoft.mule.transport.jms.EeJmsMessageDispatcher - Starting patched JmsMessageReceiver - 2014-08-06 17:07:48,312
+INFO org.mule.lifecycle.AbstractLifecycleManager - Initialising: 'jmsConnector.dispatcher.8526472'. Object is: EeJmsMessageDispatcher - 2014-08-06 17:07:48,312
+INFO org.mule.lifecycle.AbstractLifecycleManager - Starting: 'jmsConnector.dispatcher.8526472'. Object is: EeJmsMessageDispatcher - 2014-08-06 17:07:48,312
+INFO ws.prova.mule.impl.ProvaUMOImpl - AGENT: calculateAgent received the message:[httpEndpoint:1,esb,semantic_SWF_Engine,start,[add,httpEndpoint_1_da45e,[inArgs,2.3,3.5],[outArgs,<272>]]] - 2014-08-06 17:07:48,440
+INFO org.apache.cxf.endpoint.dynamic.DynamicClientFactory - Created classes: de.csw.fub.add.Add, de.csw.fub.add.AddResponse, de.csw.fub.add.ObjectFactory - 2014-08-06 17:07:54,771
+INFO ws.prova.mule.impl.ProvaUMOImpl - AGENT:calculateAgent forwards [httpEndpoint:1,esb,calculateAgent,answer,[httpEndpoint_1_da45e,[inArgs,2.3,3.5],[outArgs,5.8]]] To:semantic_SWF_Engine - 2014-08-06 17:08:06,426
+INFO ws.prova.mule.impl.ProvaUMOImpl - AGENT: semantic_SWF_Engine received the message:[httpEndpoint:1,esb,calculateAgent,answer,[httpEndpoint_1_da45e,[inArgs,2.3,3.5],[outArgs,5.8]]] - 2014-08-06 17:08:06,449
+INFO ws.prova.mule.impl.ProvaUMOImpl - AGENT:semantic_SWF_Engine forwards [httpEndpoint:1,esb,semantic_SWF_Engine,start,[add,httpEndpoint_1_600ba,[inArgs,5.8,6.4],[outArgs,<745>]]] To:calculateAgent - 2014-08-06 17:08:06,534
+INFO ws.prova.mule.impl.ProvaUMOImpl - AGENT: calculateAgent received the message:[httpEndpoint:1,esb,semantic_SWF_Engine,start,[add,httpEndpoint_1_600ba,[inArgs,5.8,6.4],[outArgs,<745>]]] - 2014-08-06 17:08:06,548
+INFO org.apache.cxf.endpoint.dynamic.DynamicClientFactory - Created classes: de.csw.fub.add.Add, de.csw.fub.add.AddResponse, de.csw.fub.add.ObjectFactory - 2014-08-06 17:08:06,591
+INFO ws.prova.mule.impl.ProvaUMOImpl - AGENT:calculateAgent forwards [httpEndpoint:1,esb,calculateAgent,answer,[httpEndpoint_1_600ba,[inArgs,5.8,6.4],[outArgs,12.2]]] To:semantic_SWF_Engine - 2014-08-06 17:08:10,790
+INFO ws.prova.mule.impl.ProvaUMOImpl - AGENT: semantic_SWF_Engine received the message:[httpEndpoint:1,esb,calculateAgent,answer,[httpEndpoint_1_600ba,[inArgs,5.8,6.4],[outArgs,12.2]]] - 2014-08-06 17:08:10,801
+INFO ws.prova.mule.impl.ProvaUMOImpl - AGENT:semantic_SWF_Engine forwards [httpEndpoint:1,esb,semantic_SWF_Engine,answer,[wcp01_Sequence,[inArgs,2.3,3.5,6.4],[outArgs,12.2]]] To:httpEndpoint - 2014-08-06 17:08:10,802
+INFO ws.prova.mule.impl.HttpEndpointUMOImpl - AGENT:httpEndpoint forwards [httpEndpoint:1,esb,httpEndpoint,answer,[wcp01_Sequence,[inArgs,2.3,3.5,6.4],[outArgs,12.2]]] To:5aa7dc29-efb1-46cd-9003-3a33c1bdb6f6 - 2014-08-06 17:08:10,805
+INFO org.mule.transport.service.DefaultTransportServiceDescriptor - Loading default outbound transformer: org.mule.transport.jms.transformers.ObjectToJMSMessage - 2014-08-06 17:08:10,805
+INFO org.mule.transport.service.DefaultTransportServiceDescriptor - Loading default response transformer: org.mule.transport.jms.transformers.ObjectToJMSMessage - 2014-08-06 17:08:10,806
+WARN com.mulesoft.mule.transport.jms.EeJmsMessageDispatcher - Starting patched JmsMessageReceiver - 2014-08-06 17:08:10,806
+INFO org.mule.lifecycle.AbstractLifecycleManager - Initialising: 'jmsConnector.dispatcher.16424686'. Object is: EeJmsMessageDispatcher - 2014-08-06 17:08:10,806
+INFO org.mule.lifecycle.AbstractLifecycleManager - Starting: 'jmsConnector.dispatcher.16424686'. Object is: EeJmsMessageDispatcher - 2014-08-06 17:08:10,806
+INFO ws.prova.mule.impl.HttpEndpointUMOImpl - The temporary UMO '5aa7dc29-efb1-46cd-9003-3a33c1bdb6f6' was unregistered. - 2014-08-06 17:08:10,837

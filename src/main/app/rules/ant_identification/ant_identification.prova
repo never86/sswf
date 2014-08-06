@@ -10,12 +10,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-:-eval(consult('../ContractLog/math.prova')).
-:-eval(consult('../ContractLog/datetime.prova')).
-:-eval(consult('../ContractLog/list.prova')).
-:-eval(consult('../ContractLog/update.prova')).
-:-eval(consult('../ContractLog/utils.prova')).
-:-eval(consult('../ContractLog/owl.prova')).
+:-eval(consult('../swf_engine/list.prova')).
 :-eval(consult('../swf_engine/utils.prova')).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -64,10 +59,11 @@ processMessage(XID,From,Primitive, antIdentification(Parameters, X)):-
 treatment(argentineAnt, "http://en.wikipedia.org/wiki/Argentine_ant").
 treatment(failed, failed).
 
-antIdentification(X, [Nest, Node, Color, Thorax, Seg, Club, Des, HColor, S, Worker, Long, Food, Location]) :-
-   bodyFeature(X, Node, Color, Thorax, Seg, Club, Des, HColor, S, Worker, Long),
+antIdentification(X, [Nest, Node, Color, Thorax, Seg, Club, Des, HColor, S, Worker, Length, Food, Location]) :-
+   bodyFeature(X, Node, Color, Thorax, Seg, Club, Des, HColor, S, Worker, Length),
    nest(X,Nest),
-   food(X, Food), !.
+   food(X, Food),
+   !.
    
 antIdentification(X, [Nest, Node, Color, Thorax, Seg, Club, Des, HColor, S, Worker, Long, Food, Location]) :-
    X = "failed".
@@ -94,23 +90,21 @@ stinger(littleBlackAnt, indeterminate).
 worker(argentineAnt, monomorphic).
 worker(littleBlackAnt, monomorphic).
 
-long(argentineAnt, 0.125,0.125).
-long(littleBlackAnt, 0.0625,0.0625).
+length1(argentineAnt, 0.125,0.125).
+length1(littleBlackAnt, 0.0625,0.0625).
 
 nest(argentineAnt, moist).
 nest(littleBlackAnt, fineSoil).
 
-food(argentineAnt, sweets).
+food(argentineAnt, sugars).
 food(argentineAnt, proteins).
 food(littleBlackAnt, grease).
-food(littleBlackAnt, vegetable).
+food(littleBlackAnt, vegetables).
 food(littleBlackAnt, insects).
 
 % rules
 
-
-
-bodyFeature(X, Node, Color, Thorax, Seg, Club, Des, HColor, S, Worker, Long) :-
+bodyFeature(X, Node, Color, Thorax, Seg, Club, Des, HColor, S, Worker, Length) :-
    node(X, Node),
    color(X, Color),
    thorax(X, Thorax),
@@ -118,6 +112,6 @@ bodyFeature(X, Node, Color, Thorax, Seg, Club, Des, HColor, S, Worker, Long) :-
    hair(X, Des, HColor),
    stinger(X, S),
    worker(X, Worker),
-   long(X, Min1, Max1),
-   moreequ(Long, Min1),
-   lessequ(Max1, Long).
+   length1(X, Min1, Max1),
+   Length >= Min1,
+   Max1 <= Length.

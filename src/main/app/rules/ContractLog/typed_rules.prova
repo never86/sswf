@@ -1,20 +1,36 @@
-:- eval(test()).
+:-eval(consult('list.prova')).
 
-test() :-
-	println(["========== sparqldl_query test =========="]),
-	sparqldl_create(Engine, "http://grid.lzu.edu.cn:6060/sswf-5.0.owl"),
-	println(["==> An instance of SPARQL-DL engine has been created."]),
-	agent(Engine, "http://www.corporate-semantic-web.de/sswf2013#calculateAgent"),
-	println(["==> SPARQL-DL SELECT query done."]).
+:- eval(test1(N)).
+
+test1(N):-
+   L = 2,
+   type(L, T),
+   2 >= L,
+   println([S, T],"   ").
+    
+
+     
+analysis(Engine, GOTerm, PredictedGOTerm, Result):-
+   $Count = 0,
+  
+   $Count = $Count + 1,
+   QueryString = de.fub.csw.constant.StringConstants.goTermAnalysisQuery(GOTerm, PredictedGOTerm),
+   L11 = java.lang.System.currentTimeMillis(),
+   askQuery(Engine, QueryString, Result),
+   L12 = java.lang.System.currentTimeMillis(),
+   L13 = L12 - L11,
+   Result = "yes",
+   !.
    
-agent(Engine, Agent) :-
-	QueryString = '
-		PREFIX : <http://www.corporate-semantic-web.de/sswf2013#>
-		SELECT ?agent
-		WHERE {
-		Type(?agent, :Agent)}
-	',
-	sparqldl_select(Engine, QueryString, a),
-	sparqldl_results(a, Agent),
-	println(["Yes", Agent]).
-
+analysis(Engine, ReliableGOTerms, PredictedGOTerm, Result):-
+   Result = "no".
+   
+askQuery(Engine, QueryString, Result):-
+   sparqldl_ask(Engine, QueryString, QueryId),
+   sparqldl_results(QueryId),
+   retract(sparqldl_results(QueryId)),
+   Result = "yes",
+   !.
+   
+askQuery(Engine, QueryString, Result):-
+   Result = "no".

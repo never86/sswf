@@ -10,14 +10,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-:-eval(consult('../ContractLog/math.prova')).
-:-eval(consult('../ContractLog/datetime.prova')).
-:-eval(consult('../ContractLog/list.prova')).
-:-eval(consult('../ContractLog/update.prova')).
-:-eval(consult('../ContractLog/utils.prova')).
-%:-eval(consult('calendar.prova')). % calendar API
-:-eval(consult('../ContractLog/owl.prova')).
-
+:-eval(consult('../swf_engine/list.prova')).
+:-eval(consult('../swf_engine/utils.prova')).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Performative vocabulary of organizational agent

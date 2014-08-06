@@ -10,8 +10,6 @@
 % message contains in the conversation ID the address of the agent to which 
 % the message should be send.
 
-% import of additional ContractLog libraries (modules)
-:-eval(consult('../ContractLog/utils.prova')).
 
 % the pragmatic performatives the rule responder bridge understands
 performative("query-sync").

@@ -1,0 +1,56 @@
+:- eval(test()).
+
+test() :-
+	println(["========== sparql_query test =========="]),
+	sparql_connect(Connection, "http://localhost:8080/openrdf-sesame/repositories/sswf"),
+	println(["==> Connected."]),
+	testSelectQuery(Connection),
+	println(["==> SELECT query done."]),
+	testAskQuery(Connection),
+	println(["==> ASK query done."]),
+	sparql_disconnect(Connection),
+	println(["==> Disconnected."]).
+   
+testSelectQuery(Connection) :-
+	QueryString = '
+		PREFIX : <http://www.corporate-semantic-web.de/sswf2013#>
+        SELECT ?agent ?task 
+        WHERE {
+           ?agent a :Agent .
+           ?agent :hasRole ?role .
+           ?role :responsible ?task .
+    }',
+	sparql_select(Connection, QueryString, queryId),
+	sparql_results(queryId, Agent, Task),
+	println([queryId,":", Agent, Task], "  "),
+	fail().
+	
+testSelectQuery(_):-
+    println(["No result"]).
+	
+testAskQuery(Connection) :-
+	QueryString = '
+	    PREFIX : <http://www.corporate-semantic-web.de/sswf2013#>
+		PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+		ASK WHERE {
+			:add rdf:type :Task .
+		}
+	',
+	sparql_ask(Connection, QueryString, QueryId1),
+	sparql_results(QueryId1),
+	println(['yes']),!.
+testAskQuery(_):-
+    println(['no']).
+
+testUpdateQuery(Connection) :-
+	QueryString = '
+	    PREFIX : <http://www.corporate-semantic-web.de/sswf2013#>
+		PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+		DELETE DATA {:curatorAgent :available  "false"^^xsd:boolean};
+        INSERT DATA {:curatorAgent :available  "true"^^xsd:boolean}
+	',
+	sparql_update(Connection, QueryString, "http://www.corporate-semantic-web.de/sswf2013#", UpdateId),
+	sparql_results(UpdateId),
+	fail().
+	
+testUpdateQuery(_).

@@ -10,12 +10,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-:-eval(consult('../ContractLog/math.prova')).
-:-eval(consult('../ContractLog/datetime.prova')).
-:-eval(consult('../ContractLog/list.prova')).
-:-eval(consult('../ContractLog/update.prova')).
-:-eval(consult('../ContractLog/utils.prova')).
-:-eval(consult('../ContractLog/owl.prova')).
+:-eval(consult('../swf_engine/list.prova')).
 :-eval(consult('../swf_engine/utils.prova')).
 
 
@@ -57,11 +52,9 @@ understandPerformative(XID, From, Performative, PayLoad) :-
 	sendMsg(XID,esb,From,"no_further_answers", PayLoad),
 	fail().
 
-processMessage(XID,From,Primitive, proteinPredicitonAnalysis(TID, inArgs(PredictedGOTerm, ReliableGOTerms), outArgs(Result))):-
+processMessage(XID,From,Primitive, proteinPredicitonAnalysis(TID, inArgs(Protein, PredictedGOTerm, ReliableGOTerms), outArgs(Result))):-
      L1 = java.lang.System.currentTimeMillis(),
      validatePredictedGOTerm(XID, From, PredictedGOTerm),
-    
-     
      L4 = java.lang.System.currentTimeMillis(),
      analysis(ReliableGOTerms, PredictedGOTerm, Result),
      L5 = java.lang.System.currentTimeMillis(),
@@ -72,7 +65,7 @@ processMessage(XID,From,Primitive, proteinPredicitonAnalysis(TID, inArgs(Predict
      L3 = L2 - L1,
      println(["------------------------->  Overall prediction result analysis takes ", L3, "ms  ", $Count]),
      
-     %de.fub.csw.protein.prediction.MultipleDataProcessor.recording(L3, L6, $Count, Result),
+     de.fub.csw.protein.prediction.DataProcessor.analysisLogRecording(Protein, PredictedGOTerm, L3, L6, $Count, Result),
      
      sendMsg(XID,esb,From, "answer", [TID, inArgs(PredictedGOTerm, ReliableGOTerms), outArgs(Result)]).
      	
@@ -99,9 +92,13 @@ validatePredictedGOTerm(XID, From, PredictedGOTerm) :-
 
 analysis(ReliableGOTerms, PredictedGOTerm, Result):-
    $Count = 0,
-   Onto = "http://grid.lzu.edu.cn:6060/go.xml",
-   println(["Loading the gene ontology..."]),
+   Onto = de.fub.csw.protein.prediction.QuickGOClient.getOnto(PredictedGOTerm),
+   %L1 = java.lang.System.currentTimeMillis(),
    reasonEngine(Onto, Engine),
+   %sparqldl_create(Engine, Onto),
+   %L2 = java.lang.System.currentTimeMillis(),
+   %L3 = L2 - L1,
+   %de.fub.csw.protein.prediction.DataProcessor.ontoLoadingLogRecording(PredictedGOTerm, L3),
    element(GOTerm, ReliableGOTerms),
    $Count = $Count + 1,
    QueryString = de.fub.csw.constant.StringConstants.goTermAnalysisQuery(GOTerm, PredictedGOTerm),
@@ -109,12 +106,15 @@ analysis(ReliableGOTerms, PredictedGOTerm, Result):-
    Result = "yes",
    !.
    
+
+   
 analysis(ReliableGOTerms, PredictedGOTerm, Result):-
    Result = "no".
    
 askQuery(Engine, QueryString, Result):-
    sparqldl_ask(Engine, QueryString, QueryId),
    sparqldl_results(QueryId),
+   retract(sparqldl_results(QueryId)),
    Result = "yes",
    !.
    

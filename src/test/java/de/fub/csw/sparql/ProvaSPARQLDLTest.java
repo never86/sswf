@@ -13,7 +13,6 @@ public class ProvaSPARQLDLTest {
 
 	static final String kPort = null;
 
-	// Unique key identifying the consulted input (useful in interactive environment)
 	int key = 0;
 
 	private ProvaCommunicator prova = null;
@@ -26,32 +25,10 @@ public class ProvaSPARQLDLTest {
 		}
 	}
 	
-//	@Test
-//	public void sparql() {
-//		final String rulebase = "src/main/app/rules/ContractLog/shashi.prova";
-//		prova = new ProvaCommunicatorImpl(kAgent,kPort,rulebase,ProvaCommunicatorImpl.SYNC);
-//
-//		try {
-//			synchronized(this) {
-//				wait(20000);
-//			}
-//		} catch (Exception e) {
-//		}
-//	}
-	
+
 	@Test
 	public void sparqldl() {
-		final String rulebase = "src/main/app/rules/ContractLog/sparql.prova";
-
+		final String rulebase = "src/main/app/rules/prova/sparqldl.prova";
 		prova = new ProvaCommunicatorImpl(kAgent,kPort,rulebase,ProvaCommunicatorImpl.SYNC);
-
-		try {
-			synchronized(this) {
-				wait(500000);
-			}
-		} catch (Exception e) {
-		}
 	}
-
-
 }

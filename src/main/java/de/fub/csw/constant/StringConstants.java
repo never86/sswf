@@ -1,16 +1,28 @@
 /**
+
  * @className StringContants.java
+
  * 
+
  * Copyright (c) 2010-2014 Corporate Semantic Web.
+
  * Königin-Luise-Straße 24 - 26 14195 Berlin, Free University Berlin, Germany
+
  * 
+
  * All rights reserved. This program and the accompanying materials
+
  * are made available under the terms of the Eclipse Public License v1.0
+
  * which accompanies this distribution, and is available at
+
  * http://www.eclipse.org/legal/epl-v10.html
+
  */
+
 package de.fub.csw.constant;
 
+import java.io.File;
 
 /**
  * class description
@@ -25,7 +37,6 @@ package de.fub.csw.constant;
 public class StringConstants {
 
 	public static String appDir = "";
-
 	public static String ENTITIES_DECLARATION = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
 			+ "<!DOCTYPE uridef["
 			+ "<!ENTITY rdf     \"http://www.w3.org/1999/02/22-rdf-syntax-ns\">\n"
@@ -34,7 +45,13 @@ public class StringConstants {
 			+ "<!ENTITY owl     \"http://www.w3.org/2002/07/owl\">\n"
 			+ "]>\n";
 
-	public static String SEMANTIC_DATA_REPOSITORY_URL = "http://grid.lzu.edu.cn:6060/openrdf-sesame/repositories/sswf";
+	public static String userDir = System.getProperty("user.dir")
+			+ File.separator + "src" + File.separator + "main" + File.separator
+			+ "app";
+
+	//public static String SEMANTIC_DATA_REPOSITORY_URL = "http://grid.lzu.edu.cn:6060/openrdf-sesame/repositories/sswf";
+	
+	public static String SEMANTIC_DATA_REPOSITORY_URL = "http://localhost:8080/openrdf-sesame/repositories/sswf";
 
 	public static String WF_ONTOLOGY_BASE_URL = "http://www.corporate-semantic-web.de/sswf2013#";
 
@@ -58,8 +75,8 @@ public class StringConstants {
 	}
 
 	public static String goTermAnalysisQuery(String goTerm, Object targetGOTerm) {
-		return "PREFIX : <http://www.geneontology.org/go#>\n"+
-			"ASK {SubClassOf(:" +  targetGOTerm + ", :"+ goTerm +")}";		
+		String temp = "PREFIX : <http://www.geneontology.org/go#>\n"
+				+ "ASK {SubClassOf(:" + targetGOTerm + ", :" + goTerm + ")}";
+		return temp;
 	}
-
 }

@@ -77,7 +77,7 @@ first(F,[F|_]).
 % last Element of the list
 
 last(L,[L]).
-last(L,[H|T]) :- 
+last(L,[H|T]) :-
 	last(L,T).
 
 
@@ -87,8 +87,8 @@ last(L,[H|T]) :-
 % size if a list
 size([],0).
 size([H|T],N) :-
-	size(T,N1), 
-	math_add1(N1, 1, N).
+	size(T,N1),
+	N = N1 + 1.
 
 
 % --------------------------------------------------------------------- 
@@ -97,12 +97,12 @@ size([H|T],N) :-
 % element at postion Pos in the List
 
 element_at([L2|LS],Z,L1):- 
-	equ(L1,L2), 
-	equ(Z, 0),
+	L1 = L2, 
+	Z = 0,
 	!.
 
 element_at([L|LS],X, Z) :-
-	math_sub(X,1,X1), 
+	X1 = X - 1, 
 	element_at(LS,X1,Z).
 
 % --------------------------------------------------------------------- 

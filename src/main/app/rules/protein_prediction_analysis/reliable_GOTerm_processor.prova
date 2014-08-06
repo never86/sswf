@@ -10,12 +10,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-:-eval(consult('../ContractLog/math.prova')).
-:-eval(consult('../ContractLog/datetime.prova')).
-:-eval(consult('../ContractLog/list.prova')).
-:-eval(consult('../ContractLog/update.prova')).
-:-eval(consult('../ContractLog/utils.prova')).
-:-eval(consult('../ContractLog/owl.prova')).
+:-eval(consult('../swf_engine/list.prova')).
 :-eval(consult('../swf_engine/utils.prova')).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -58,7 +53,7 @@ understandPerformative(XID, From, Performative, PayLoad) :-
 	
 processMessage(XID,From,Primitive, obtainReliableGOTerms(TID, inArgs(Protein), outArgs(ReliableGOTerms))):-
      L1 = java.lang.System.currentTimeMillis(),
-     validateProtein(XID, From, Protein),
+     %validateProtein(XID, From, Protein),
      L2 = java.lang.System.currentTimeMillis(),
      L3 = L2 - L1,
      println(["------------------------->  Validating ", Protein, " takes ", L3, "ms"]),

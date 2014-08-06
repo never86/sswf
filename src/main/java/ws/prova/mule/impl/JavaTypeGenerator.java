@@ -48,5 +48,5 @@ public class JavaTypeGenerator {
 		else
 			return null;
 	}
-
+	
 }

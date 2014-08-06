@@ -1,0 +1,409 @@
+<?xml version="1.0"?>
+
+
+<!DOCTYPE rdf:RDF [
+    <!ENTITY owl "http://www.w3.org/2002/07/owl#" >
+    <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
+    <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
+    <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
+    <!ENTITY up "http://purl.uniprot.org/core/#" >
+    <!ENTITY sswf2013 "http://www.corporate-semantic-web.de/sswf2013#" >
+]>
+
+
+<rdf:RDF xmlns="http://www.w3.org/2002/07/owl#"
+     xml:base="http://www.w3.org/2002/07/owl"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:sswf2013="http://www.corporate-semantic-web.de/sswf2013#"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:up="http://purl.uniprot.org/core/"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <Ontology rdf:about="http://www.corporate-semantic-web.de/sswf2013"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Object Properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.corporate-semantic-web.de/sswf2013#hasInput -->
+
+    <ObjectProperty rdf:about="&sswf2013;hasInput">
+        <rdfs:range rdf:resource="&sswf2013;Data"/>
+    </ObjectProperty>
+    
+
+
+    <!-- http://www.corporate-semantic-web.de/sswf2013#hasOutput -->
+
+    <ObjectProperty rdf:about="&sswf2013;hasOutput">
+        <rdfs:range rdf:resource="&sswf2013;Data"/>
+    </ObjectProperty>
+    
+
+
+    <!-- http://www.corporate-semantic-web.de/sswf2013#hasRole -->
+
+    <ObjectProperty rdf:about="&sswf2013;hasRole">
+        <rdf:type rdf:resource="&owl;AsymmetricProperty"/>
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdfs:domain rdf:resource="&sswf2013;Agent"/>
+        <rdfs:range rdf:resource="&sswf2013;Role"/>
+    </ObjectProperty>
+    
+
+
+    <!-- http://www.corporate-semantic-web.de/sswf2013#performedBy -->
+
+    <ObjectProperty rdf:about="&sswf2013;performedBy">
+        <rdf:type rdf:resource="&owl;AsymmetricProperty"/>
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdfs:range rdf:resource="&sswf2013;Role"/>
+        <rdfs:domain rdf:resource="&sswf2013;Task"/>
+    </ObjectProperty>
+    
+
+
+    <!-- http://www.corporate-semantic-web.de/sswf2013#responsible -->
+
+    <ObjectProperty rdf:about="&sswf2013;responsible">
+        <rdfs:domain rdf:resource="&sswf2013;Role"/>
+        <rdfs:range rdf:resource="&sswf2013;Task"/>
+    </ObjectProperty>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Data properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.corporate-semantic-web.de/sswf2013#available -->
+
+    <DatatypeProperty rdf:about="&sswf2013;available">
+        <rdfs:domain rdf:resource="&sswf2013;Agent"/>
+        <rdfs:range rdf:resource="&xsd;boolean"/>
+        <rdfs:subPropertyOf rdf:resource="&owl;topDataProperty"/>
+    </DatatypeProperty>
+    
+
+
+    <!-- http://www.corporate-semantic-web.de/sswf2013#dataType -->
+
+    <DatatypeProperty rdf:about="&sswf2013;dataType">
+        <rdfs:domain rdf:resource="&sswf2013;Data"/>
+        <rdfs:range rdf:resource="&xsd;anyURI"/>
+    </DatatypeProperty>
+    
+
+
+    <!-- http://www.corporate-semantic-web.de/sswf2013#priority -->
+
+    <DatatypeProperty rdf:about="&sswf2013;priority">
+        <rdfs:domain rdf:resource="&sswf2013;Agent"/>
+        <rdfs:range rdf:resource="&xsd;int"/>
+    </DatatypeProperty>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Classes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.corporate-semantic-web.de/sswf2013#Agent -->
+
+    <Class rdf:about="&sswf2013;Agent"/>
+    
+
+
+    <!-- http://www.corporate-semantic-web.de/sswf2013#Data -->
+
+    <Class rdf:about="&sswf2013;Data">
+        <rdfs:subClassOf>
+            <Restriction>
+                <onProperty rdf:resource="&sswf2013;dataType"/>
+                <minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</minQualifiedCardinality>
+                <onDataRange rdf:resource="&xsd;anyURI"/>
+            </Restriction>
+        </rdfs:subClassOf>
+    </Class>
+    
+
+
+    <!-- http://www.corporate-semantic-web.de/sswf2013#Role -->
+
+    <Class rdf:about="&sswf2013;Role"/>
+    
+
+
+    <!-- http://www.corporate-semantic-web.de/sswf2013#Task -->
+
+    <Class rdf:about="&sswf2013;Task"/>
+    
+    <Class rdf:about="&sswf2013;ProvaList"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Individuals
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.corporate-semantic-web.de/sswf2013#add -->
+
+    <NamedIndividual rdf:about="&sswf2013;add">
+        <rdf:type rdf:resource="&sswf2013;Task"/>
+        <sswf2013:hasInput rdf:resource="&sswf2013;inputNumber1"/>
+        <sswf2013:hasInput rdf:resource="&sswf2013;inputNumber2"/>
+        <sswf2013:hasOutput rdf:resource="&sswf2013;outputNumber"/>
+    </NamedIndividual>
+    
+
+
+    <!-- http://www.corporate-semantic-web.de/sswf2013#antIdentification -->
+
+    <NamedIndividual rdf:about="&sswf2013;antIdentification">
+        <rdf:type rdf:resource="&sswf2013;Task"/>
+    </NamedIndividual>
+    
+
+
+    <!-- http://www.corporate-semantic-web.de/sswf2013#calculateAgent -->
+
+    <NamedIndividual rdf:about="&sswf2013;calculateAgent">
+        <rdf:type rdf:resource="&sswf2013;Agent"/>
+        <sswf2013:priority rdf:datatype="&xsd;int">0</sswf2013:priority>
+        <sswf2013:available rdf:datatype="&xsd;boolean">true</sswf2013:available>
+        <sswf2013:hasRole rdf:resource="&sswf2013;calculator"/>
+    </NamedIndividual>
+    
+   <NamedIndividual rdf:about="&sswf2013;mathAgent">
+        <rdf:type rdf:resource="&sswf2013;Agent"/>
+        <sswf2013:priority rdf:datatype="&xsd;int">3</sswf2013:priority>
+        <sswf2013:available rdf:datatype="&xsd;boolean">true</sswf2013:available>
+        <sswf2013:hasRole rdf:resource="&sswf2013;calculator"/>
+    </NamedIndividual>
+    
+    <NamedIndividual rdf:about="&sswf2013;proteinPredictionAnalysisAgent">
+        <rdf:type rdf:resource="&sswf2013;Agent"/>
+        <sswf2013:priority rdf:datatype="&xsd;int">3</sswf2013:priority>
+        <sswf2013:available rdf:datatype="&xsd;boolean">true</sswf2013:available>
+        <sswf2013:hasRole rdf:resource="&sswf2013;proteinPredictionAnalyzer"/>
+    </NamedIndividual>
+    
+    <NamedIndividual rdf:about="&sswf2013;reliableGOTermAgent">
+        <rdf:type rdf:resource="&sswf2013;Agent"/>
+        <sswf2013:priority rdf:datatype="&xsd;int">3</sswf2013:priority>
+        <sswf2013:available rdf:datatype="&xsd;boolean">true</sswf2013:available>
+        <sswf2013:hasRole rdf:resource="&sswf2013;reliableGOTermProcessor"/>
+    </NamedIndividual>
+    
+    <NamedIndividual rdf:about="&sswf2013;antIdentificationManager">
+        <rdf:type rdf:resource="&sswf2013;Agent"/>
+        <sswf2013:priority rdf:datatype="&xsd;int">4</sswf2013:priority>
+        <sswf2013:available rdf:datatype="&xsd;boolean">true</sswf2013:available>
+        <sswf2013:hasRole rdf:resource="&sswf2013;taxonomist"/>
+    </NamedIndividual>
+    
+
+
+    <!-- http://www.corporate-semantic-web.de/sswf2013#calculator -->
+
+    <NamedIndividual rdf:about="&sswf2013;calculator">
+        <rdf:type rdf:resource="&sswf2013;Role"/>
+        <sswf2013:responsible rdf:resource="&sswf2013;add"/>
+        <sswf2013:responsible rdf:resource="&sswf2013;divide"/>
+        <sswf2013:responsible rdf:resource="&sswf2013;minus"/>
+        <sswf2013:responsible rdf:resource="&sswf2013;multiply"/>
+    </NamedIndividual>
+    
+     <NamedIndividual rdf:about="&sswf2013;proteinPredictionAnalyzer">
+        <rdf:type rdf:resource="&sswf2013;Role"/>
+        <sswf2013:responsible rdf:resource="&sswf2013;proteinPredicitonAnalysis"/>
+    </NamedIndividual>
+    
+    <NamedIndividual rdf:about="&sswf2013;reliableGOTermProcessor">
+        <rdf:type rdf:resource="&sswf2013;Role"/>
+        <sswf2013:responsible rdf:resource="&sswf2013;obtainReliableGOTerms"/>
+    </NamedIndividual>
+    
+     <NamedIndividual rdf:about="&sswf2013;snowSampleAnalyzer">
+        <rdf:type rdf:resource="&sswf2013;Role"/>
+        <sswf2013:responsible rdf:resource="&sswf2013;snowSampleIdentification"/>
+    </NamedIndividual>
+    
+    <NamedIndividual rdf:about="&sswf2013;taxonomist">
+        <rdf:type rdf:resource="&sswf2013;Role"/>
+        <sswf2013:responsible rdf:resource="&sswf2013;antIdentification"/>
+    </NamedIndividual>
+    
+
+
+    <!-- http://www.corporate-semantic-web.de/sswf2013#curator -->
+
+    <NamedIndividual rdf:about="&sswf2013;curator">
+        <rdf:type rdf:resource="&sswf2013;Role"/>
+        <sswf2013:responsible rdf:resource="&sswf2013;curation"/>
+    </NamedIndividual>
+    
+
+
+    <!-- http://www.corporate-semantic-web.de/sswf2013#curatorAgent -->
+
+    <NamedIndividual rdf:about="&sswf2013;curatorAgent">
+        <rdf:type rdf:resource="&sswf2013;Agent"/>
+        <sswf2013:priority rdf:datatype="&xsd;int">3</sswf2013:priority>
+        <sswf2013:available rdf:datatype="&xsd;boolean">true</sswf2013:available>
+        <sswf2013:hasRole rdf:resource="&sswf2013;curator"/>
+    </NamedIndividual>
+    
+
+
+    <!-- http://www.corporate-semantic-web.de/sswf2013#divide -->
+
+    <NamedIndividual rdf:about="&sswf2013;divide">
+        <rdf:type rdf:resource="&sswf2013;Task"/>
+        <sswf2013:hasInput rdf:resource="&sswf2013;inputNumber1"/>
+        <sswf2013:hasInput rdf:resource="&sswf2013;inputNumber2"/>
+        <sswf2013:hasOutput rdf:resource="&sswf2013;outputNumber"/>
+    </NamedIndividual>
+    
+    <NamedIndividual rdf:about="&sswf2013;proteinPredicitonAnalysis">
+        <rdf:type rdf:resource="&sswf2013;Task"/>
+        <sswf2013:hasInput rdf:resource="&up;Concept"/>
+        <sswf2013:hasInput rdf:resource="&sswf2013;goTerms"/>
+        <sswf2013:hasOutput rdf:resource="&xsd;string"/>
+    </NamedIndividual>
+    
+    <NamedIndividual rdf:about="&sswf2013;obtainReliableGOTerms">
+        <rdf:type rdf:resource="&sswf2013;Task"/>
+        <sswf2013:hasInput rdf:resource="&up;Protein"/>
+        <sswf2013:hasOutput rdf:resource="&sswf2013;goTerms"/>
+    </NamedIndividual>
+    
+     <NamedIndividual rdf:about="&sswf2013;snowSampleIdentification">
+        <rdf:type rdf:resource="&sswf2013;Task"/>
+        <sswf2013:hasInput rdf:resource="&xsd;string"/>
+        <sswf2013:hasInput rdf:resource="&xsd;string"/>
+        <sswf2013:hasOutput rdf:resource="&xsd;string"/>
+    </NamedIndividual>
+    
+    
+     <NamedIndividual rdf:about="&sswf2013;antIdentification">
+        <rdf:type rdf:resource="&sswf2013;Task"/>
+        <sswf2013:hasInput rdf:resource="&xsd;string"/>
+        <sswf2013:hasInput rdf:resource="&xsd;string"/>
+        <sswf2013:hasOutput rdf:resource="&xsd;string"/>
+    </NamedIndividual>
+    
+    <NamedIndividual rdf:about="&sswf2013;curation">
+        <rdf:type rdf:resource="&sswf2013;Task"/>
+        <sswf2013:hasInput rdf:resource="&xsd;string"/>
+        <sswf2013:hasInput rdf:resource="&xsd;string"/>
+    </NamedIndividual>
+
+
+
+    <!-- http://www.corporate-semantic-web.de/sswf2013#inputNumber1 -->
+
+    <NamedIndividual rdf:about="&sswf2013;inputNumber1">
+        <rdf:type rdf:resource="&sswf2013;Data"/>
+        <sswf2013:dataType rdf:datatype="&xsd;double"></sswf2013:dataType>
+    </NamedIndividual>
+    
+
+
+    <!-- http://www.corporate-semantic-web.de/sswf2013#inputNumber2 -->
+
+    <NamedIndividual rdf:about="&sswf2013;inputNumber2">
+        <rdf:type rdf:resource="&sswf2013;Data"/>
+        <sswf2013:dataType rdf:datatype="&xsd;double"></sswf2013:dataType>
+    </NamedIndividual>
+    
+     <NamedIndividual rdf:about="&sswf2013;goTerms">
+        <rdf:type rdf:resource="&sswf2013;Data"/>
+        <sswf2013:dataType rdf:datatype="&sswf2013;ProvaList"></sswf2013:dataType>
+    </NamedIndividual>
+    
+
+
+    <!-- http://www.corporate-semantic-web.de/sswf2013#minus -->
+
+    <NamedIndividual rdf:about="&sswf2013;minus">
+        <rdf:type rdf:resource="&sswf2013;Task"/>
+        <sswf2013:hasInput rdf:resource="&sswf2013;inputNumber1"/>
+        <sswf2013:hasInput rdf:resource="&sswf2013;inputNumber2"/>
+        <sswf2013:hasOutput rdf:resource="&sswf2013;outputNumber"/>
+    </NamedIndividual>
+    
+
+
+    <!-- http://www.corporate-semantic-web.de/sswf2013#multiply -->
+
+    <NamedIndividual rdf:about="&sswf2013;multiply">
+        <rdf:type rdf:resource="&sswf2013;Task"/>
+        <sswf2013:hasInput rdf:resource="&sswf2013;inputNumber1"/>
+        <sswf2013:hasInput rdf:resource="&sswf2013;inputNumber2"/>
+        <sswf2013:hasOutput rdf:resource="&sswf2013;outputNumber"/>
+    </NamedIndividual>
+    
+
+
+    <!-- http://www.corporate-semantic-web.de/sswf2013#outputNumber -->
+
+    <NamedIndividual rdf:about="&sswf2013;outputNumber">
+        <rdf:type rdf:resource="&sswf2013;Data"/>
+        <sswf2013:dataType rdf:datatype="&xsd;double"></sswf2013:dataType>
+    </NamedIndividual>
+    
+
+
+    <!-- http://www.corporate-semantic-web.de/sswf2013#taxonomist -->
+
+    <NamedIndividual rdf:about="&sswf2013;taxonomist">
+        <rdf:type rdf:resource="&sswf2013;Role"/>
+        <sswf2013:responsible rdf:resource="&sswf2013;antIdentification"/>
+    </NamedIndividual>
+    
+
+
+    <!-- http://www.corporate-semantic-web.de/sswf2013#taxonomistAgent -->
+
+    <NamedIndividual rdf:about="&sswf2013;taxonomistAgent">
+        <rdf:type rdf:resource="&sswf2013;Agent"/>
+        <sswf2013:priority rdf:datatype="&xsd;int">3</sswf2013:priority>
+        <sswf2013:available rdf:datatype="&xsd;boolean">true</sswf2013:available>
+        <sswf2013:hasRole rdf:resource="&sswf2013;taxonomist"/>
+    </NamedIndividual>
+</rdf:RDF>
+
+
+
+<!-- Generated by the OWL API (version 3.4.2) http://owlapi.sourceforge.net -->

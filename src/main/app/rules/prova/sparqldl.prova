@@ -1,0 +1,39 @@
+:- eval(test()).
+
+test() :-
+	println(["========== sparqldl_query test =========="]),
+	sparqldl_create(Engine, "http://localhost:8080/go.xml"),
+	println(["==> An instance of SPARQL-DL engine has been created."]),
+	testSelectQuery(Engine),
+	println(["==> SPARQL-DL SELECT query done."]),
+	testAskQuery(Engine),
+	println(["==> SPARQL-DL ASK query done."]).
+   
+testSelectQuery(Engine) :-
+	QueryString = '
+		PREFIX : <http://www.geneontology.org/go#>
+		SELECT ?type 
+		WHERE {
+		SubClassOf(:GO:0007444, ?type)
+		}
+	',
+	sparqldl_select(Engine, QueryString, a),
+	sparqldl_results(a, Type),
+	println([Type], "  "),
+	fail().
+testSelectQuery(_).
+	
+testAskQuery(Engine) :-
+	QueryString = '
+		PREFIX : <http://www.geneontology.org/go#>
+		ASK {
+		SubClassOf(:GO:0007444, :GO:0007444)
+		} 
+	',
+	sparqldl_ask(Engine, QueryString, QueryId),
+	sparqldl_results(QueryId),
+	println(["yes"]),
+	!,
+	fail().
+testAskQuery(_):-
+    println(['no']).

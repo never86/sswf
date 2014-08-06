@@ -1,4 +1,4 @@
-:-eval(consult('../swf_engine/utils.prova')).
+:-eval(consult('utils.prova')).
 
 executeTask(XID, TaskName, TaskID, Inputs, Outputs) :-
     % register the information of a task into the task management center

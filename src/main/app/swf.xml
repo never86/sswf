@@ -2,12 +2,13 @@
 <mule xmlns:cxf="http://www.mulesoft.org/schema/mule/cxf"
 	xmlns:spring="http://www.springframework.org/schema/beans" xmlns="http://www.mulesoft.org/schema/mule/core"
 	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:http="http://www.mulesoft.org/schema/mule/http"
-	xmlns:jms="http://www.mulesoft.org/schema/mule/jms" xmlns:context="http://www.springframework.org/schema/context"
-	xmlns:vm="http://www.mulesoft.org/schema/mule/vm"
+	xmlns:test="http://www.mulesoft.org/schema/mule/test" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:jms="http://www.mulesoft.org/schema/mule/jms"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:vm="http://www.mulesoft.org/schema/mule/vm"
 	xsi:schemaLocation="
 http://www.mulesoft.org/schema/mule/cxf http://www.mulesoft.org/schema/mule/cxf/current/mule-cxf.xsd 
 http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/current/mule-vm.xsd 
+ http://www.mulesoft.org/schema/mule/test http://www.mulesoft.org/schema/mule/test/current/mule-test.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
 http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/3.0/mule-jms.xsd
 http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
@@ -17,23 +18,38 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
 
 
 	<context:property-placeholder location="classpath:mule-app.properties" />
-<!-- 
-	<custom-transformer class="de.fub.csw.transformers.ProvaList2ObjectArrays"
-		name="provaList2ObjectArrays" doc:name="Java" />
-	<custom-transformer class="de.fub.csw.transformers.WSReturn2ProvaList"
-		name="wsReturn2ProvaList" doc:name="Java" />
- -->
+	<!-- <custom-transformer class="de.fub.csw.transformers.ProvaList2ObjectArrays" 
+		name="provaList2ObjectArrays" doc:name="Java" /> <custom-transformer class="de.fub.csw.transformers.WSReturn2ProvaList" 
+		name="wsReturn2ProvaList" doc:name="Java" /> -->
+
 	<jms:activemq-connector name="jmsConnector"
-		specification="1.1" brokerURL="vm://localhost" />
+		specification="1.1" brokerURL="vm://localhost" numberOfConsumers="1100">
+		<receiver-threading-profile
+			maxThreadsActive="1000" poolExhaustedAction="RUN" />
+	</jms:activemq-connector>
+	
+	<!-- 
+	<jms:activemq-connector name="jmsConnector" brokerURL="tcp://grid.lzu.edu.cn:61616" 
+		numberOfConsumers="50"> <receiver-threading-profile maxThreadsActive="30" 
+		poolExhaustedAction="RUN"/> 
+	</jms:activemq-connector> 
+	-->
+	<http:connector name="httpConnector" keepAlive="true">
+		<receiver-threading-profile
+			maxThreadsActive="1100" poolExhaustedAction="RUN" />
+	</http:connector>
 
 	<!-- environment-properties -->
 	<global-property name="MULE_IMPLEMENTATION" value="ws.prova.mule.impl.ProvaUMOImpl" />
 	<global-property name="TOMCAT" value="http://127.0.0.1:8080" />
 
-	<http:endpoint name="httpEndpoint" host="localhost" port="8888" contentType="text/html"/>
+	<http:endpoint name="httpEndpoint" host="localhost" port="8888"
+		contentType="text/html" />
+
 
 	<flow name="Sentinel">
-		<http:inbound-endpoint ref="httpEndpoint">
+		<http:inbound-endpoint ref="httpEndpoint"
+			connector-ref="httpConnector">
 			<properties>
 				<spring:entry key="rulebase"
 					value="${app.home}/rules/sentinel_bridge/SentinelBridge.prova" />
@@ -44,6 +60,7 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
 		</not-filter>
 		<component class="ws.prova.mule.impl.HttpEndpointUMOImpl" />
 	</flow>
+
 
 	<jms:endpoint name="semantic_SWF_Engine" topic="ee"
 		connector-ref="jmsConnector" />
@@ -68,7 +85,7 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
 		</jms:inbound-endpoint>
 		<component class="ws.prova.mule.impl.ProvaUMOImpl" />
 	</flow>
-	
+
 	<jms:endpoint name="mathAgent" topic="math_agent"
 		connector-ref="jmsConnector" />
 	<flow name="Math_Agent">
@@ -80,7 +97,7 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
 		</jms:inbound-endpoint>
 		<component class="ws.prova.mule.impl.ProvaUMOImpl" />
 	</flow>
-	
+
 	<jms:endpoint name="proteinPredictionAnalysisAgent" topic="proteinPredictionAnalysis_agent"
 		connector-ref="jmsConnector" />
 	<flow name="ProteinPredictionAnalysis">
@@ -92,7 +109,7 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
 		</jms:inbound-endpoint>
 		<component class="ws.prova.mule.impl.ProvaUMOImpl" />
 	</flow>
-	
+
 	<jms:endpoint name="reliableGOTermAgent" topic="reliableGOTerm_processor"
 		connector-ref="jmsConnector" />
 	<flow name="reliableGOTermProcessing">
@@ -104,8 +121,8 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
 		</jms:inbound-endpoint>
 		<component class="ws.prova.mule.impl.ProvaUMOImpl" />
 	</flow>
-	
-    <jms:endpoint name="snowDataIdentificationAgent" topic="snowDataIdentification_agent"
+
+	<jms:endpoint name="snowDataIdentificationAgent" topic="snowDataIdentification_agent"
 		connector-ref="jmsConnector" />
 	<flow name="SnowDataIdentification">
 		<jms:inbound-endpoint ref="snowDataIdentificationAgent">
@@ -116,8 +133,8 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
 		</jms:inbound-endpoint>
 		<component class="ws.prova.mule.impl.ProvaUMOImpl" />
 	</flow>
-	
-	 <jms:endpoint name="antIdentificationManager" topic="antIdentification_agent"
+
+	<jms:endpoint name="antIdentificationManager" topic="antIdentification_agent"
 		connector-ref="jmsConnector" />
 	<flow name="AntIdentificationManager">
 		<jms:inbound-endpoint ref="antIdentificationManager">
@@ -128,8 +145,8 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
 		</jms:inbound-endpoint>
 		<component class="ws.prova.mule.impl.ProvaUMOImpl" />
 	</flow>
-	
-	 <jms:endpoint name="antIdentificationAgent" topic="antIdentification_agent"
+
+	<jms:endpoint name="antIdentificationAgent" topic="antIdentification_agent"
 		connector-ref="jmsConnector" />
 	<flow name="AntIdentification">
 		<jms:inbound-endpoint ref="antIdentificationAgent">
@@ -142,7 +159,7 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
 	</flow>
 
 
-<jms:endpoint name="curatorAgent" topic="curation_agent"
+	<jms:endpoint name="curatorAgent" topic="curation_agent"
 		connector-ref="jmsConnector" />
 	<flow name="IdentificationResultCuration">
 		<jms:inbound-endpoint ref="curatorAgent">
@@ -153,21 +170,14 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
 		</jms:inbound-endpoint>
 		<component class="ws.prova.mule.impl.ProvaUMOImpl" />
 	</flow>
-<!--  
-	<jms:endpoint name="wsJmsEndpoint" topic="master_agent_b"
-		connector-ref="jmsConnector" />
-	<flow name="WebServiceInvocation">
-		<jms:inbound-endpoint ref="wsJmsEndpoint" />
-		<transformer ref="provaList2ObjectArrays" />
-		<outbound-endpoint exchange-pattern="request-response"
-			address="http://grid.lzu.edu.cn:6060/WSMath/services/Add.AddHttpSoap11Endpoint/">
-			<cxf:jaxws-client clientClass="calc.Add_Service"
-				port="AddHttpSoap11Endpoint" operation="add" doc:name="SOAP" />
-		</outbound-endpoint>
-		<transformer ref="wsReturn2ProvaList" doc:name="Transformer Reference" />
-		<component class="ws.prova.mule.impl.UMOImpl" />
-	</flow>
--->
+	<!-- <jms:endpoint name="wsJmsEndpoint" topic="master_agent_b" connector-ref="jmsConnector" 
+		/> <flow name="WebServiceInvocation"> <jms:inbound-endpoint ref="wsJmsEndpoint" 
+		/> <transformer ref="provaList2ObjectArrays" /> <outbound-endpoint exchange-pattern="request-response" 
+		address="http://grid.lzu.edu.cn:6060/WSMath/services/Add.AddHttpSoap11Endpoint/"> 
+		<cxf:jaxws-client clientClass="calc.Add_Service" port="AddHttpSoap11Endpoint" 
+		operation="add" doc:name="SOAP" /> </outbound-endpoint> <transformer ref="wsReturn2ProvaList" 
+		doc:name="Transformer Reference" /> <component class="ws.prova.mule.impl.UMOImpl" 
+		/> </flow> -->
 
 	<jms:endpoint name="exceptionHandlingAgent" topic="exception_handling"
 		connector-ref="jmsConnector" />
@@ -186,13 +196,13 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
 
 		<component class="ws.prova.mule.impl.ProvaUMOImpl" />
 	</flow>
-	
+
 	<jms:endpoint name="humanAgentProxy" topic="human_agent_proxy"
 		connector-ref="jmsConnector" />
 	<http:endpoint name="httpEndpointHT" host="localhost"
 		port="9992" />
 	<flow name="HumanAgentProxyFlow">
-			<composite-source>
+		<composite-source>
 			<jms:inbound-endpoint ref="humanAgentProxy">
 				<properties>
 					<spring:entry key="rulebase"
@@ -200,7 +210,7 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
 				</properties>
 			</jms:inbound-endpoint>
 			<http:inbound-endpoint ref="httpEndpointHT" />
-			</composite-source>
+		</composite-source>
 		<component class="ws.prova.mule.impl.ProvaUMOImpl" />
 	</flow>
 

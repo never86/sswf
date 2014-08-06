@@ -10,12 +10,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-:-eval(consult('../ContractLog/math.prova')).
-:-eval(consult('../ContractLog/datetime.prova')).
-:-eval(consult('../ContractLog/list.prova')).
-:-eval(consult('../ContractLog/update.prova')).
-:-eval(consult('../ContractLog/utils.prova')).
-:-eval(consult('../ContractLog/owl.prova')).
+:-eval(consult('../swf_engine/list.prova')).
 :-eval(consult('../swf_engine/utils.prova')).
 
 
@@ -59,7 +54,8 @@ understandPerformative(XID, From, Performative, PayLoad) :-
 	
 processMessage(XID,From,Primitive,[TaskName, A1, A2, Res]):-
      invoke(TaskName, A1, A2, Res),
-     sendMsg(XID,esb,From, "answer", [TaskName, A1, A2, Res]).
+     %java.lang.Thread.sleep(10L),
+     sendMsg(XID,esb,From, "answer", [TaskName, A1, A2, 10]).
     
 
 invoke(add, A1, A2, Res) :-

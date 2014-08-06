@@ -1,0 +1,36 @@
+:-eval(consult('../swf_engine/list.prova')).
+
+:- eval(test1(N)).
+
+test1(N):-
+   L = 2,
+   type(L, T),
+   2 >= L,
+   println([S, T],"   ").
+    
+
+     
+analysis(Engine, GOTerm, PredictedGOTerm, Result):-
+   $Count = 0,
+  
+   $Count = $Count + 1,
+   QueryString = de.fub.csw.constant.StringConstants.goTermAnalysisQuery(GOTerm, PredictedGOTerm),
+   L11 = java.lang.System.currentTimeMillis(),
+   askQuery(Engine, QueryString, Result),
+   L12 = java.lang.System.currentTimeMillis(),
+   L13 = L12 - L11,
+   Result = "yes",
+   !.
+   
+analysis(Engine, ReliableGOTerms, PredictedGOTerm, Result):-
+   Result = "no".
+   
+askQuery(Engine, QueryString, Result):-
+   sparqldl_ask(Engine, QueryString, QueryId),
+   sparqldl_results(QueryId),
+   retract(sparqldl_results(QueryId)),
+   Result = "yes",
+   !.
+   
+askQuery(Engine, QueryString, Result):-
+   Result = "no".

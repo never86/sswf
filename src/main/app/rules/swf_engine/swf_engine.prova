@@ -10,11 +10,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-:-eval(consult('../ContractLog/math.prova')).
-:-eval(consult('../ContractLog/datetime.prova')).
-:-eval(consult('../ContractLog/list.prova')).
-:-eval(consult('../ContractLog/update.prova')).
-:-eval(consult('../ContractLog/utils.prova')).
+:-eval(consult('list.prova')).
 :-eval(consult('engine.prova')).
 :-eval(consult('utils.prova')).
 
@@ -48,13 +44,41 @@ understandPerformative(XID, From, Performative, PayLoad) :-
 	  sendMsg(XID,esb,From,"no_further_answers", PayLoad),
 	  fail().
 
+
+workflow(XID, From, "concurrencyTest", inArgs(I), outArgs(O)) :-
+     java.lang.Thread.sleep(1000L),
+     println([XID,"===================Completed."]),
+     sendMsg(XID,esb,From,"answer", concurrencyTest(inArgs(T))).
+
+workflow(XID, From, "messagingOverheadTest", inArgs(N), outArgs(O)) :-
+     Start = java.lang.System.currentTimeMillis(),
+     $Count = N,
+     execute(1,From),
+     End = java.lang.System.currentTimeMillis(),
+     Duration = End - Start, 
+     println(["===================",XID, Start, End, Duration],"    "),
+     sendMsg(XID,esb,From,"answer", messagingOverheadTest(inArgs(N))).
+     
+execute(N,From):-
+     N>$Count,
+     !.
+     
+execute(N,From):-
+     sendMsg(XID,esb,mathAgent,"query", [add,N,3,Result]),
+     rcvMsg(XID, esb, mathAgent, "answer", [add, N,3,Result]),
+     N1 = N + 1,
+     execute(N1,From).
+
 processMessage(XID,From,Primitive, [WorkflowName, Inputs, Outputs]):-
+     Start = java.lang.System.currentTimeMillis(),
      println(["The WORKFLOW:", WorkflowName, " is started."]),
      % register the workflow
      de.fub.csw.TaskManagementCenter.registerWorkflow(XID, WorkflowName),
      % start a workflow
      workflow(XID, From, WorkflowName, Inputs, Outputs),
-     
+     End = java.lang.System.currentTimeMillis(),
+     Duration = End - Start, 
+     println(["===================",XID, Start, End, Duration],"    "),
      println(["The WORKFLOW: ", WorkflowName, " is completed."]),
    
      % unregister the workflow
@@ -129,13 +153,13 @@ workflow(XID, From, "wcp04_ExclusiveChoice", inArgs(I11,I12), outArgs(WorkflowOu
      sendMsg(XID, esb, From, "answer", ["wcp04_ExclusiveChoice", inArgs(I11,I12), outArgs(WorkflowOutput)]).
  
 or(XID, Para, Output):-    
-     more(Para,11),!,
+     Para > 11,!,
      assignTaskID(XID, TID),
      executeTask(XID, 'minus', TID, inArgs(Para, 100.0),outArgs(Output)),
      rcvMsg(XID, esb, From, "answer", [TID, inArgs(Para, 100.0), outArgs(Output)]).
 
 or(XID, Para, Output):-
-     lessequ(Para,11),!,
+     Para <= 11,!,
      assignTaskID(XID, TID),
      executeTask(XID, 'add', TID, inArgs(Para, 100.0), outArgs(Output)),
      rcvMsg(XID, esb, _, "answer", [TID, inArgs(Para, 100.0),outArgs(Output)]).
@@ -182,21 +206,14 @@ workflow(XID, From, "wcp01_Sequence_test", inArgs(I11,I12, I22), outArgs(Workflo
      
 
 workflow(XID, From, "proteinPredicitonAnalysisProcess", inArgs(Protein, PredictedGOTerm), outArgs(Result)) :-
-     %File = "./src/main/app/rules/protein_prediction_analysis/function_prediction.txt",
-     %fopen(File,Reader),
-     %read_enum(Reader,Line),
-     %List = de.fub.csw.protein.prediction.MultipleDataProcessor.getData(Line),
-     %Protein = List.get(0),
-     %PredictedGOTerm = List.get(1),
      assignTaskID(XID, TID1),
      executeTask(XID, 'obtainReliableGOTerms', TID1, inArgs(Protein), outArgs(ReliableGOTerms)),
      rcvMsg(XID, esb, _, "answer", [TID1, inArgs(Protein),outArgs(ReliableGOTerms)]),
+     
      !,
      assignTaskID(XID, TID2),
-     executeTask(XID, 'proteinPredicitonAnalysis', TID2, inArgs(PredictedGOTerm, ReliableGOTerms), outArgs(Result)),
+     executeTask(XID, 'proteinPredicitonAnalysis', TID2, inArgs(Protein, PredictedGOTerm, ReliableGOTerms), outArgs(Result)),
      rcvMsg(XID, esb, _, "answer", [TID2, inArgs(PredictedGOTerm, ReliableGOTerms), outArgs(Result)]),
-     println(["==========================================================="]),
-     
      sendMsg(XID, esb, From, "answer", ["proteinPredicitonAnalysisProcess", inArgs(Protein, PredictedGOTerm), outArgs(Result)]).
 
 
